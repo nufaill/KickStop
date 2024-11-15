@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Error <%= errorCode %></title>
+    <style>
+        /* General Styling */
+body, html {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #1a1a1a;
+    color: #ffffff;
+    font-family: 'Arial', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Error Page Styling */
+.error-page {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    text-align: center;
+}
+
+.error-container {
+    background-color: #222;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
+    width: 80%;
+    max-width: 500px;
+    transition: transform 0.3s ease;
+}
+
+.error-container:hover {
+    transform: scale(1.03);
+}
+
+/* Error Code Styling */
+.error-code {
+    font-size: 48px;
+    font-weight: bold;
+    color: #ff5252;
+    margin-bottom: 20px;
+    animation: shake 0.5s ease-in-out;
+}
+
+/* Error Message Styling */
+.error-message {
+    font-size: 18px;
+    color: #bbbbbb;
+    margin-bottom: 30px;
+    line-height: 1.5;
+}
+.error-code:hover {
+    animation: shake 0.5s ease-in-out;
+}
+
+/* Button Styling */
+.btn {
+    display: inline-block;
+    padding: 12px 24px;
+    background-color: #00bcd4;
+    color: #ffffff;
+    font-size: 16px;
+    text-decoration: none;
+    border-radius: 8px;
+    transition: background-color 0.3s ease;
+    cursor: pointer;
+}
+
+.btn:hover {
+    background-color: #0097a7;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 600px) {
+    .error-code {
+        font-size: 36px;
+    }
+
+    .error-message {
+        font-size: 16px;
+    }
+}
+
+/* Animations */
+@keyframes shake {
+    0% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    50% { transform: translateX(5px); }
+    75% { transform: translateX(-5px); }
+    100% { transform: translateX(0); }
+}
+
+    </style>
+</head>
+<body>
+    <section class="error-page">
+        <div class="error-container">
+            <h2 class="error-code">Error <%= errorCode %></h2>
+            <p class="error-message"><%= message %></p>
+            <a href="/" class="btn btn-primary" id="goHomeBtn">Go to Home</a>
+        </div>
+    </section>
+
+    <script>
+        document.getElementById('goHomeBtn').addEventListener('click', function(e) {
+            e.preventDefault();
+            window.location.href = '/';
+        });
+
+        window.addEventListener('pageshow', function(event) {
+            if (event.persisted || (window.performance && window.performance.navigation.type === 1)) {
+                window.location.href = '/';
+            }
+        });
+
+        window.addEventListener('popstate', function() {
+            if (document.referrer.includes('/admin')) {
+                window.location.href = '/';
+            }
+        });
+    </script>
+</body>
+</html>
