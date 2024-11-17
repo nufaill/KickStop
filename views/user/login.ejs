@@ -3,222 +3,181 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Kickstop - Sign Up</title>
+  <title>Kickstop - Login</title>
   <style>
+    /* Universal Reset */
     * {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-/* Existing container styling */
-.container {
-  position: relative;
-  display: flex;
-  width: 90%;
-  max-width: 1000px;
-  height: 80vh;
-  box-shadow: 0px 8px 24px rgba(0, 0, 0, 0.2);
-  border-radius: 15px;
-  overflow: hidden;
-  background-color: rgba(255, 255, 255, 0.8);
-}
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-/* Adjusted body styling for smooth gradients */
-body {
- font-family: 'Roboto', 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
-  position: relative;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  overflow: hidden;
-  transition: background 2s ease;
-}
+    /* Body Styling */
+    body {
+      font-family: 'Roboto', 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      overflow: hidden;
+      background: linear-gradient(135deg, #d4fc79 10%, #96e6a1 90%);
+    }
 
+    /* Container Styling */
+    .container {
+      display: flex;
+      width: 90%;
+      max-width: 1000px;
+      height: 80vh;
+      box-shadow: 0px 8px 24px rgba(0, 0, 0, 0.2);
+      border-radius: 15px;
+      overflow: hidden;
+      background-color: rgba(255, 255, 255, 0.8);
+    }
 
-.container {
-  display: flex;
-  width: 90%;
-  max-width: 1000px;
-  height: 80vh;
-  box-shadow: 0px 8px 24px rgba(0, 0, 0, 0.2);
-  border-radius: 15px;
-  overflow: hidden;
-  background-color: rgba(255, 255, 255, 0.8); /* Slight background opacity for contrast */
-}
+    /* Left Side */
+    .left-side {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+    }
 
-.left-side {
-  flex: 1;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  position: relative;
-  overflow: hidden;
-}
+    .overlay {
+      width: 100%;
+      height: 100%;
+      position: relative;
+    }
 
-/* Overlay container */
-.overlay {
-  position: relative;
-  width: 100%;
-  height: 100%;
-}
+    .website-name {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      font-size: 3rem;
+      font-weight: bold;
+      color: #ffffff;
+    }
 
-/* "Kickstop" Text Overlay */
-.website-name {
-  position: absolute;
-  top: 20px;
-  left: 20px;
-  font-size: 3rem;
-  font-weight: bold;
-  color: #ffffff;
-  z-index: 2;
-}
+    .shoe-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
 
-/* Shoe Image Styling */
-.shoe-image {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  border-radius: 10px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-}
-/* Right Side - login Form */
-.right-side {
-  flex: 1;
-  padding: 40px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  background-color: white;
-  border-radius: 0 15px 15px 0;
-  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-}
+    /* Right Side */
+    .right-side {
+      flex: 1;
+      padding: 40px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      background-color: white;
+      border-radius: 0 15px 15px 0;
+      box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    }
 
-.right-side h2 {
-  margin-bottom: 1.5rem;
-  font-size: 2rem;
-  color: #333;
-  text-align: center;
-}
+    .right-side h2 {
+      margin-bottom: 1.5rem;
+      font-size: 2rem;
+      color: #333;
+      text-align: center;
+    }
 
-.input-container {
-  margin-bottom: 1.2rem;
-}
+    .input-container {
+      margin-bottom: 1.2rem;
+    }
 
-.input-container label {
-  display: block;
-  color: #666;
-  margin-bottom: 0.3rem;
-  font-size: 0.9rem;
-}
+    .input-container label {
+      display: block;
+      color: #666;
+      margin-bottom: 0.3rem;
+      font-size: 0.9rem;
+    }
 
-.input-container input {
-  width: 100%;
-  padding: 0.8rem;
-  border-radius: 5px;
-  border: 2px solid #ddd;
-  outline: none;
-  transition: border-color 0.3s ease;
-}
+    .input-container input {
+      width: 100%;
+      padding: 0.8rem;
+      border-radius: 5px;
+      border: 2px solid #ddd;
+      outline: none;
+    }
 
-.input-container input:focus {
-  border-color: #4caf50;
-  box-shadow: 0 0 10px rgba(76, 175, 80, 0.3);
-}
+    .login-btn {
+      width: 100%;
+      padding: 0.8rem;
+      border: none;
+      border-radius: 5px;
+      background: linear-gradient(45deg, #578335, #3b7350);
+      color: #fff;
+      font-weight: bold;
+      cursor: pointer;
+      transition: transform 0.2s ease, background-color 0.3s ease;
+    }
 
-.login-btn {
-  width: 100%;
-  padding: 0.8rem;
-  border: none;
-  border-radius: 5px;
-  background: linear-gradient(45deg, #578335, #3b7350);
-  color: #fff;
-  font-weight: bold;
-  cursor: pointer;
-  transition: transform 0.2s ease, background-color 0.3s ease;
-}
+    .login-btn:hover {
+      transform: scale(1.05);
+    }
 
-.login-btn:hover {
-  transform: scale(1.05);
-}
+    p {
+      margin-top: 8px;
+      font-size: 0.9rem;
+      color: #555;
+    }
 
+    a {
+      color: #007BFF;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    a:hover {
+      color: #0056b3;
+      text-decoration: underline;
+    }
   </style>
 </head>
 <body>
   <div class="container">
-    <!-- Left Side -->
     <div class="left-side">
-        <div class="overlay">
-            <div class="website-name">Kickstop</div>
-            <img src="/evara-frontend/assets/imgs/new_images/image2.webp" alt="Shoe Image" class="shoe-image">
-          </div>
+      <div class="overlay">
+        <div class="website-name">Kickstop</div>
+        <img src="/evara-frontend/assets/imgs/new_images/image2.webp" alt="Shoe Image" class="shoe-image">
+      </div>
     </div>
 
-    <!-- Right Side - login Form -->
     <div class="right-side">
       <h2>LOGIN</h2>
       <form id="loginForm">
         <div class="input-container">
           <label for="email">Email Address</label>
-          <input type="email" id="email" >
+          <input type="email" id="email">
         </div>
         <div class="input-container">
           <label for="password">Password</label>
-          <input type="password" id="password" >
+          <input type="password" id="password">
         </div>
         <button type="submit" class="login-btn">Login</button>
+        <p>Don't have an account? <a href="/signup" class="signup-link">Sign up</a></p>
+        <p><a href="/login" class="forgot-password-link">Forgot password?</a></p>
+        <p>Only admin access <a href="/admin" class="admin-link">Admin</a></p>
       </form>
     </div>
   </div>
-  <script >
-    document.getElementById("loginForm").addEventListener("submit", function(event) {
-    event.preventDefault();
-    
-    const password = document.getElementById("password").value;
-    const confirmPassword = document.getElementById("confirm-password").value;
-    
-    if (password !== confirmPassword) {
-      alert("Passwords do not match!");
-      return;
-    }
-    
-    alert("Account created successfully!");
-  });
-  
-
-  document.addEventListener("DOMContentLoaded", () => {
-    const container = document.querySelector("body");
-  
-    const gradients = [
-        "linear-gradient(135deg, #498560 10%, #96e6a1 90%)",     
-        "linear-gradient(135deg, #d4fc79 20%, #498560 80%)",     
-        "linear-gradient(135deg, #96e6a1 15%, #7dcb59 85%)",     
-        "linear-gradient(135deg, #d4fc79 10%, #3cb371 90%)",     
-        "linear-gradient(135deg, #d4fc79 25%, #a8e063 75%)",      
-        "linear-gradient(135deg, #d4fc79 20%, #7dcb59 80%)",     
-        "linear-gradient(135deg, #96e6a1 10%, #3cb371 50%, #7dcb59 90%)", 
-        "linear-gradient(135deg, #d4fc79 20%, #96e6a1 80%)",      
-        "linear-gradient(135deg, #a8e063 15%, #7dcb59 85%)",      
-        "linear-gradient(135deg, #d4fc79 10%, #96e6a1 90%)"       
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const gradients = [
+        "linear-gradient(135deg, #498560 10%, #96e6a1 90%)",
+        "linear-gradient(135deg, #d4fc79 20%, #498560 80%)",
+        "linear-gradient(135deg, #96e6a1 15%, #7dcb59 85%)",
+        "linear-gradient(135deg, #d4fc79 10%, #3cb371 90%)",
       ];
-      
-      
-      
-  
-    let gradientIndex = 0;
-  
-    // Change the background gradient every 2 seconds
-    setInterval(() => {
-      container.style.background = gradients[gradientIndex];
-      container.style.transition = "background 1s ease"; // Smooth transition
-      gradientIndex = (gradientIndex + 1) % gradients.length; // Loop through gradients
-    }, 4000);
-
-    
-  });
-  
-
+      let gradientIndex = 0;
+      setInterval(() => {
+        document.body.style.background = gradients[gradientIndex];
+        gradientIndex = (gradientIndex + 1) % gradients.length;
+      }, 4000);
+    });
   </script>
-
 </body>
 </html>
