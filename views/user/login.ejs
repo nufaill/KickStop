@@ -135,6 +135,17 @@
       color: #0056b3;
       text-decoration: underline;
     }
+    .error-message {
+  color: red;
+  font-size: 0.8rem;
+}
+
+.success-message {
+  color: green;
+  font-size: 0.9rem;
+  font-weight: bold;
+}
+
   </style>
 </head>
 <body>
@@ -148,16 +159,23 @@
 
     <div class="right-side">
       <h2>LOGIN</h2>
-      <form id="loginForm">
+        <!-- Error Message Area -->
+  <% if (typeof errorMessage !== "undefined") { %>
+    <p class="error-message"><%= errorMessage %></p>
+  <% } %>
+      <form id="loginForm" method="post" action="/login" onsubmit="return validateForm();">
         <div class="input-container">
           <label for="email">Email Address</label>
-          <input type="email" id="email">
+          <input type="email" id="email" name="email">
+          <p class="error-message" id="emailError"></p>
         </div>
         <div class="input-container">
           <label for="password">Password</label>
-          <input type="password" id="password">
+          <input type="password" id="password" name="password">
+          <p class="error-message" id="passwordError"></p>
         </div>
         <button type="submit" class="login-btn">Login</button>
+        <p id="formError" class="error-message"></p> 
         <p>Don't have an account? <a href="/signup" class="signup-link">Sign up</a></p>
         <p><a href="/login" class="forgot-password-link">Forgot password?</a></p>
         <p>Only admin access <a href="/admin" class="admin-link">Admin</a></p>
@@ -165,6 +183,46 @@
     </div>
   </div>
   <script>
+function validateForm() {
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value.trim();
+  const emailError = document.getElementById("emailError");
+  const passwordError = document.getElementById("passwordError");
+  const formError = document.getElementById("formError");
+
+  // Reset errors
+  emailError.textContent = "";
+  passwordError.textContent = "";
+  formError.textContent = "";
+
+  let valid = true;
+
+  // Email validation
+  if (!email) {
+    emailError.textContent = "Email is required.";
+    valid = false;
+  } else if (!/\S+@\S+\.\S+/.test(email)) { 
+    emailError.textContent = "Please enter a valid email address.";
+    valid = false;
+  }
+
+  // Password validation
+  if (!password) {
+    passwordError.textContent = "Password is required.";
+    valid = false;
+  } else if (password.length < 6) { 
+    passwordError.textContent = "Password must be at least 6 characters.";
+    valid = false;
+  }
+
+  // Form-level error message
+  if (!valid) {
+    formError.textContent = "Please fix the errors above and try again.";
+  }
+
+  return valid; // Submit form only if valid
+}
+
     document.addEventListener("DOMContentLoaded", () => {
       const gradients = [
         "linear-gradient(135deg, #498560 10%, #96e6a1 90%)",

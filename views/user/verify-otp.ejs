@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <title>OTP Verification - eCommerce</title>
+  <meta http-equiv="x-ua-compatible" content="ie=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- Favicon -->
+  <link rel="shortcut icon" type="image/x-icon" href="evara-frontend/assets/imgs/theme/favicon.svg" />
+  <!-- Template CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" />
+  <link rel="stylesheet" href="evara-frontend/assets/css/main.css?v=3.4" />
+  <style>
+  /* General Styling */
+  body {
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f9fafb;
+    color: #333;
+  }
+
+  /* Section Styling */
+  .pt-150.pb-150 {
+    padding: 150px 0;
+    background: linear-gradient(135deg, #d4fc79 10%, #96e6a1 90%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .container {
+    max-width: 900px;
+    width: 100%;
+  }
+
+  .login_wrap {
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    border: 1px solid #ddd;
+  }
+
+  .background-white {
+    background-color: #ffffff;
+  }
+
+  .border-radius-5 {
+    border-radius: 8px;
+  }
+
+  /* Form Styling */
+  .form-group {
+    margin-bottom: 15px;
+  }
+
+  .form-group label {
+    font-weight: bold;
+    margin-bottom: 5px;
+    display: block;
+  }
+
+  .form-control {
+    width: 100%;
+    padding: 10px 15px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 16px;
+  }
+
+  .form-control:focus {
+    border-color: #27ae60;
+    box-shadow: 0 0 5px rgba(39, 174, 96, 0.5);
+    outline: none;
+  }
+
+  /* OTP Timer Styling */
+  .otp-timer {
+    font-size: 16px;
+    font-weight: 600;
+    padding: 10px;
+    background-color: #f0f0f0;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid #ddd;
+    color: #333;
+    margin-right: 15px;
+  }
+
+  .otp-timer.expired {
+    color: #ff4d4f;
+  }
+
+  .otp-buttons {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    align-items: center;
+  }
+
+  /* Button Styling */
+  .btn {
+    cursor: pointer;
+    font-size: 16px;
+    padding: 10px 20px;
+    border-radius: 5px;
+    border: 1px solid transparent;
+    transition: all 0.3s ease;
+  }
+
+  .btn-google {
+    background-color: #ffffff;
+    border: 1px solid #ddd;
+    color: #555;
+  }
+
+  .btn-google:hover {
+    border-color: #27ae60;
+    color: #f4f4f4;
+  }
+
+  .btn-verify {
+    background-color: #27ae60;
+    color: white;
+    border: 1px solid #27ae60;
+  }
+
+  .btn-verify:hover {
+    background-color: #218c54;
+  }
+
+  /* Link Styling */
+  .text-muted a {
+    color: #27ae60;
+    text-decoration: none;
+  }
+
+  .text-muted a:hover {
+    text-decoration: underline;
+  }
+
+  .text-muted {
+    font-size: 14px;
+    color: #888;
+  }
+
+  /* Heading */
+  .heading_s1 h3 {
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 15px;
+    text-align: center;
+  }
+</style>
+
+</head>
+
+<body>
+  <section class="pt-150 pb-150">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-6 m-auto">
+          <div class="login_wrap widget-taber-content p-30 background-white border-radius-5">
+            <div class="padding_eight_all bg-white">
+              <div class="heading_s1">
+                <h3 class="mb-30">Email Verification</h3>
+              </div>
+              <form id="otpForm" action="/verify-otp" method="post" onsubmit="return validateOTPForm()">
+                <div class="form-group">
+                  <label for="otp">Enter OTP:</label>
+                  <input type="text" id="otp" name="otp" class="form-control" required maxlength="6" pattern="\d*"
+                    placeholder="Enter OTP" />
+                  <span id="otpError" class="error-message"></span>
+                </div>
+                <div class="form-group text-center otp-form">
+                  <div id="otpTimer" class="otp-timer">
+                    <span id="timerValue">60</span>
+                  </div>
+                  <button type="button" class="btn btn-google hover-up" id="resendOtp" onclick="resendotp()">
+                    Resend OTP
+                  </button>
+                </div>
+                <div class="form-group btn-verify-container">
+                  <button type="submit" class="btn btn-fill-out btn-verify hover-up">
+                    Verify Email
+                  </button>
+                </div>
+              </form>
+              <div class="text-muted text-center mt-15">
+                Already verified? <a href="/login">Login now</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Vendor JS -->
+  <script src="evara-frontend/assets/js/vendor/jquery-3.6.0.min.js"></script>
+  <script src="evara-frontend/assets/js/vendor/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <!-- Template JS -->
+  <script src="evara-frontend/assets/js/main.js?v=3.4"></script>
+
+  <script>
+    document.getElementById("otp").focus();
+
+    let timer = 60;
+    let timerInterval;
+
+    function startTimer() {
+      timerInterval = setInterval(() => {
+        timer--;
+        document.getElementById("timerValue").textContent = timer;
+        if (timer <= 0) {
+          clearInterval(timerInterval);
+          document.getElementById("timerValue").classList.add("expired");
+          document.getElementById("timerValue").textContent = "Expired";
+          document.getElementById("otp").disabled = true;
+        }
+      }, 1000);
+    }
+    startTimer();
+
+    function validateOTPForm() {
+      const otp = document.getElementById("otp").value.trim();
+      document.getElementById("otpError").textContent = "";
+
+      $.ajax({
+        type: "POST",
+        url: "/verify-otp",
+        data: { otp: otp },
+        success: function (response) {
+          if (response.success) {
+            Swal.fire({
+              icon: "success",
+              title: "OTP verified successfully",
+              showConfirmButton: false,
+              timer: 1500,
+            }).then(() => {
+              window.location.href = response.redirectUrl;
+            });
+          } else {
+            Swal.fire({
+              icon: "error",
+              title: "Error",
+              text: response.message,
+            });
+          }
+        },
+        error: function () {
+          Swal.fire({
+            icon: "error",
+            title: "Invalid OTP",
+            text: "Please try again",
+          });
+        },
+      });
+      return false;
+    }
+
+    function resendotp() {
+  clearInterval(timerInterval); // Stop the previous timer
+  timer = 60; // Reset the timer correctly
+  document.getElementById("otp").disabled = false; // Enable OTP input again
+  document.getElementById("timerValue").classList.remove("expired");
+  document.getElementById("timerValue").textContent = timer; 
+  startTimer(); 
+
+  // Send AJAX request to resend OTP
+  $.ajax({
+    type: "POST",
+    url: "/resend-otp", // Correct endpoint
+    success: function (response) {
+      if (response.success) {
+        Swal.fire({
+          icon: "success", // Correct icon
+          title: "OTP Resent Successfully",
+          showConfirmButton: false,
+          timer: 1500,
+        });
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: "An error occurred while resending OTP. Please try again.",
+        });
+      }
+    },
+    error: function () {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Failed to resend OTP. Please try again.",
+      });
+    },
+  });
+
+  return false; // Prevent form submission
+}
+
+
+  </script>
+</body>
+
+</html>

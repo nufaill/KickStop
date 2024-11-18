@@ -218,6 +218,18 @@ body {
           <span id="cpasswordError" class="error-message"></span>
         </div>
         <button type="submit" class="signup-btn">Create Account</button>
+        <div class="mt-2px">
+          <p>or sign up with</p>
+        </div>
+        <div class="social-btns">
+          <a href="/auth/google" class="btn btn-outline-danger">
+            <img
+              src="/evara-frontend/assets/imgs/new_images/googlelogo.png"
+              alt="Google Logo"
+              style="width: 24px; height: 24px"
+            />
+          </a>
+        </div>
       </form>
       <div class="login-link">
         Already have an account? <a href="/login">Login here</a>
@@ -272,7 +284,7 @@ function validateForm() {
         document.getElementById('passwordError').textContent = 'Password is required';
         isValid = false;
     } else {
-        const minLength = 8;
+        const minLength = 6;
         const hasUpperCase = /[A-Z]/.test(password);
         const hasLowerCase = /[a-z]/.test(password);
         const hasNumbers = /\d/.test(password);
