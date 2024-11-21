@@ -1,4 +1,5 @@
 const User = require("../../models/userSchema");
+const Product = require('../../models/productSchema')
 const env = require("dotenv").config();
 const nodemailer = require("nodemailer");
 const bcrypt = require("bcrypt")
@@ -15,15 +16,21 @@ const pageNotFound = async (req, res) => {
     }
 };
 
-const loadHomepage = async (req,res) => {
+const loadHomepage = async (req, res) => {
     try {
-        return res.render("home");
+        const user = req.session.user;
+        const products = await Product.find({isBlocked: false});
+        if (user) {
+            const userData = await User.findById(user._id);
+            return res.render("home", { user: userData,products});
+        }
+        res.render("home", { user: null, products});
     } catch (error) {
-        console.log("Home page not found",error);
+        console.error("Home page error:", error);
         res.status(500).send("Server error");
-  
     }
 };
+
 const loadLogin = async (req,res) => {
     try {
         if(!req.session.user){

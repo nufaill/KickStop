@@ -1,0 +1,283 @@
+<%- include('../layouts/admin/header') %>
+<style>
+   body {
+        font-family: 'Arial', sans-serif;
+        background-color: #f4f6f9;
+        margin: 0;
+        padding: 0;
+    }
+    .card-body {
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        margin: 20px auto;
+        max-width: 1200px;
+    }
+
+    /* Search Form */
+    .searchform {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 20px;
+        position: relative;
+    }
+    .searchform .form-control {
+        border-radius: 50px 0 0 50px;
+        border: 1px solid #ddd;
+        padding: 10px 20px;
+        transition: all 0.3s ease;
+    }
+    .searchform .form-control:focus {
+        border-color: #007bff;
+        box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+    }
+    .searchform .btn {
+        border-radius: 0 50px 50px 0;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    .searchform .btn:hover {
+        background-color: #0056b3;
+    }
+    .searchform .btn i {
+        font-size: 20px;
+        vertical-align: middle;
+    }
+
+    /* Table */
+    .table {
+        width: 100%;
+        margin-bottom: 20px;
+        border-collapse: collapse;
+        background-color: #fff;
+        animation: fadeIn 0.5s ease-in-out;
+    }
+    .table th, .table td {
+        padding: 12px 20px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+    }
+    .table th {
+        background-color: #f8f8f8;
+        font-weight: bold;
+    }
+    .table-hover tbody tr {
+        transition: background-color 0.3s ease;
+    }
+    .table-hover tbody tr:hover {
+        background-color: #f1f1f1;
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Badges */
+    .badge {
+        padding: 5px 15px;
+        font-size: 12px;
+        font-weight: bold;
+        border-radius: 20px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .badge.alert-success {
+        background-color: #28a745;
+        color: #fff;
+        box-shadow: 0 2px 4px rgba(40, 167, 69, 0.4);
+    }
+    .badge.alert-danger {
+        background-color: #dc3545;
+        color: #fff;
+        box-shadow: 0 2px 4px rgba(220, 53, 69, 0.4);
+    }
+
+    /* Buttons */
+    .btn-danger, .btn-success {
+        padding: 8px 20px;
+        font-size: 14px;
+        border-radius: 50px;
+        font-weight: bold;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        transition: all 0.3s ease;
+    }
+    .btn-danger {
+        background-color: #dc3545;
+        color: #fff;
+        border: none;
+    }
+    .btn-danger:hover {
+        background-color: #a71d2a;
+        transform: scale(1.1);
+    }
+    .btn-success {
+        background-color: #28a745;
+        color: #fff;
+        border: none;
+    }
+    .btn-success:hover {
+        background-color: #19692c;
+        transform: scale(1.1);
+    }
+
+    /* Pagination */
+    .pagination {
+        list-style: none;
+        display: flex;
+        justify-content: flex-start;
+        padding: 0;
+        margin: 20px 0;
+    }
+    .pagination .page-item {
+        margin: 0 5px;
+        transition: all 0.3s ease;
+    }
+    .pagination .page-item .page-link {
+        display: block;
+        padding: 8px 12px;
+        background-color: #007bff;
+        color: white;
+        text-decoration: none;
+        border-radius: 5px;
+        font-weight: bold;
+    }
+    .pagination .page-item .page-link:hover {
+        background-color: #0056b3;
+    }
+    .pagination .page-item.active .page-link {
+        background-color: #0056b3;
+        cursor: default;
+    }
+
+    /* No Users Found Message */
+    .text-center {
+        text-align: center;
+        font-size: 16px;
+        color: #666;
+    }
+
+    /* Card Animations */
+    .card-body {
+        animation: slideIn 0.6s ease;
+    }
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateX(-50px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    /* Mobile Responsive */
+    @media (max-width: 768px) {
+        .table th, .table td {
+            padding: 8px 10px;
+            font-size: 12px;
+        }
+        .searchform .form-control {
+            font-size: 14px;
+        }
+        .searchform .btn {
+            font-size: 14px;
+            padding: 8px 16px;
+        }
+    }
+</style>
+<div class="card-body">
+
+    <!-- Search Form -->
+    <form class="searchform" method="get" action="/admin/users">
+        <div class="input-group">
+            <input 
+                type="text" 
+                class="form-control" 
+                name="search" 
+                placeholder="Search Users"
+                value="<%= typeof searchQuery !== 'undefined' ? searchQuery : '' %>"
+            >
+            <button class="btn btn-light bg" type="submit">
+                <i class="material-icons md-search"></i>
+            </button>
+        </div>
+    </form>
+
+    <!-- User Table -->
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% if (data && data.length > 0) { %>
+                    <% for (let i = 0; i < data.length; i++) { %>
+                        <tr>
+                            <td><%= data[i].username %></td>
+                            <td><%= data[i].email %></td>
+                            <td>
+                                <% if (data[i].isBlocked) { %>
+                                    <span class="badge rounded-pill alert-danger">Blocked</span>
+                                <% } else { %>
+                                    <span class="badge rounded-pill alert-success">Active</span>
+                                <% } %>
+                            </td>
+                            <td>
+                                <% if (!data[i].isBlocked) { %>
+                                    <button class="btn btn-danger">
+                                        <a href="/admin/blockcustomer?id=<%= data[i]._id %>" class="text-white">Block</a>
+                                    </button>
+                                <% } else { %>
+                                    <button class="btn btn-success">
+                                        <a href="/admin/unblockcustomer?id=<%= data[i]._id %>" class="text-white">Unblock</a>
+                                    </button>
+                                <% } %>
+                            </td>
+                        </tr>
+                    <% } %>
+                <% } else { %>
+                    <tr>
+                        <td colspan="5" class="text-center">No users found.</td>
+                    </tr>
+                <% } %>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Pagination -->
+<div class="pagination-area mt-15 mb-50">
+    <nav aria-label="Page navigation example">
+        <ul class="pagination justify-content-start">
+            <% for (let i = 1; i <= totalPages; i++) { %>
+                <li class="page-item <%= (i === currentPage) ? 'active' : '' %>">
+                    <a class="page-link" href="?page=<%= i %>">
+                        <%= i %>
+                    </a>
+                </li>
+            <% } %>
+        </ul>
+    </nav>
+</div>
+
+<%- include('../layouts/admin/footer') %>

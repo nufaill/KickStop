@@ -33,7 +33,7 @@ const productSchema = new Schema({
     },
     quantity:{
         type:Number,
-        default:true
+        default:0
     },
     color:{
         type:String,
@@ -45,7 +45,7 @@ const productSchema = new Schema({
     },
     isBlocked:{
         type:Boolean,
-        required:false
+        default:false
     },
     status:{
         type:String,
@@ -53,8 +53,8 @@ const productSchema = new Schema({
         required:true,
         default:"Available"
     }
-},{timestamp:true});
+},{timestamps:true});
 
-const Product = mongoose.Model("Product",productSchema);
+const Product = mongoose.model("Product",productSchema);
 
 module.exports = Product;
