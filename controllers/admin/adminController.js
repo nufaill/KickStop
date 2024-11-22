@@ -2,12 +2,31 @@ const User = require("../../models/userSchema");
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 
-const loadLogin = (req, res) => {
-    if(req.session.admin){
-        return res.redirect("/admin/dashboard")
+
+const pageError = async (req, res) => {
+    try {
+
+        res.render('error-page')
+
+    } catch (error) {
+
     }
-    res.render("admin-login", { message: null });
 }
+
+
+const loadLogin = (req, res) => {
+    try {
+        // If admin is already logged in (session exists), redirect to dashboard
+        if (req.session.admin) {
+            return res.redirect("/admin");
+        }
+        // Otherwise show login page
+        res.render("admin-login", { message: null });
+    } catch (error) {
+        console.error("Error in loadLogin:", error);
+        res.redirect("/admin/pageerror");
+    }
+};
 
 const handleLogin = async (req, res) => {
     try {
@@ -33,16 +52,17 @@ const handleLogin = async (req, res) => {
     }
 }
 
+
 const loadDashbaord = async (req, res) => {
-    if (req.session.admin) {
-        try {
-            res.render("dashboard");
-        } catch (error) {
-            console.error(" not load dashboard ", error);
-            res.redirect('/error');
+    try {
+        // Add session check
+        if (!req.session.admin) {
+            return res.redirect("/admin/login");
         }
-    } else {
-        res.redirect('/admin/login');
+        res.render("dashboard");
+    } catch (error) {
+        console.error("Error loading dashboard:", error);
+        res.redirect('/admin/pageerror');
     }
 };
 
@@ -66,5 +86,6 @@ module.exports = {
     loadLogin,
     handleLogin,
     loadDashbaord,
-    logout
+    logout,
+    pageError
 }

@@ -196,6 +196,53 @@
                 display: flex;
             }
         }
+        .user-menu .dropdown {
+            position: relative;
+            cursor: pointer;
+        }
+
+        .user-menu .dropdown-content {
+            display: none;
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: #fff;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            border-radius: 4px;
+            min-width: 160px;
+            z-index: 1000;
+        }
+
+        .user-menu .dropdown:hover .dropdown-content {
+            display: block;
+        }
+
+        .user-menu .dropdown-content a {
+            display: block;
+            padding: 10px 15px;
+            text-decoration: none;
+            color: #333;
+            transition: background-color 0.2s;
+        }
+
+        .user-menu .dropdown-content a:hover {
+            background-color: #f5f5f5;
+        }
+
+        .user-menu .dropdown > a {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            text-decoration: none;
+            color: #333;
+            padding: 5px 10px;
+        }
+
+        .user-menu .dropdown > a::after {
+            content: '▼';
+            font-size: 10px;
+            margin-left: 5px;
+        }
     </style>
 </head>
 
@@ -215,7 +262,7 @@
         <!-- Middle Section -->
         <div class="header-middle">
             <div class="logo">
-                <a href="/"><img src="evara-frontend/assets/imgs/theme/mobile-king.png" alt="Mobile King Logo"></a>
+                <a href="/"><img src="evara-frontend/assets/imgs/new_images/logo.png" alt=""></a>
             </div>
             <div class="search-bar">
                 <form action="/search-product" method="GET">
@@ -223,9 +270,11 @@
                 </form>
             </div>
             <div class="user-menu">
-                <% if (user) { %>
+                <% if (typeof user !== 'undefined' && user) { %>
                     <div class="dropdown">
-                        <a href="#"><%=user.username %></a>
+                        <a href="javascript:void(0)">
+                            <%= user.username %>
+                        </a>
                         <div class="dropdown-content">
                             <a href="/profile">Profile</a>
                             <a href="/orders">Order History</a>
@@ -256,4 +305,37 @@
             </nav>
         </div>
     </header>
+    <script>
+          document.addEventListener('DOMContentLoaded', function() {
+            const dropdown = document.querySelector('.dropdown');
+            if (dropdown) {
+                dropdown.addEventListener('click', function(e) {
+                    if (window.innerWidth <= 768) {
+                        const dropdownContent = this.querySelector('.dropdown-content');
+                        dropdownContent.style.display = 
+                            dropdownContent.style.display === 'block' ? 'none' : 'block';
+                        e.stopPropagation();
+                    }
+                });
+
+                // Close dropdown when clicking outside
+                document.addEventListener('click', function(e) {
+                    if (!dropdown.contains(e.target)) {
+                        const dropdownContent = dropdown.querySelector('.dropdown-content');
+                        if (dropdownContent) {
+                            dropdownContent.style.display = 'none';
+                        }
+                    }
+                });
+            }
+        });
+
+        // Your existing hamburger menu toggle function
+        function toggleMenu() {
+            const mainMenu = document.querySelector('.main-menu');
+            if (mainMenu) {
+                mainMenu.classList.toggle('show');
+            }
+        }
+    </script>
 

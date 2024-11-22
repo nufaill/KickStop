@@ -465,5 +465,12 @@
                     </ul>
                 </nav>
             </div>
-        </section> <!-- content-main end// -->
+        </section> 
+        <script>
+            // Prevent going back to login page
+            window.history.pushState(null, '', window.location.href);
+            window.onpopstate = function() {
+                window.history.pushState(null, '', window.location.href);
+            };
+        </script>
         <%- include('../layouts/admin/footer') %>

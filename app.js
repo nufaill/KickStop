@@ -14,16 +14,24 @@ app.use(express.json());
 app.use(express.urlencoded({extended:true}));
 
 app.use(session({
-    secret:process.env.SESSION_SECRET,
-    resave:false,
-    saveUninitialized:true,
-    cookie:{
-        secure:false,
-        httpOnly:true,
-        maxAge:72*60*60*1000
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: true,
+    cookie: {
+        secure: false,
+        httpOnly: true,
+        maxAge: 72*60*60*1000  
     }
 }));
-
+app.use((req, res, next) => {
+    res.set({
+        'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0',
+        'Surrogate-Control': 'no-store'
+    });
+    next();
+});
 
 app.use(passport.initialize());
 app.use(passport.session());

@@ -18,6 +18,7 @@ router.use(async (req, res, next) => {
 router.get("/",userController.loadHomepage);
 router.get('/login',userController.loadLogin);
 router.post('/login',userController.login);
+router.get('/logout', userController.logout);
 router.get('/signup',userController.loadsignup);
 router.post('/signup',userController.signup);
 router.post("/verify-otp",userController.verifyOtp);
