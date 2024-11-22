@@ -212,7 +212,7 @@
                                         </h2>
                                         <div class="product-detail-rating">
                                             <div class="pro-details-brand">
-                                                <span> : <a href="#"></a></span>
+                                                <span>Category : <a href="#"><%=product.category.name%></a></span>
                                             </div>
                                             <div class="product-rate-cover text-end">
                                                 <div class="product-rate d-inline-block">
@@ -229,7 +229,7 @@
                                                 <ins><span class="old-price font-md ml-15">₹
                                                         <%=product.regularPrice.toLocaleString()%>
                                                     </span></ins>
-                                                <span class="save-price  font-md color3 ml-15">25% Off</span>
+                                                <span class="save-price  font-md color3 ml-15"><%=product.productOffer%>%Offer</span>
                                             </div>
                                         </div>
                                         <div class="bt-1 border-color-1 mt-15 mb-15"></div>

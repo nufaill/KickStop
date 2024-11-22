@@ -6,7 +6,7 @@ const productDetails = async (req, res) => {
         const productId = req.query.productId;
         console.log(productId);
 
-        const product = await Product.findById(productId);
+        const product = await Product.findById(productId).populate('category');
         const relatedProducts = await Product.find({ category: product.category, isBlocked: false, _id: { $ne: product._id } })
 
         res.render('product-details', { product, relatedProducts });

@@ -267,25 +267,64 @@ const removeProductOffer = async (req,res) => {
         res.redirect('/admin/pageerror')
     }
 }
-const deleteSingleImage = async (req,res) => {
+const deleteSingleImage = async (req, res) => {
     try {
-
-        const {imageNameToServer,productIdToServer} = req.body;
-        const product = await Product.findByIdAndUpdate(productIdToServer,{$pull:{productImage:imageNameToServer}});
-        const imagePath = path.join("public","uploads","product-images",imageNameToServer);
-        if(fs.existsSync(imagePath)){
-            await fs.unlinkSync(imagePath);
-            console.log(`Image ${imageNameToServer} deleted succefully`);
-        }else{
-            console.log(`Image ${imageNameToServer} not found`);
-        }
-        res.send({status:true});
+        const { imageNameToServer, productIdToServer } = req.body;
         
-    } catch (error) {
-        res.redirect('/admin/pageerror')
-    }
-}
+        if (!imageNameToServer || !productIdToServer) {
+            return res.json({ 
+                status: false, 
+                message: 'Missing required parameters' 
+            });
+        }
 
+        // Find the product
+        const product = await Product.findById(productIdToServer);
+        
+        if (!product) {
+            return res.json({ 
+                status: false, 
+                message: 'Product not found' 
+            });
+        }
+
+        // Check minimum image requirement
+        if (product.productImage.length <= 1) {
+            return res.json({ 
+                status: false, 
+                message: 'Cannot delete the last product image' 
+            });
+        }
+
+        // Remove image from array
+        const updatedImages = product.productImage.filter(img => img !== imageNameToServer);
+        
+        // Update product with new image array
+        await Product.findByIdAndUpdate(
+            productIdToServer,
+            { $set: { productImage: updatedImages } },
+            { new: true }
+        );
+
+        // Delete physical file
+        const imagePath = path.join(__dirname, '../../public/uploads/product-images', imageNameToServer);
+        if (fs.existsSync(imagePath)) {
+            fs.unlinkSync(imagePath);
+        }
+
+        res.json({ 
+            status: true, 
+            message: 'Image deleted successfully' 
+        });
+
+    } catch (error) {
+        console.error('Error in deleteSingleImage:', error);
+        res.json({ 
+            status: false, 
+            message: 'Internal server error' 
+        });
+    }
+};
 
 
 module.exports = {
