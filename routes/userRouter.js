@@ -24,6 +24,7 @@ router.post('/signup',userController.signup);
 router.post("/verify-otp",userController.verifyOtp);
 router.post("/resend-otp",userController.resendOtp);
 
+
 router.get("/auth/google", passport.authenticate("google", { scope: ["profile", "email"] }));
 router.get("/auth/google/callback",passport.authenticate("google", { failureRedirect: "/signup" }),(req, res) => { console.log('Google Auth Success:', req.user); res.redirect("/");});
 

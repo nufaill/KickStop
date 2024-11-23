@@ -230,7 +230,7 @@
                                                     href="shop-product-right.html"> Shop Now </a>
                                             </div>
                                             <div class="slider-img">
-                                                <img src="evara-frontend/assets/imgs/new_images/banner1.webp" alt="">
+                                                <img  src="evara-frontend/assets/imgs/new_images/banner1.webp" alt="">
                                             </div>
                                         </div>
                                     </div>
@@ -410,65 +410,7 @@
                             <%}%>
                         </div>
                     </div>
-                    <!--End product-grid-4-->
                 </div>
-                <!--En tab two (Popular)-->
-                <div class="tab-pane fade" id="tab-three" role="tabpanel" aria-labelledby="tab-three">
-                    <div class="row product-grid-4">
-                        <%for(let i=0;i<products.length;i++){%>
-                            <div class="col-lg-3 col-md-4 col-12 col-sm-6">
-                                <div class="product-cart-wrap mb-30">
-                                    <div class="product-img-action-wrap">
-                                        <div class="product-img product-img-zoom">
-                                            <a href="/product-details?productId=<%=products[i]._id%>">
-                                                <img class="default-img"
-                                                    src="uploads/re-image/<%=products[i].productImage[0]%>" alt="">
-                                                <img class="hover-img"
-                                                    src="uploads/re-image/<%=products[i].productImage[0]%>" alt="">
-                                            </a>
-                                        </div>
-                                        <div class="product-action-1">
-                                            <a aria-label="Quick view" class="action-btn hover-up"
-                                                data-bs-toggle="modal" data-bs-target="#quickViewModal"><i
-                                                    class="fi-rs-eye"></i></a>
-                                            <a aria-label="Add To Wishlist" class="action-btn hover-up"
-                                                href="shop-wishlist.html"><i class="fi-rs-heart"></i></a>
-                                            <a aria-label="Compare" class="action-btn hover-up"
-                                                href="shop-compare.html"><i class="fi-rs-shuffle"></i></a>
-                                        </div>
-                                        <div class="product-badges product-badges-position product-badges-mrg">
-                                            <span class="hot">Hot</span>
-                                        </div>
-                                    </div>
-                                    <div class="product-content-wrap">
-                                        <div class="product-category">
-                                        </div>
-                                        <h2><a href="/product-details?productId=<%=products[i]._id%>">
-                                                <%=products[i].productName%>
-                                            </a></h2>
-                                        <div class="rating-result" title="90%">
-                                            <span>
-                                                <span>90%</span>
-                                            </span>
-                                        </div>
-                                        <div class="product-price">
-                                            <span>₹<%=products[i].salePrice.toLocaleString()%> </span>
-                                            <span class="old-price">₹<%=products[i].regularPrice.toLocaleString()%>
-                                            </span>
-                                        </div>
-                                        <div class="product-action-1 show">
-                                            <a aria-label="Add To Cart" class="action-btn hover-up"
-                                                href="shop-cart.html"><i class="fi-rs-shopping-bag-add"></i></a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        <%}%>
-                    </div>
-                    <!--End product-grid-4-->
-                </div>
-                <!--En tab three (New added)-->
-            </div>
             <!--End tab-content-->
             </div>
         </section>
@@ -514,24 +456,6 @@
                             <div class="deal-bottom">
                                 <p>Hurry Up! Offer End In:</p>
                                 <div class="deals-countdown" data-countdown="2025/03/25 00:00:00"></div> -->
-                                <a href="#" class="btn hover-up">Shop Now <i class="fi-rs-arrow-right"></i></a>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-6 deal-co">
-                        <div class="deal wow fadeIn animated"
-                            style="background-image: url('/evara-frontend/assets/imgs/new_images/img-6.jpeg');">
-                            <div class="deal-top">
-                                <!-- <h2 class="text-success">Men Clothing</h2>
-                                <h5>Shirt & Bag</h5> -->
-                            </div>
-                            <div class="deal-content">
-                                <!-- <h6 class="product-title"><a href="shop-product-right.html">Try something new on vacation</a></h6>
-                                <div class="product-price"><span class="new-price">$178.00</span><span class="old-price">$256.99</span></div> -->
-                            </div>
-                            <div class="deal-bottom">
-                                <!-- <p>Hurry Up! Offer End In:</p>
-                                <div class="deals-countdown" data-countdown="2026/03/25 00:00:00"></div> -->
                                 <a href="#" class="btn hover-up">Shop Now <i class="fi-rs-arrow-right"></i></a>
                             </div>
                         </div>

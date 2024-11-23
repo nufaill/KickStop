@@ -119,92 +119,95 @@
       
 <script>
 
-    function handleFormSubmit(event){
-        event.preventDefault();
-        if(!validateForm()){
-            return;
-        }
-        
-        const name = document.getElementById('name').value;
-        const description = document.getElementById('description').value;
-
-        fetch('/admin/addcategory',{
-            method:'POST',
-            headers:{
-                'content-type':'application/json',
-            },
-            body:JSON.stringify({name,description})
-        })
-        .then(response=>{
-            if(!response.ok){
-                return response.json().then(err=>{
-                    throw new Error(err.error);
-                })
-            }
-            return response.json();
-        })
-        .then(data=>{
-            location.reload();
-        })
-        .catch(error=>{
-            if(error.message == 'Category already exists'){
-                Swal.fire({
-                   icon:'error',
-                   title:"Oops",
-                   text:"Category already exists" 
-                })
-            }else{
-                Swal.fire({
-                    icon:"error",
-                    title:"Oops",
-                    text:"An error occured while adding the category"
-                })
-            }
-        })
+function handleFormSubmit(event) {
+    event.preventDefault();
+    if (!validateForm()) {
+        return;
     }
 
+    const nameInput = document.getElementById('name');
+    const descriptionInput = document.getElementById('description');
+    const name = nameInput.value;
+    const description = descriptionInput.value;
 
-    function validateForm() {
-    // Get form values
+    // Reset any previous error styling
+    nameInput.classList.remove('is-invalid');
+    
+    fetch('/admin/addcategory', {
+        method: 'POST',
+        headers: {
+            'content-type': 'application/json',
+        },
+        body: JSON.stringify({ name, description })
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.json().then(err => {
+                throw new Error(err.error || 'Failed to add category');
+            });
+        }
+        return response.json();
+    })
+    .then(data => {
+        Swal.fire({
+            icon: 'success',
+            title: 'Success!',
+            text: 'Category added successfully',
+            timer: 1500
+        }).then(() => {
+            location.reload();
+        });
+    })
+    .catch(error => {
+        if (error.message === 'Category already exists') {
+            // Add visual feedback
+            nameInput.classList.add('is-invalid');
+            
+            Swal.fire({
+                icon: 'error',
+                title: 'Category Already Exists',
+                text: 'Please choose a different category name',
+                confirmButtonColor: '#3085d6',
+                confirmButtonText: 'Ok, I\'ll try another name'
+            });
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: 'An error occurred while adding the category',
+                confirmButtonColor: '#3085d6'
+            });
+        }
+    });
+}
+
+function validateForm() {
     const name = document.getElementById("name").value;
-    // const slug = document.getElementById("product_slug").value;
-    // const parent = document.getElementById("parent").value;
     const description = document.getElementById("description").value;
-
     let isValid = true;
 
-    // Clear previous errors
+    // Reset previous error states
     document.getElementById("nameError").style.display = "none";
-    // document.getElementById("slugError").style.display = "none";
-    // document.getElementById("parentError").style.display = "none";
     document.getElementById("descriptionError").style.display = "none";
+    
+    // Remove any previous invalid class
+    document.getElementById("name").classList.remove('is-invalid');
+    document.getElementById("description").classList.remove('is-invalid');
 
-    // Name validation: Required
-    if (name === "") {
+    // Name validation: Required and minimum length
+    if (name.trim() === "") {
         document.getElementById("nameError").style.display = "inline";
+        document.getElementById("name").classList.add('is-invalid');
         isValid = false;
     }
 
-    // Slug validation: Should contain only letters, numbers, and dashes
-    // const slugPattern = /^[a-zA-Z0-9-]+$/;
-    // if (!slugPattern.test(slug)) {
-    //     document.getElementById("slugError").style.display = "inline";
-    //     isValid = false;
-    // }
-
-    // // Parent validation: Required
-    // if (parent === "") {
-    //     document.getElementById("parentError").style.display = "inline";
-    //     isValid = false;
-    // }
-
-    // Description validation: Minimum 10 characters
-    if (description.length < 1) {
+    // Description validation
+    if (description.trim().length < 1) {
         document.getElementById("descriptionError").style.display = "inline";
+        document.getElementById("description").classList.add('is-invalid');
         isValid = false;
     }
 
-    // Return the final validation status
     return isValid;
 }
 
