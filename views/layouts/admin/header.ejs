@@ -1,6 +1,150 @@
 <!DOCTYPE HTML>
 <html lang="en">
+<style>
+    /* Main Theme Colors */
+:root {
+    --primary-color: #800000;
+    --primary-light: #a33333;
+    --primary-dark: #600000;
+    --secondary-color: #f8f9fa;
+    --text-color: #2b2b2b;
+    --border-color: #e0e0e0;
+    --hover-color: #992626;
+}
 
+/* Navbar and Sidebar Styling */
+.navbar-aside {
+    background-color: var(--primary-color);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.menu-aside .menu-link {
+    color: #ffffff;
+    transition: all 0.3s ease;
+}
+
+.menu-aside .menu-link:hover {
+    background-color: var(--hover-color);
+    color: #ffffff;
+}
+
+.menu-aside .menu-item.active .menu-link {
+    background-color: var(--primary-dark);
+    color: #ffffff;
+    border-left: 4px solid #ffffff;
+}
+
+.menu-aside .icon {
+    color: #ffffff;
+}
+
+/* Header Styling */
+.main-header {
+    background-color: #ffffff;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+/* Search Bar Modifications */
+.searchform .input-group {
+    max-width: 400px;
+}
+
+.searchform .form-control {
+    height: 40px;
+    font-size: 0.9rem;
+    border-radius: 20px 0 0 20px;
+    border: 1px solid var(--border-color);
+}
+
+.searchform .btn {
+    border-radius: 0 20px 20px 0;
+    background-color: var(--primary-color);
+    color: #ffffff;
+}
+
+.searchform .btn:hover {
+    background-color: var(--hover-color);
+}
+
+/* Buttons and Interactive Elements */
+.btn-primary {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.btn-primary:hover {
+    background-color: var(--hover-color);
+    border-color: var(--hover-color);
+}
+
+/* Notification Badge */
+.badge {
+    background-color: var(--primary-color);
+}
+
+/* Card Styling */
+.card {
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s ease;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+}
+
+/* Dropdown Menus */
+.dropdown-menu {
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.dropdown-item:hover {
+    background-color: var(--primary-light);
+    color: #ffffff;
+}
+
+/* Dark Mode Adjustments */
+.darkmode .main-header {
+    background-color: #1a1a1a;
+    border-bottom: 1px solid #333;
+}
+
+.darkmode .card {
+    background-color: #2b2b2b;
+    border: 1px solid #333;
+}
+
+.darkmode .form-control {
+    background-color: #333;
+    border-color: #444;
+    color: #ffffff;
+}
+
+/* Animation for Interactive Elements */
+.animation-shake {
+    animation: shake 0.82s cubic-bezier(.36,.07,.19,.97) both;
+    transform: translate3d(0, 0, 0);
+}
+
+@keyframes shake {
+    10%, 90% { transform: translate3d(-1px, 0, 0); }
+    20%, 80% { transform: translate3d(2px, 0, 0); }
+    30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+    40%, 60% { transform: translate3d(4px, 0, 0); }
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .searchform .input-group {
+        max-width: 300px;
+    }
+    
+    .navbar-aside {
+        width: 250px;
+    }
+}
+</style>
 <head>
     <meta charset="utf-8">
     <title>KickStop Dashboard</title>
@@ -147,8 +291,8 @@
                     <datalist id="search_terms">
                         <option value="Products">
                         <option value="New orders">
-                        <option value="Apple iphone">
-                        <option value="Ahmed Hassan">
+                        <option value="NIKE">
+                        <option value="new product">
                     </datalist>
                 </form>
             </div>

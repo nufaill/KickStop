@@ -145,6 +145,11 @@
   font-size: 0.9rem;
   font-weight: bold;
 }
+.is-invalid {
+  border-color: red !important;
+  box-shadow: 0 0 0 3px rgba(255, 0, 0, 0.2) !important;
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
 
   </style>
 </head>
@@ -184,34 +189,40 @@
   </div>
   <script>
 function validateForm() {
-  const email = document.getElementById("email").value.trim();
-  const password = document.getElementById("password").value.trim();
+  const emailInput = document.getElementById("email");
+  const passwordInput = document.getElementById("password");
   const emailError = document.getElementById("emailError");
   const passwordError = document.getElementById("passwordError");
   const formError = document.getElementById("formError");
 
-  // Reset errors
+  // Reset errors and classes
   emailError.textContent = "";
   passwordError.textContent = "";
   formError.textContent = "";
+  emailInput.classList.remove("is-invalid");
+  passwordInput.classList.remove("is-invalid");
 
   let valid = true;
 
   // Email validation
-  if (!email) {
+  if (!emailInput.value.trim()) {
     emailError.textContent = "Email is required.";
+    emailInput.classList.add("is-invalid");
     valid = false;
-  } else if (!/\S+@\S+\.\S+/.test(email)) { 
+  } else if (!/\S+@\S+\.\S+/.test(emailInput.value.trim())) {
     emailError.textContent = "Please enter a valid email address.";
+    emailInput.classList.add("is-invalid");
     valid = false;
   }
 
   // Password validation
-  if (!password) {
+  if (!passwordInput.value.trim()) {
     passwordError.textContent = "Password is required.";
+    passwordInput.classList.add("is-invalid");
     valid = false;
-  } else if (password.length < 6) { 
+  } else if (passwordInput.value.trim().length < 6) {
     passwordError.textContent = "Password must be at least 6 characters.";
+    passwordInput.classList.add("is-invalid");
     valid = false;
   }
 
@@ -220,8 +231,9 @@ function validateForm() {
     formError.textContent = "Please fix the errors above and try again.";
   }
 
-  return valid; // Submit form only if valid
+  return valid; 
 }
+
 
     document.addEventListener("DOMContentLoaded", () => {
       const gradients = [

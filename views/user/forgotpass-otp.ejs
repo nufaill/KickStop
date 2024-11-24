@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="utf-8" />
-  <title>OTP Verification - eCommerce</title>
+  <title>KickStop - OTP Verification</title>
   <meta http-equiv="x-ua-compatible" content="ie=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <!-- Favicon -->
@@ -92,7 +92,7 @@
   }
 
   .otp-timer.expired {
-    color: #ff4d4f;
+    color: #800000;
   }
 
   .otp-buttons {
@@ -115,7 +115,7 @@
   .btn-google {
     background-color: #ffffff;
     border: 1px solid #ddd;
-    color: #555;
+    color: #e5e5e5;
   }
 
   .btn-google:hover {
@@ -130,12 +130,12 @@
   }
 
   .btn-verify:hover {
-    background-color: #800000;
+    background-color: #6e0404;
   }
 
   /* Link Styling */
   .text-muted a {
-    color: #800000;
+    color: #003780;
     text-decoration: none;
   }
 
@@ -156,6 +156,7 @@
     margin-bottom: 15px;
     text-align: center;
   }
+  
 </style>
 
 </head>
@@ -168,9 +169,9 @@
           <div class="login_wrap widget-taber-content p-30 background-white border-radius-5">
             <div class="padding_eight_all bg-white">
               <div class="heading_s1">
-                <h3 class="mb-30">Email Verification</h3>
+                <h3 class="mb-30">Reset password</h3>
               </div>
-              <form id="otpForm" action="/verify-otp" method="post" onsubmit="return validateOTPForm()">
+              <form id="otpform" action="/verify-passForgot-otp" method="post" onsubmit="return validateOTPForm()">
                 <div class="form-group">
                   <label for="otp">Enter OTP:</label>
                   <input type="text" id="otp" name="otp" class="form-control" required maxlength="6" pattern="\d*"
@@ -184,12 +185,22 @@
                   <button type="button" class="btn btn-google hover-up" id="resendOtp" onclick="resendotp()">
                     Resend OTP
                   </button>
+                  <%if(locals.message && message.length>0){%>
+                    <div class="alert alert-danger mt-3">
+                        <%=message%>
+                    </div>
+                    <%}%>
                 </div>
                 <div class="form-group btn-verify-container">
                   <button type="submit" class="btn btn-fill-out btn-verify hover-up">
                     Verify Email
                   </button>
                 </div>
+                <%if(locals.message && message.length > 0){%>
+                    <div class="alert alert-danger">
+                        <%=message%>
+                    </div>
+                    <%}%>
               </form>
               <div class="text-muted text-center mt-15">
                 Already verified? <a href="/login">Login now</a>
@@ -231,44 +242,12 @@
     function validateOTPForm() {
       const otp = document.getElementById("otp").value.trim();
       document.getElementById("otpError").textContent = "";
-
-      $.ajax({
-        type: "POST",
-        url: "/verify-otp",
-        data: { otp: otp },
-        success: function (response) {
-          if (response.success) {
-            Swal.fire({
-              icon: "success",
-              title: "OTP verified successfully",
-              showConfirmButton: false,
-              timer: 1500,
-            }).then(() => {
-              window.location.href = response.redirectUrl;
-            });
-          } else {
-            Swal.fire({
-              icon: "error",
-              title: "Error",
-              text: response.message,
-            });
-          }
-        },
-        error: function () {
-          Swal.fire({
-            icon: "error",
-            title: "Invalid OTP",
-            text: "Please try again",
-          });
-        },
-      });
-      return false;
     }
 
     function resendotp() {
-  clearInterval(timerInterval); // Stop the previous timer
-  timer = 60; // Reset the timer correctly
-  document.getElementById("otp").disabled = false; // Enable OTP input again
+  clearInterval(timerInterval); 
+  timer = 60; 
+  document.getElementById("otp").disabled = false;
   document.getElementById("timerValue").classList.remove("expired");
   document.getElementById("timerValue").textContent = timer; 
   startTimer(); 

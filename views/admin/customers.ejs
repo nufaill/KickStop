@@ -1,209 +1,258 @@
 <%- include('../layouts/admin/header') %>
 <style>
-   body {
-        font-family: 'Arial', sans-serif;
-        background-color: #f4f6f9;
-        margin: 0;
-        padding: 0;
-    }
+/* General Styles */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f8f5f5;
+    margin: 0;
+    padding: 0;
+}
+
+.card-body {
+    background-color: #fff;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(128, 0, 0, 0.1);
+    margin: 20px auto;
+    max-width: 1200px;
+    border-radius: 8px;
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+/* Search Form */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f4f6f9;
+    margin: 0;
+    padding: 0;
+}
+
+.card-body {
+    background-color: #fff;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin: 20px auto;
+    max-width: 1200px;
+    border-radius: 8px;
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+/* Updated Search Form */
+.usersearchoption {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.usersearchoption .input-group {
+    display: flex;
+    width: auto;
+}
+
+.usersearchoption .form-control {
+    width: 150px;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+    padding: 8px 10px;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+}
+
+.usersearchoption .form-control:focus {
+    border-color: #800000;
+    box-shadow: 0 0 5px rgba(128, 0, 0, 0.3);
+}
+.clear-search {
+    margin-left: 8px;
+    font-size: 1rem;
+    color: #007bff;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.clear-search:hover {
+    background-color: rgba(0, 123, 255, 0.1);
+    color: #0056b3;
+    transform: scale(1.1);
+}
+
+/* Adjust alignment for the input and the icon */
+.input-group {
+    align-items: center;
+}
+
+/* Loading indicator */
+.search-spinner {
+    display: none;
+    width: 20px;
+    height: 20px;
+    margin-left: 10px;
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid #007bff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+
+.table {
+    width: 100%;
+    margin-bottom: 20px;
+    border-collapse: collapse;
+    background-color: #fff;
+}
+.table td {
+    padding: 12px 20px;
+    text-align: left;
+    border-bottom: 1px solid #e6d9d9;
+}
+.table th {
+    background-color: #800000;
+    color: #fff;
+    font-weight: bold;
+    padding: 12px 20px;
+}
+.table-hover tbody tr {
+    transition: background-color 0.3s ease;
+}
+.table-hover tbody tr:hover {
+    background-color: #fff5f5;
+}
+
+.abadge {
+    display: inline-block;
+    padding: 6px 12px;
+    font-size: 12px;
+    font-weight: bold;
+    border-radius: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    text-align: center;
+    min-width: 80px;
+    line-height: 1.5;
+    white-space: nowrap;
+}
+.abadge.alert-success {
+    background-color: #B22222;
+    color: #fff;
+}
+.abadge.alert-danger {
+    background-color: #800000;
+    color: #fff;
+}
+
+
+.btn {
+    padding: 8px 15px;
+    font-size: 14px;
+    border-radius: 4px;
+    font-weight: bold;
+    text-transform: capitalize;
+    letter-spacing: 0.5px;
+    transition: transform 0.2s ease, background-color 0.3s ease;
+    display: inline-block;
+    width: 120px;
+    text-align: center;
+    text-decoration: none;
+}
+
+.btn-danger {
+    background-color: #800000;
+    color: #fff;
+    border: none;
+}
+
+.btn-danger:hover {
+    background-color: #660000;
+    transform: scale(1.05);
+}
+
+.btn-success {
+    background-color: #a52a2a;
+    color: #fff;
+    border: none;
+}
+
+.btn-success:hover {
+    background-color: #8b2323;
+    transform: scale(1.05);
+}
+
+.pagination .page-item .page-link {
+    padding: 8px 12px;
+    background-color: #800000;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+    font-weight: bold;
+    display: block;
+}
+
+.pagination .page-item .page-link:hover {
+    background-color: #660000;
+}
+
+.pagination .page-item.active .page-link {
+    background-color: #a52a2a;
+}
+
+.search-spinner {
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid #800000;
+}
+
+.clear-search {
+    color: #800000;
+}
+
+.clear-search:hover {
+    background-color: rgba(128, 0, 0, 0.1);
+    color: #660000;
+}
+
+@media (max-width: 768px) {
     .card-body {
-        background-color: #fff;
-        padding: 20px;
-        border-radius: 10px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        margin: 20px auto;
-        max-width: 1200px;
+        padding: 15px;
     }
-
-    /* Search Form */
-    .searchform {
-        display: flex;
-        justify-content: space-between;
-        margin-bottom: 20px;
-        position: relative;
+    .usersearchoption {
+        flex-direction: column;
+        gap: 10px;
     }
-    .searchform .form-control {
-        border-radius: 50px 0 0 50px;
-        border: 1px solid #ddd;
-        padding: 10px 20px;
-        transition: all 0.3s ease;
+    .usersearchoption .form-control {
+        font-size: 14px;
     }
-    .searchform .form-control:focus {
-        border-color: #007bff;
-        box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
-    }
-    .searchform .btn {
-        border-radius: 0 50px 50px 0;
-        background-color: #007bff;
-        color: white;
-        border: none;
-        padding: 10px 20px;
-        cursor: pointer;
-        transition: all 0.3s ease;
-    }
-    .searchform .btn:hover {
-        background-color: #0056b3;
-    }
-    .searchform .btn i {
-        font-size: 20px;
-        vertical-align: middle;
-    }
-
-    /* Table */
-    .table {
-        width: 100%;
-        margin-bottom: 20px;
-        border-collapse: collapse;
-        background-color: #fff;
-        animation: fadeIn 0.5s ease-in-out;
+    .usersearchoption .btn {
+        font-size: 14px;
+        width: 10px;
     }
     .table th, .table td {
-        padding: 12px 20px;
-        text-align: left;
-        border-bottom: 1px solid #ddd;
-    }
-    .table th {
-        background-color: #f8f8f8;
-        font-weight: bold;
-    }
-    .table-hover tbody tr {
-        transition: background-color 0.3s ease;
-    }
-    .table-hover tbody tr:hover {
-        background-color: #f1f1f1;
-    }
-
-    /* Animations */
-    @keyframes fadeIn {
-        from {
-            opacity: 0;
-            transform: translateY(-10px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-
-    /* Badges */
-    .badge {
-        padding: 5px 15px;
-        font-size: 12px;
-        font-weight: bold;
-        border-radius: 20px;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-    .badge.alert-success {
-        background-color: #28a745;
-        color: #fff;
-        box-shadow: 0 2px 4px rgba(40, 167, 69, 0.4);
-    }
-    .badge.alert-danger {
-        background-color: #dc3545;
-        color: #fff;
-        box-shadow: 0 2px 4px rgba(220, 53, 69, 0.4);
-    }
-
-    /* Buttons */
-    .btn-danger, .btn-success {
-        padding: 8px 20px;
         font-size: 14px;
-        border-radius: 50px;
-        font-weight: bold;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        transition: all 0.3s ease;
+        padding: 8px 10px;
     }
-    .btn-danger {
-        background-color: #dc3545;
-        color: #fff;
-        border: none;
+    .btn {
+        width: 100%;
+        margin-bottom: 10px;
     }
-    .btn-danger:hover {
-        background-color: #a71d2a;
-        transform: scale(1.1);
-    }
-    .btn-success {
-        background-color: #28a745;
-        color: #fff;
-        border: none;
-    }
-    .btn-success:hover {
-        background-color: #19692c;
-        transform: scale(1.1);
-    }
+}
 
-    /* Pagination */
-    .pagination {
-        list-style: none;
-        display: flex;
-        justify-content: flex-start;
-        padding: 0;
-        margin: 20px 0;
-    }
-    .pagination .page-item {
-        margin: 0 5px;
-        transition: all 0.3s ease;
-    }
-    .pagination .page-item .page-link {
-        display: block;
-        padding: 8px 12px;
-        background-color: #007bff;
-        color: white;
-        text-decoration: none;
-        border-radius: 5px;
-        font-weight: bold;
-    }
-    .pagination .page-item .page-link:hover {
-        background-color: #0056b3;
-    }
-    .pagination .page-item.active .page-link {
-        background-color: #0056b3;
-        cursor: default;
-    }
-
-    /* No Users Found Message */
-    .text-center {
-        text-align: center;
-        font-size: 16px;
-        color: #666;
-    }
-
-    /* Card Animations */
-    .card-body {
-        animation: slideIn 0.6s ease;
-    }
-    @keyframes slideIn {
-        from {
-            opacity: 0;
-            transform: translateX(-50px);
-        }
-        to {
-            opacity: 1;
-            transform: translateX(0);
-        }
-    }
-
-    /* Mobile Responsive */
-    @media (max-width: 768px) {
-        .table th, .table td {
-            padding: 8px 10px;
-            font-size: 12px;
-        }
-        .searchform .form-control {
-            font-size: 14px;
-        }
-        .searchform .btn {
-            font-size: 14px;
-            padding: 8px 16px;
-        }
-    }
 </style>
 <div class="card-body">
 
     <!-- Search Form -->
-    <form class="searchform" method="get" action="/admin/users">
+    <form class="user-usersearchoption" id="usersearchoption" method="get" action="/admin/users">
         <div class="input-group">
             <input 
                 type="text" 
@@ -212,9 +261,12 @@
                 placeholder="Search Users"
                 value="<%= typeof searchQuery !== 'undefined' ? searchQuery : '' %>"
             >
-            <button class="btn btn-light bg" type="submit">
-                <i class="material-icons md-search"></i>
-            </button>
+            <button type="button" class="clear-search" id="clearSearch" aria-label="Clear search">&times;</button>
+        </div>
+        <div class="search-spinner" id="searchSpinner">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
         </div>
     </form>
 
@@ -237,9 +289,9 @@
                             <td><%= data[i].email %></td>
                             <td>
                                 <% if (data[i].isBlocked) { %>
-                                    <span class="badge rounded-pill alert-danger">Blocked</span>
+                                    <span class=" abadge rounded-pill  alert-danger">Blocked</span>
                                 <% } else { %>
-                                    <span class="badge rounded-pill alert-success">Active</span>
+                                    <span class="abadge rounded-pill alert-success">Active</span>
                                 <% } %>
                             </td>
                             <td>
@@ -279,5 +331,47 @@
         </ul>
     </nav>
 </div>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const usersearchoption = document.getElementById('usersearchoption');
+        const searchInput = usersearchoption.querySelector('input[name="search"]');
+        const searchSpinner = document.getElementById('searchSpinner');
+        let timeout = null;
+    
+        // Function to perform search
+        const performSearch = () => {
+            const query = searchInput.value.trim();
+            const url = new URL(window.location.href);
+            
+            if (query) {
+                url.searchParams.set('search', query);
+            } else {
+                url.searchParams.delete('search');
+            }
+            
+            // Show spinner
+            searchSpinner.style.display = 'block';
+            
+            // Navigate to search URL
+            window.location.href = url.toString();
+        };
+    
+        // Handle input changes with debounce
+        searchInput.addEventListener('input', function() {
+            clearTimeout(timeout);
+            timeout = setTimeout(performSearch, 500);
+        });
+    
+        // Handle form submission
+        usersearchoption.addEventListener('submit', function(e) {
+            e.preventDefault();
+            performSearch();
+        });
+        clearSearch.addEventListener('click', function () {
+        searchInput.value = '';
+        performSearch();
+    });
+    });
+    </script>
 
 <%- include('../layouts/admin/footer') %>

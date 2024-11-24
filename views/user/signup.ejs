@@ -10,6 +10,7 @@
   padding: 0;
   box-sizing: border-box;
 }
+/* Existing container styling */
 .container {
   position: relative;
   display: flex;
@@ -54,6 +55,7 @@ body {
   overflow: hidden;
 }
 
+/* Overlay container */
 .overlay {
   position: relative;
   width: 100%;
@@ -128,7 +130,7 @@ body {
   padding: 0.8rem;
   border: none;
   border-radius: 5px;
-  background: linear-gradient(45deg, #800000, #800000);
+  background: linear-gradient(45deg, hsl(128, 23%, 31%), hsl(128, 23%, 38%));
   color: #fff;
   font-weight: bold;
   cursor: pointer;
@@ -175,6 +177,11 @@ body {
   .shoe-image {
     border-radius: 0; 
   }
+}
+.is-invalid {
+  border-color: red !important;
+  box-shadow: 0 0 0 3px rgba(255, 0, 0, 0.2) !important;
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
 
@@ -238,80 +245,79 @@ body {
     </div>
   </div>
   <script>
-
 function validateForm() {
     let isValid = true;
-    const username = document.getElementById('full-name').value.trim();
-    const email = document.getElementById('email').value.trim();
-    const password = document.getElementById('password').value.trim();
-    const cpassword = document.getElementById('confirm-password').value.trim();
+
+    const username = document.getElementById('full-name');
+    const email = document.getElementById('email');
+    const password = document.getElementById('password');
+    const cpassword = document.getElementById('confirm-password');
     const terms = document.getElementById('terms')?.checked; // Optional check if terms exist
 
     // Email pattern validation
     const emailPattern = /^[^ ]+@[^ ]+\.[a-z]{2,3}$/;
 
-    // Clear previous errors
-    document.getElementById('usernameError').textContent = '';
-    document.getElementById('emailError').textContent = '';
-    document.getElementById('passwordError').textContent = '';
-    document.getElementById('cpasswordError').textContent = '';
+    // Clear previous errors and remove is-invalid classes
+    resetValidation(username, 'usernameError');
+    resetValidation(email, 'emailError');
+    resetValidation(password, 'passwordError');
+    resetValidation(cpassword, 'cpasswordError');
     if (document.getElementById('termsError')) {
         document.getElementById('termsError').textContent = '';
     }
 
     // Username validation
-    if (!username) {
-        document.getElementById('usernameError').textContent = 'Full name is required';
+    if (!username.value.trim()) {
+        setInvalid(username, 'usernameError', 'Full name is required');
         isValid = false;
-    } else if (!/^[a-zA-Z\s]+$/.test(username)) {
-        document.getElementById('usernameError').textContent = 'Full name can only contain letters';
+    } else if (!/^[a-zA-Z\s]+$/.test(username.value.trim())) {
+        setInvalid(username, 'usernameError', 'Full name can only contain letters');
         isValid = false;
-    } else if (username.length < 2) {
-        document.getElementById('usernameError').textContent = 'Full name must be at least 2 characters long';
+    } else if (username.value.trim().length < 2) {
+        setInvalid(username, 'usernameError', 'Full name must be at least 2 characters long');
         isValid = false;
-    } else if (username.length > 30) {
-        document.getElementById('usernameError').textContent = 'Full name cannot exceed 30 characters';
+    } else if (username.value.trim().length > 30) {
+        setInvalid(username, 'usernameError', 'Full name cannot exceed 30 characters');
         isValid = false;
     }
 
     // Email validation
-    if (!email || !emailPattern.test(email)) {
-        document.getElementById('emailError').textContent = 'Please enter a valid email';
+    if (!email.value.trim() || !emailPattern.test(email.value.trim())) {
+        setInvalid(email, 'emailError', 'Please enter a valid email');
         isValid = false;
     }
 
     // Password validation
-    if (!password) {
-        document.getElementById('passwordError').textContent = 'Password is required';
+    if (!password.value.trim()) {
+        setInvalid(password, 'passwordError', 'Password is required');
         isValid = false;
     } else {
-        const minLength = 6;
-        const hasUpperCase = /[A-Z]/.test(password);
-        const hasLowerCase = /[a-z]/.test(password);
-        const hasNumbers = /\d/.test(password);
-        const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+        const minLength = 8;
+        const hasUpperCase = /[A-Z]/.test(password.value);
+        const hasLowerCase = /[a-z]/.test(password.value);
+        const hasNumbers = /\d/.test(password.value);
+        const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password.value);
 
         let strengthErrors = [];
 
-        if (password.length < minLength) strengthErrors.push('at least 8 characters');
+        if (password.value.length < minLength) strengthErrors.push('at least 8 characters');
         if (!hasUpperCase) strengthErrors.push('an uppercase letter');
         if (!hasLowerCase) strengthErrors.push('a lowercase letter');
         if (!hasNumbers) strengthErrors.push('a number');
         if (!hasSpecialChar) strengthErrors.push('a special character');
 
         if (strengthErrors.length > 0) {
-            document.getElementById('passwordError').textContent =
-                `Password must contain ${strengthErrors.join(', ')}`;
+            setInvalid(password, 'passwordError', `Password must contain ${strengthErrors.join(', ')}`);
             isValid = false;
         }
     }
 
     // Confirm Password validation
-    if (!cpassword) {
-        document.getElementById('cpasswordError').textContent = 'Please confirm your password';
+    if (!cpassword.value.trim()) {
+        setInvalid(cpassword, 'cpasswordError', 'Please confirm your password');
         isValid = false;
-    } else if (password !== cpassword) {
-        document.getElementById('cpasswordError').textContent = 'Passwords do not match';
+    } else if (password.value !== cpassword.value) {
+        setInvalid(cpassword, 'cpasswordError', 'Passwords do not match');
         isValid = false;
     }
 
@@ -322,6 +328,18 @@ function validateForm() {
     }
 
     return isValid;
+}
+
+// Helper function to set validation errors
+function setInvalid(input, errorId, errorMessage) {
+    input.classList.add('is-invalid');
+    document.getElementById(errorId).textContent = errorMessage;
+}
+
+// Helper function to reset validation
+function resetValidation(input, errorId) {
+    input.classList.remove('is-invalid');
+    document.getElementById(errorId).textContent = '';
 }
 
 

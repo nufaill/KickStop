@@ -1,5 +1,59 @@
 
 <%- include('../layouts/admin/header') %>
+<style>
+    /* General Styles */
+    body {
+        font-family: 'Arial', sans-serif;
+        background-color: #f4f6f9;
+        margin: 0;
+        padding: 0;
+    }
+    
+    /* Buttons */
+    .btn-primary,
+    .btn-info {
+        background-color: #800000;
+        border: none;
+        color: white;
+    }
+    .btn-primary:hover,
+    .btn-info:hover {
+        background-color: #5a0000;
+    }
+    
+    /* Badges */
+    .badge.alert-success {
+        background-color: #800000;
+        color: #fff;
+    }
+    .badge.alert-danger {
+        background-color: #d9534f;
+        color: #fff;
+    }
+    
+    /* Table Header */
+    table thead {
+        background-color: #800000;
+        color: white;
+    }
+    
+    /* Pagination */
+    .pagination .page-link {
+        color: #800000;
+        border: 1px solid #800000;
+    }
+    .pagination .page-link.active {
+        background-color: #800000;
+        border-color: #800000;
+        color: white;
+    }
+    
+    /* Other Styles */
+    .text-white {
+        color: white;
+    }
+    </style>
+    
         <section class="content-main">
             <div class="content-header">
                 <div>
@@ -298,6 +352,6 @@ async function removeOffer(categoryId) {
     }
 }
 
-
+document.querySelector('.some-element').style.backgroundColor = '#800000';
 </script>
 <%- include('../layouts/admin/footer') %> 
