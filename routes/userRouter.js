@@ -14,6 +14,23 @@ router.use(async (req, res, next) => {
     next();
 });
 
+router.use(async (req, res, next) => {
+    if (req.path === "/login") {
+        return next();
+    }
+
+    if (req.session.user) {
+        const user = await User.findById(req.session.user);
+        if (user && user.isBlocked) {
+            return res.redirect("/login");
+        } else if (user) {
+
+            return next();
+        }
+    }
+    next();
+});
+
 
 
 router.get("/",userController.loadHomepage);
@@ -24,12 +41,19 @@ router.get('/signup',userController.loadsignup);
 router.post('/signup',userController.signup);
 router.post("/verify-otp",userController.verifyOtp);
 router.post("/resend-otp",userController.resendOtp);
+
+
 router.get('/forgot-password',profileController.getForgetPassPage);
 router.post('/forgot-email-valid',profileController.forgotEmailValid);
 router.post("/verify-passForgot-otp",profileController.verifyForgotPassOtp);
 router.get("/reset-password",profileController.getResetPassPage);
 router.post('/resend-forgot-otp',profileController.resendOtp);
 router.post('/reset-password',profileController.postNewPassword);
+router.get('/profile',userAuth,profileController.userprofile);
+router.get('/change-email', userAuth, profileController.changeEmail);
+router.post('/change-email', userAuth, profileController.changeEmailValid);
+router.post('/verify-email-otp', userAuth, profileController.verifyEmailChangeOtp);
+router.post('/update-email', userAuth, profileController.updateEmail);
 
 
 router.get("/auth/google", passport.authenticate("google", { scope: ["profile", "email"] }));

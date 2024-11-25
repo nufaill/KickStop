@@ -951,13 +951,13 @@ button.submit:hover, button[type='submit']:hover {
 }
 
 .btn.btn-secondary, .button.btn-secondary {
-  background-color: #41506b;
-  border-color: #41506b;
+  background-color: #800000;
+  border-color: #800000;
 }
 
 .btn.btn-facebook, .button.btn-facebook {
-  background: #3b5998;
-  border-color: #3b5998;
+  background: #800000;
+  border-color: #800000;
 }
 
 .btn.btn-google, .button.btn-google {

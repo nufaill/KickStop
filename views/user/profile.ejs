@@ -1,0 +1,761 @@
+<%- include("../../views/layouts/user/header") %>
+<style>
+    /* Modern Dashboard Desktop Styles */
+:root {
+  /* Color System */
+  --primary-50: #eff6ff;
+  --primary-100: #dbeafe;
+  --primary-200: #bfdbfe;
+  --primary-300: #93c5fd;
+  --primary-400: #60a5fa;
+  --primary-500: #3b82f6;
+  --primary-600: #2563eb;
+  --primary-700: #1d4ed8;
+  
+  /* Neutral Colors */
+  --gray-50: #f9fafb;
+  --gray-100: #f3f4f6;
+  --gray-200: #e5e7eb;
+  --gray-300: #d1d5db;
+  --gray-400: #9ca3af;
+  --gray-500: #6b7280;
+  --gray-600: #4b5563;
+  --gray-700: #374151;
+  
+  /* Success Colors */
+  --success-50: #f0fdf4;
+  --success-500: #22c55e;
+  --success-600: #16a34a;
+  
+  /* Warning Colors */
+  --warning-50: #fffbeb;
+  --warning-500: #f59e0b;
+  --warning-600: #d97706;
+  
+  /* Danger Colors */
+  --danger-50: #fef2f2;
+  --danger-500: #ef4444;
+  --danger-600: #dc2626;
+  
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  
+  /* Transitions */
+  --transition-all: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  
+  /* Layout */
+  --header-height: 64px;
+  --sidebar-width: 280px;
+  --content-max-width: 1440px;
+}
+
+/* Global Styles */
+body {
+  background-color: var(--gray-50);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+/* Layout Container */
+.dashboard-container {
+  display: flex;
+  min-height: 100vh;
+  max-width: var(--content-max-width);
+  margin: 0 auto;
+  padding: 2rem;
+  gap: 2rem;
+}
+
+/* Enhanced Sidebar */
+.dashboard-sidebar {
+  width: var(--sidebar-width);
+  background: white;
+  border-radius: 16px;
+  padding: 1.5rem;
+  position: sticky;
+  top: 2rem;
+  height: calc(100vh - 4rem);
+  box-shadow: var(--shadow-md);
+  transition: var(--transition-all);
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--gray-300) transparent;
+}
+
+.dashboard-sidebar:hover {
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-2px);
+}
+
+/* Sidebar Navigation */
+.nav-item {
+  margin-bottom: 0.5rem;
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  padding: 0.875rem 1rem;
+  border-radius: 8px;
+  color: var(--gray-600);
+  font-weight: 500;
+  transition: var(--transition-all);
+  position: relative;
+  overflow: hidden;
+}
+
+.nav-link:before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 0;
+  background: var(--primary-100);
+  z-index: 0;
+  transition: var(--transition-all);
+}
+
+.nav-link:hover:before {
+  width: 100%;
+}
+
+.nav-link.active {
+  color: var(--primary-600);
+  background: var(--primary-50);
+}
+
+.nav-link i {
+  margin-right: 12px;
+  font-size: 1.25rem;
+  position: relative;
+  z-index: 1;
+}
+
+.nav-link span {
+  position: relative;
+  z-index: 1;
+}
+
+/* Main Content Area */
+.dashboard-content {
+  flex: 1;
+  max-width: calc(100% - var(--sidebar-width) - 2rem);
+}
+
+/* Enhanced Cards */
+.card {
+  background: white;
+  border-radius: 16px;
+  box-shadow: var(--shadow-md);
+  transition: var(--transition-all);
+  border: 1px solid var(--gray-100);
+  overflow: hidden;
+}
+
+.card:hover {
+  box-shadow: var(--shadow-lg);
+}
+
+.card-header {
+  padding: 1.5rem;
+  border-bottom: 1px solid var(--gray-100);
+  background: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.card-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--gray-700);
+  margin: 0;
+}
+
+.card-body {
+  padding: 1.5rem;
+}
+
+/* Profile Section */
+.profile-section {
+  text-align: center;
+  padding: 2rem;
+}
+
+.profile-avatar {
+  width: 120px;
+  height: 120px;
+  border-radius: 60px;
+  margin: 0 auto 1.5rem;
+  background: var(--primary-50);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.5rem;
+  color: var(--primary-600);
+  transition: var(--transition-all);
+}
+
+.profile-avatar:hover {
+  transform: scale(1.05);
+}
+
+/* Enhanced Buttons */
+.btn {
+  padding: 0.625rem 1.25rem;
+  border-radius: 8px;
+  font-weight: 500;
+  transition: var(--transition-all);
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-primary {
+  background: var(--primary-600);
+  color: white;
+  border: none;
+}
+
+.btn-primary:hover {
+  background: var(--primary-700);
+  transform: translateY(-1px);
+}
+
+/* Table Styles */
+.table-container {
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+.table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  margin: 0;
+}
+
+.table th {
+  background: var(--gray-50);
+  padding: 1rem 1.5rem;
+  font-weight: 500;
+  color: var(--gray-600);
+  text-align: left;
+  border-bottom: 1px solid var(--gray-200);
+}
+
+.table td {
+  padding: 1rem 1.5rem;
+  color: var(--gray-700);
+  border-bottom: 1px solid var(--gray-100);
+  transition: var(--transition-all);
+}
+
+.table tr:hover td {
+  background: var(--gray-50);
+}
+
+/* Status Badges */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.375rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1;
+}
+
+.status-badge.completed {
+  background: var(--success-50);
+  color: var(--success-600);
+}
+
+.status-badge.pending {
+  background: var(--warning-50);
+  color: var(--warning-600);
+}
+
+.status-badge.cancelled {
+  background: var(--danger-50);
+  color: var(--danger-600);
+}
+
+/* Wallet Section */
+.wallet-balance {
+  background: linear-gradient(135deg, var(--primary-500), var(--primary-600));
+  border-radius: 12px;
+  padding: 2rem;
+  color: white;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.wallet-balance::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23ffffff' fill-opacity='0.1' fill-rule='evenodd'/%3E%3C/svg%3E");
+  opacity: 0.1;
+}
+
+.wallet-amount {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+/* Form Controls */
+.form-control {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--gray-200);
+  border-radius: 8px;
+  transition: var(--transition-all);
+  background: white;
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: var(--primary-400);
+  box-shadow: 0 0 0 3px var(--primary-100);
+}
+
+/* Animations */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.tab-pane {
+  animation: slideIn 0.3s ease-out;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--gray-300);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--gray-400);
+}
+
+/* Grid Layouts */
+.grid {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.grid-cols-2 {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.grid-cols-3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+/* Stats Cards */
+.stat-card {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  transition: var(--transition-all);
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.stat-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  background: var(--primary-50);
+  color: var(--primary-600);
+}
+
+/* Responsive Design */
+@media (min-width: 1024px) {
+  .dashboard-container {
+    padding: 2rem 4rem;
+  }
+}
+@media (max-width: 768px) {
+  /* Adjusting the main container */
+  .dashboard-container {
+    flex-direction: column;
+    padding: 1rem;
+  }
+
+  /* Sidebar adjustments */
+  .dashboard-sidebar {
+    width: 100%;
+    height: auto;
+    position: relative;
+    padding: 1rem;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .dashboard-sidebar:hover {
+    transform: none;
+  }
+
+  /* Hide scrollbars on smaller screens */
+  .dashboard-sidebar {
+    scrollbar-width: none;
+  }
+
+  .dashboard-sidebar::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Navigation links in a single column */
+  .nav-item {
+    margin-bottom: 1rem;
+  }
+
+  .nav-link {
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+  }
+
+  /* Content area adjustments */
+  .dashboard-content {
+    max-width: 100%;
+    padding: 1rem 0;
+  }
+
+  /* Card adjustments */
+  .card {
+    margin-bottom: 1rem;
+    border-radius: 12px;
+    padding: 1rem;
+  }
+
+  .card-header {
+    padding: 1rem;
+    font-size: 1.125rem;
+  }
+
+  .card-body {
+    padding: 1rem;
+  }
+
+  /* Profile section adjustments */
+  .profile-section {
+    padding: 1rem;
+  }
+
+  .profile-avatar {
+    width: 80px;
+    height: 80px;
+    font-size: 2rem;
+    margin-bottom: 1rem;
+  }
+
+  /* Button adjustments */
+  .btn {
+    font-size: 0.875rem;
+    padding: 0.5rem 1rem;
+  }
+
+  .btn-primary {
+    font-size: 1rem;
+    padding: 0.625rem 1.25rem;
+  }
+
+  /* Table adjustments */
+  .table-container {
+    overflow-x: auto;
+  }
+
+  .table th,
+  .table td {
+    font-size: 0.875rem;
+    padding: 0.75rem 1rem;
+  }
+
+  /* Grid layout adjustments */
+  .grid-cols-2,
+  .grid-cols-3 {
+    grid-template-columns: 1fr;
+  }
+
+  /* Wallet Section */
+  .wallet-balance {
+    padding: 1.5rem;
+    font-size: 1rem;
+  }
+
+  .wallet-amount {
+    font-size: 1.875rem;
+  }
+}
+
+</style>
+<main class="main">
+  <div class="breadcrumb-wrap">
+    <div class="container">
+      <div class="breadcrumb">
+        <a href="/" rel="nofollow">Home  </a>
+        <span></span>  >  Profile <span></span> > Account
+      </div>
+    </div>
+  </div>
+
+  <div class="dashboard-container">
+    <div class="dashboard-grid">
+      <!-- Sidebar -->
+      <div class="dashboard-menu">
+        <ul class="nav flex-column" role="tablist">
+          <% const tabs = [
+            { id: 'dashboard', name: 'Dashboard', icon: 'fi-rs-home' },
+            { id: 'address', name: 'My Address', icon: 'fi-rs-marker' },
+            { id: 'orders', name: 'Orders', icon: 'fi-rs-shopping-bag' },
+            { id: 'wallet', name: 'Wallet', icon: 'fi-rs-wallet' },
+            { id: 'history', name: 'Transaction History', icon: 'fi-rs-time-past' },
+            { id: 'referral', name: 'Referrals', icon: 'fi-rs-users' }
+          ]; %>
+          
+          <% tabs.forEach(tab => { %>
+            <li class="nav-item">
+              <a class="nav-link <%= tab.id === 'dashboard' ? 'active' : '' %>" 
+                 id="<%= tab.id %>-tab" 
+                 data-bs-toggle="tab" 
+                 href="#<%= tab.id %>" 
+                 role="tab">
+                <i class="<%= tab.icon %>"></i>
+                <%= tab.name %>
+              </a>
+            </li>
+          <% }); %>
+          
+          <li class="nav-item">
+            <a class="nav-link logout" href="/logout">
+              <i class="fi-rs-sign-out"></i>
+              Logout
+            </a>
+          </li>
+        </ul>
+      </div>
+              </div>
+              <div class="col-md-8">
+                <div class="tab-content dashboard-content">
+                  <% tabs.forEach(tab => { %>
+                    <div class="tab-pane fade <%= tab.id === 'dashboard' ? 'show active' : '' %>" id="<%= tab.id %>" role="tabpanel">
+                      <div class="card card-green">
+                        <div class="card-header">
+                          <h5 class="mb-0">Name: <%= user.username %></h5>
+                        </div>
+                <div class="card-body">
+                   <div class="card-body text-center">
+                     <h5 class="card-title"></h5>
+                     <p class="card-text">
+                       <strong>Email:</strong> <%= user.email %>
+                     </p>
+                     <a href="/change-email" class="btn btn-sm btn-success ml-2">Change Email</a>
+                     <a href="change-password" class="btn btn-sm btn-success">Change Password</a>
+                   </div>
+                 </div>
+               </div>
+
+
+               <div
+                 class="tab-pane fade"
+                 id="address"
+                 role="tabpanel"
+                 aria-labelledby="address-tab"
+               >
+                 <div class="row">
+                
+
+
+                   <div class="col-lg-6">
+                     <div class="card mb-3 mb-lg-0">
+                       <div class="card-header">
+                         <h5 class="mb-0"></h5>
+                       </div>
+
+
+
+
+
+                       <div class="card-body">
+                         <address>
+                        
+
+
+                        
+                         </address>
+                         <p></p>
+                      
+
+
+
+                         <div class="d-flex justify-content-between">
+                           <a href="#" class="btn-small">Edit</a>
+                           <a href="#" class="btn-small" onclick="">Delete</a>
+                         </div>
+                        
+                       </div>
+                     </div>
+                   </div>
+                
+                   <div class="col-lg-6">
+                     <div class="card mb-3 mb-lg-0">
+                       <div class="card-header">
+                         <h5 class="mb-0"></h5>
+                       </div>
+                       <div class="card-body">
+                         <address>No address</address>
+                       </div>
+                     </div>
+                   </div>
+              
+                   <div>
+                     <a href="#">
+                       <button class="btn btn-primary w-70">
+                         Add address
+                       </button>
+                     </a>
+                   </div>
+                 </div>
+               </div>
+
+
+               <div class="tab-pane fade" id="orders" role="tabpanel" aria-labelledby="orders-tab">
+                 <div class="card">
+                   <div class="card-header">
+                     <h5 class="mb-0">Your Orders</h5>
+                   </div>
+                   <div class="card-body">
+                     <div class="table-responsive">
+                       <table class="table">
+                         <thead>
+                           <tr>
+                             <th>Order</th>
+                             <th>Status</th>
+                             <th>Total</th>
+                             <th>Actions</th>
+                           </tr>
+                         </thead>
+                         <tbody>
+                           <tr>
+                             <td></td>
+                             <td></td>
+                             <td></td>
+                             <td>
+                               <a href="" class="btn-small d-block">View</a>
+                             </td>
+                           </tr>
+                         </tbody>
+                       </table>
+                     </div>
+                   </div>
+                 </div>
+               </div>
+
+
+               <div class="tab-pane fade" id="track-orders" role="tabpanel" aria-labelledby="track-orders-tab">
+                 <div class="card">
+                   <div class="card-header">
+                     <h5 class="mb-0">Wallet</h5>
+                   </div>
+                   <div class="card-body contact-from-area">
+                     <div class="row">
+                       <div class="col-lg-8 mx-auto text-center mt-90">
+                         <form>
+                           <div class="form-group">
+                             <label for="walletAmount" class="h4">Amount</label>
+                             <div class="h3"></div>
+                           </div>
+                           <button type="button" class="btn btn-success" onclick="">Add Money</button>
+                         </form>
+                       </div>
+                     </div>
+                   </div>
+                 </div>
+               </div>
+
+
+               <div class="tab-pane fade" id="wallet-history" role="tabpanel" aria-labelledby="orders-tab">
+                 <div class="card">
+                   <div class="card-header">
+                     <h5 class="mb-0">Wallet History</h5>
+                   </div>
+                   <div class="card-body">
+                     <div class="table-responsive">
+                       <table class="table">
+                         <thead>
+                           <tr>
+                             <th>Date</th>
+                             <th>Status</th>
+                             <th>Amount</th>
+                           </tr>
+                         </thead>
+                         <tbody>
+                           <tr>
+                             <td></td>
+                             <td></td>
+                             <td></td>
+                           </tr>
+                         </tbody>
+                       </table>
+                     </div>
+                   </div>
+                 </div>
+               </div>
+
+
+               <div class="tab-pane fade" id="referal" role="tabpanel" aria-labelledby="track-orders-tab">
+                 <div class="card">
+                   <div class="card-header">
+                     <h5 class="mb-0">Referal</h5>
+                   </div>
+                   <div class="card-body">
+                     <h6 class="mb-3">Refer your friends and earn money!</h6>
+                     <p>Share this link: <strong>></strong></p>
+                     <p>Earned: ₹</p>
+            </div>
+                    <% }) %>
+                   </div>
+                 </div>
+               </div>
+       </div>
+     </div>
+   </div>
+ </section>
+</main>
+<%- include("../../views/layouts/user/footer") %>

@@ -219,6 +219,159 @@ const postNewPassword   = async(req,res)=>{
     }
 }
 
+const userprofile = async(req,res)=>{
+    try {
+        const userId = req.session.user;
+        const userData = await User.findById(userId);
+        res.render('profile',{
+            user:userData,
+        })
+    } catch (error) {
+        console.error("Error for retrive profile data",error);
+        res.redirect("/pageNotFound")
+    }
+}
+
+const changeEmail = async(req, res) => {
+    try {
+        res.render("change-email", { message: null });
+    } catch (error) {
+        console.error("Error in changeEmail:", error);
+        res.redirect('/error');
+    }
+};
+const changeEmailValid = async (req, res) => {
+    try {
+        const { email } = req.body;
+        const userId = req.session.user;
+        const currentUser = await User.findById(userId);
+
+        if (!currentUser) {
+            return res.render("change-email", {
+                message: "User not found. Please login again."
+            });
+        }
+
+        // Check if the entered email matches current email
+        if (email !== currentUser.email) {
+            return res.render("change-email", {
+                message: "Entered email does not match your current email"
+            });
+        }
+
+        // Generate and hash OTP
+        const otp = generateOtp();
+        const hashedOtp = await bcrypt.hash(otp, 10);
+
+        // Send email with OTP
+        const emailSent = await sendVerificationEmail(email, otp);
+        
+        if (emailSent) {
+            // Store data in session
+            req.session.currentEmail = email;
+            req.session.emailChangeOtp = hashedOtp;
+            req.session.emailOtpExpiration = Date.now() + 5 * 60 * 1000; // 5 minutes expiration
+
+            console.log("Email change OTP sent:", otp); // For debugging
+            res.render("change-email-otp", { message: "" });
+        } else {
+            res.render("change-email", {
+                message: "Failed to send verification email. Please try again."
+            });
+        }
+    } catch (error) {
+        console.error("Error in changeEmailValid:", error);
+        res.render("change-email", {
+            message: "An error occurred. Please try again."
+        });
+    }
+};
+
+const verifyEmailChangeOtp = async (req, res) => {
+    try {
+        const { otp } = req.body;
+        
+        // Check if OTP and email exist in session
+        if (!req.session.emailChangeOtp || !req.session.currentEmail) {
+            return res.render("change-email-otp", {
+                message: "Session expired. Please try again."
+            });
+        }
+
+        // Check OTP expiration
+        if (Date.now() > req.session.emailOtpExpiration) {
+            return res.render("change-email-otp", {
+                message: "OTP has expired. Please request a new one."
+            });
+        }
+
+        // Verify OTP
+        const isOtpValid = await bcrypt.compare(otp, req.session.emailChangeOtp);
+        if (!isOtpValid) {
+            return res.render("change-email-otp", {
+                message: "Invalid OTP. Please try again."
+            });
+        }
+
+        // If OTP is valid, redirect to new email input page
+        res.render("new-email", { message: "" });
+
+    } catch (error) {
+        console.error("Error in verifyEmailChangeOtp:", error);
+        res.render("change-email-otp", {
+            message: "An error occurred. Please try again."
+        });
+    }
+};
+
+
+ const updateEmail = async (req, res) => {
+    try {
+        const { newEmail } = req.body;
+        const userId = req.session.user;
+
+        // Validate email format
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(newEmail)) {
+            return res.render("new-email", {
+                message: "Invalid email format"
+            });
+        }
+
+        // Check if new email is same as current email
+        if (newEmail === req.session.currentEmail) {
+            return res.render("new-email", {
+                message: "New email cannot be same as current email"
+            });
+        }
+
+        // Check if email already exists
+        const existingUser = await User.findOne({ email: newEmail });
+        if (existingUser) {
+            return res.render("new-email", {
+                message: "Email already registered with another account"
+            });
+        }
+
+        // Update user's email
+        await User.findByIdAndUpdate(userId, { email: newEmail });
+
+        // Clear email change session data
+        delete req.session.emailChangeOtp;
+        delete req.session.currentEmail;
+        delete req.session.emailOtpExpiration;
+        
+        // Redirect to profile with success message
+        res.redirect("/profile?message=Email updated successfully");
+
+    } catch (error) {
+        console.error("Error in updateEmail:", error);
+        res.render("new-email", {
+            message: "An error occurred. Please try again."
+        });
+    }
+};
+
 module.exports = {
   getForgetPassPage,
   forgotEmailValid,
@@ -226,5 +379,10 @@ module.exports = {
   getResetPassPage,
   resendOtp,
   verifyOtp,
-  postNewPassword
+  postNewPassword,
+  userprofile,
+  changeEmail,
+  changeEmailValid,
+  verifyEmailChangeOtp,
+  updateEmail
 };

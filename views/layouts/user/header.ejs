@@ -4,7 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KickStop</title>
+    <!-- External Styles -->
     <link rel="stylesheet" href="evara-frontend/assets/css/main.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
     <style>
         :root {
             --primary-color: #800000;
@@ -28,7 +31,6 @@
             color: var(--text-color);
         }
 
-        /* Header Styles */
         header {
             background-color: #fff;
             box-shadow: var(--shadow);
@@ -38,7 +40,7 @@
             transition: var(--transition);
         }
 
-        /* Top Bar */
+        /* Header Sections */
         .header-top {
             background-color: var(--primary-color);
             color: white;
@@ -46,38 +48,20 @@
         }
 
         .header-top-content {
-            max-width: 1200px;
-            margin: 0 auto;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
         }
 
-        .currency-language {
-            display: flex;
-            gap: 20px;
-        }
-
-        .currency-language a {
-            color: white;
-            text-decoration: none;
-            font-size: 14px;
-            transition: var(--transition);
-        }
-
-        .currency-language a:hover {
-            opacity: 0.8;
-        }
-
-        /* Middle Section */
         .header-middle {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
             padding: 20px;
             max-width: 1200px;
             margin: 0 auto;
-            display: grid;
-            grid-template-columns: auto 1fr auto;
-            gap: 30px;
-            align-items: center;
         }
 
         .logo img {
@@ -90,6 +74,8 @@
         }
 
         .search-bar {
+            flex-grow: 1;
+            margin: 0 20px;
             position: relative;
         }
 
@@ -99,13 +85,6 @@
             border: 2px solid var(--border-color);
             border-radius: 25px;
             font-size: 16px;
-            transition: var(--transition);
-        }
-
-        .search-bar input:focus {
-            outline: none;
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
         }
 
         .search-bar button {
@@ -119,47 +98,6 @@
             cursor: pointer;
         }
 
-        /* Main Menu */
-        .main-menu {
-            background-color: var(--light-gray);
-            padding: 0;
-            border-top: 1px solid var(--border-color);
-        }
-
-        .main-menu-content {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .main-menu nav ul {
-            display: flex;
-            list-style: none;
-            margin: 0;
-            padding: 0;
-        }
-
-        .main-menu nav ul li {
-            position: relative;
-        }
-
-        .main-menu nav ul li a {
-            display: block;
-            padding: 15px 20px;
-            text-decoration: none;
-            color: var(--text-color);
-            font-weight: 500;
-            transition: var(--transition);
-        }
-
-        .main-menu nav ul li a:hover {
-            color: var(--primary-color);
-            background-color: rgba(52, 152, 219, 0.1);
-        }
-
-        /* User Menu */
         .user-menu {
             display: flex;
             gap: 20px;
@@ -179,127 +117,67 @@
             color: white;
         }
 
-        .dropdown {
-            position: relative;
-        }
-
-        .dropdown-content {
-            position: absolute;
-            top: 100%;
-            right: 0;
-            background: white;
-            min-width: 200px;
-            border-radius: 8px;
-            box-shadow: var(--shadow);
-            opacity: 0;
-            visibility: hidden;
-            transform: translateY(10px);
-            transition: var(--transition);
-        }
-
-        .dropdown:hover .dropdown-content {
-            opacity: 1;
-            visibility: visible;
-            transform: translateY(0);
-        }
-
-        .dropdown-content a {
-            display: block;
-            padding: 12px 20px;
-            color: var(--text-color);
-            text-decoration: none;
-            transition: var(--transition);
-        }
-
-        .dropdown-content a:hover {
+        /* Navigation Menu */
+        .main-menu {
             background-color: var(--light-gray);
-            color: var(--primary-color);
+            padding: 0;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: center;
         }
 
+        .main-menu nav {
+            display: flex;
+        }
+
+        .main-menu ul {
+            display: flex;
+            list-style: none;
+        }
+
+        .main-menu li a {
+            display: block;
+            padding: 15px 20px;
+            text-decoration: none;
+            color: var(--text-color);
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .main-menu li a:hover {
+            color: var(--primary-color);
+            background-color: rgba(128, 0, 0, 0.1);
+        }
+
+        /* Responsive Styles */
         .hamburger {
             display: none;
             flex-direction: column;
-            gap: 6px;
+            gap: 5px;
             cursor: pointer;
-            padding: 10px;
         }
 
         .hamburger div {
             width: 30px;
             height: 3px;
             background: var(--text-color);
-            transition: var(--transition);
         }
 
-        /* Mobile Styles */
         @media (max-width: 768px) {
-            .header-middle {
-                grid-template-columns: auto 1fr;
-                gap: 15px;
-            }
-
-            .search-bar {
-                grid-column: 1 / -1;
-                order: 3;
-            }
-
             .hamburger {
                 display: flex;
             }
 
             .main-menu nav {
                 display: none;
-                width: 100%;
-            }
-
-            .main-menu.show nav {
-                display: block;
-            }
-
-            .main-menu nav ul {
                 flex-direction: column;
                 width: 100%;
+                background-color: white;
             }
 
-            .main-menu nav ul li a {
-                padding: 15px;
-                border-bottom: 1px solid var(--border-color);
+            .main-menu nav.show {
+                display: flex;
             }
-
-            .dropdown-content {
-                position: static;
-                box-shadow: none;
-                opacity: 1;
-                visibility: visible;
-                transform: none;
-                display: none;
-            }
-
-            .dropdown.active .dropdown-content {
-                display: block;
-            }
-
-            .user-menu {
-                flex-direction: column;
-                align-items: stretch;
-            }
-
-            .user-menu a {
-                text-align: center;
-            }
-        }
-
-        /* Animation for hamburger menu */
-        .hamburger.active div:nth-child(1) {
-            transform: rotate(45deg) translate(8px, 8px);
-        }
-
-        .hamburger.active div:nth-child(2) {
-            opacity: 0;
-        }
-
-        .hamburger.active div:nth-child(3) {
-            transform: rotate(-45deg) translate(8px, -8px);
         }
     </style>
 </head>
@@ -311,9 +189,7 @@
                     <a href="#">USD</a>
                     <a href="#">EN</a>
                 </div>
-                <div>
-                    <a href="/help" style="color: white; text-decoration: none;">Help</a>
-                </div>
+                <a href="/help" style="color: white;">Help</a>
             </div>
         </div>
 
@@ -329,115 +205,48 @@
             </div>
             <div class="user-menu">
                 <% if (typeof user !== 'undefined' && user) { %>
-                    <div class="dropdown">
-                        <a href="javascript:void(0)">
-                            <%= user.username %>
-                        </a>
-                        <div class="dropdown-content">
-                            <a href="/profile">Profile</a>
-                            <a href="/orders">Order History</a>
-                            <a href="/logout">Logout</a>
-                        </div>
-                    </div>
+                    <a href="/profile"><%= user.username %></a>
+                    <a href="/logout">Logout</a>
                 <% } else { %>
                     <a href="/login">Log In</a>
                     <a href="/signup">Sign Up</a>
                 <% } %>
+                <i class="fas fa-heart icon" title="Wishlist"></i>
+                <i class="fas fa-shopping-cart icon" title="Cart"></i>
             </div>
         </div>
 
         <div class="main-menu">
-            <div class="main-menu-content">
-                <div class="hamburger">
-                    <div></div>
-                    <div></div>
-                    <div></div>
-                </div>
-                <nav>
-                    <ul>
-                        <li><a href="/">Home</a></li>
-                        <li><a href="/all-products">Shop</a></li>
-                        <li><a href="/about">About</a></li>
-                        <li><a href="/contact">Contact</a></li>
-                    </ul>
-                </nav>
+            <nav>
+                <ul>
+                    <li><a href="/">Home</a></li>
+                    <li><a href="/all-products">Shop</a></li>
+                    <li><a href="/about">About</a></li>
+                    <li><a href="/contact">Contact</a></li>
+                </ul>
+            </nav>
+            <div class="hamburger">
+                <div></div>
+                <div></div>
+                <div></div>
             </div>
         </div>
     </header>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Hamburger menu functionality
+        document.addEventListener('DOMContentLoaded', () => {
             const hamburger = document.querySelector('.hamburger');
-            const mainMenu = document.querySelector('.main-menu');
             const nav = document.querySelector('.main-menu nav');
 
-            hamburger.addEventListener('click', function() {
-                this.classList.toggle('active');
-                nav.style.display = nav.style.display === 'block' ? 'none' : 'block';
+            hamburger.addEventListener('click', () => {
+                nav.classList.toggle('show');
+                hamburger.classList.toggle('active');
             });
 
-            // Dropdown functionality for mobile
-            const dropdowns = document.querySelectorAll('.dropdown');
-            dropdowns.forEach(dropdown => {
-                dropdown.addEventListener('click', function(e) {
-                    if (window.innerWidth <= 768) {
-                        this.classList.toggle('active');
-                        e.stopPropagation();
-                    }
-                });
-            });
-
-            // Close dropdowns when clicking outside
-            document.addEventListener('click', function(e) {
-                dropdowns.forEach(dropdown => {
-                    if (!dropdown.contains(e.target)) {
-                        dropdown.classList.remove('active');
-                    }
-                });
-            });
-
-            // Search bar enhancement
-            const searchInput = document.querySelector('.search-bar input');
-            searchInput.addEventListener('focus', function() {
-                this.parentElement.style.boxShadow = '0 0 0 3px rgba(52, 152, 219, 0.1)';
-            });
-
-            searchInput.addEventListener('blur', function() {
-                this.parentElement.style.boxShadow = 'none';
-            });
-
-            // Responsive header behavior
-            let lastScroll = 0;
-            window.addEventListener('scroll', () => {
-                const currentScroll = window.pageYOffset;
-                const header = document.querySelector('header');
-
-                if (currentScroll <= 0) {
-                    header.style.boxShadow = 'var(--shadow)';
-                    return;
-                }
-
-                if (currentScroll > lastScroll) {
-                    // Scrolling down
-                    header.style.transform = 'translateY(-100%)';
-                } else {
-                    // Scrolling up
-                    header.style.transform = 'translateY(0)';
-                    header.style.boxShadow = 'var(--shadow)';
-                }
-
-                lastScroll = currentScroll;
-            });
-
-            // Window resize handling
-            window.addEventListener('resize', function() {
-                if (window.innerWidth > 768) {
-                    nav.style.display = 'block';
-                    dropdowns.forEach(dropdown => dropdown.classList.remove('active'));
+            window.addEventListener('click', (e) => {
+                if (!nav.contains(e.target) && !hamburger.contains(e.target)) {
+                    nav.classList.remove('show');
                     hamburger.classList.remove('active');
-                } else {
-                    nav.style.display = 'none';
                 }
             });
         });
