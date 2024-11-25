@@ -200,23 +200,51 @@ const verifyOtp = async (req, res) => {
   }
 };
 
-const postNewPassword   = async(req,res)=>{
-    try {
-        const {newPass1, newPass2} = req.body;
-        const email = req.session.email;
-        if(newPass1===newPass2){
-            const passwordHash = await securePassword(newPass1);
-            await User.updateOne(
-                {email:email},
-                {$set:{password:passwordHash}}
-            )
-            res.redirect("/login");
-        }else{
-            res.render('reset-password',{message:'Password do not match'});
-        }
-    } catch (error) {
-        res.redirect('/error')
+
+const postNewPassword = async (req, res) => {
+  try {
+    const { newPass1, newPass2 } = req.body;
+    const email = req.session.email;
+
+    // Verify OTP was validated
+    if (!req.session.otpVerified) {
+      return res.render("change-password", {
+        message: "Please verify your email first"
+      });
     }
+
+    // Validate password format
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/;
+    if (!passwordRegex.test(newPass1)) {
+      return res.render("reset-password", {
+        message: "Password must be at least 8 characters long and contain uppercase, lowercase and numbers"
+      });
+    }
+
+    if (newPass1 === newPass2) {
+      const passwordHash = await securePassword(newPass1);
+      await User.updateOne(
+        { email: email },
+        { $set: { password: passwordHash } }
+      );
+
+      // Clear sensitive session data
+      delete req.session.userOtp;
+      delete req.session.otpVerified;
+      delete req.session.email;
+
+      res.redirect("/login");
+    } else {
+      res.render("reset-password", {
+        message: "Passwords do not match"
+      });
+    }
+  } catch (error) {
+    console.error("Error in postNewPassword:", error);
+    res.render("reset-password", {
+      message: "An error occurred. Please try again."
+    });
+  }
 }
 
 const userprofile = async(req,res)=>{
@@ -372,6 +400,88 @@ const verifyEmailChangeOtp = async (req, res) => {
     }
 };
 
+const changePassword = async(req,res)=>{
+  try {
+    res.render('change-password');
+  } catch (error) {
+    console.log('change-password page not found',error)
+    res.redirect('/pageerror')
+  }
+}
+
+
+const changePasswordValid = async(req,res)=>{
+  try {
+    const {email} = req.body;
+
+    const userExists = await User.findOne({email});
+    if(userExists){
+      const otp = generateOtp();
+      const emailSent = await sendVerificationEmail(email,otp);
+      if(emailSent){
+        req.session.userOtp = otp;
+        req.session.userData = req.body;
+        req.session.email = email;
+        res.render("change-password-otp");
+        console.log('Otp:',otp);
+      }else {
+        res.json({
+          success:false,
+          message:"Failed to send OTP. Please try again"
+        })
+      }
+    }else{
+      res.render("change-password",{
+        message:"User with email does not exist"
+      })
+    }
+  } catch (error) {
+    console.log("Error in change password validation",error);
+    res.redirect("/pageerror")
+  }
+}
+
+
+const verifyChangepasswordOtp = async (req, res) => {
+  try {
+    const enteredOtp = req.body.otp;
+    
+    // Check if OTP exists in session
+    if (!req.session.userOtp) {
+      return res.json({
+        success: false,
+        message: "OTP session expired. Please try again."
+      });
+    }
+
+    // Check if OTP matches
+    if (enteredOtp === req.session.userOtp) {
+      // Store verification status in session
+      req.session.otpVerified = true;
+      res.render("reset-password", { message: null });
+    } else {
+      res.render("change-password-otp", {
+        message: "Invalid OTP. Please try again."
+      });
+    }
+  } catch (error) {
+    console.error("Error in verifyChangepasswordOtp:", error);
+    res.render("change-password-otp", {
+      message: "An error occurred. Please try again."
+    });
+  }
+}
+
+// this middleware to protect reset password route
+const verifyOtpMiddleware = (req, res, next) => {
+  if (req.session.otpVerified) {
+    next();
+  } else {
+    res.redirect("/change-password");
+  }
+};
+
+
 module.exports = {
   getForgetPassPage,
   forgotEmailValid,
@@ -384,5 +494,9 @@ module.exports = {
   changeEmail,
   changeEmailValid,
   verifyEmailChangeOtp,
-  updateEmail
+  updateEmail,
+  changePassword,
+  changePasswordValid,
+  verifyChangepasswordOtp,
+  verifyOtpMiddleware
 };
