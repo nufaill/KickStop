@@ -56,7 +56,11 @@ router.post('/verify-email-otp', userAuth, profileController.verifyEmailChangeOt
 router.post('/update-email', userAuth, profileController.updateEmail);
 router.get('/change-password',userAuth,profileController.changePassword);
 router.post('/change-password',userAuth,profileController.changePasswordValid);
-router.post('/verify-changepassword-otp',userAuth,profileController.verifyChangepasswordOtp)
+router.post('/verify-changepassword-otp',userAuth,profileController.verifyChangepasswordOtp);
+
+//address Management
+router.get('/addAddress',userAuth,profileController.addAddress);
+router.post('/addAddress',userAuth,profileController.postAddaddress);
 
 router.get("/auth/google", passport.authenticate("google", { scope: ["profile", "email"] }));
 router.get("/auth/google/callback",passport.authenticate("google", { failureRedirect: "/signup" }),(req, res) => { console.log('Google Auth Success:', req.user); res.redirect("/");});

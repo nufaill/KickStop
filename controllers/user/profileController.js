@@ -1,4 +1,5 @@
 const User = require("../../models/userSchema");
+const Address = require("../../models/addressSchema");
 const nodemailer = require("nodemailer");
 const bcrypt = require("bcrypt");
 const dotenv = require("dotenv");
@@ -201,23 +202,28 @@ const verifyOtp = async (req, res) => {
 };
 
 
+
 const postNewPassword = async (req, res) => {
   try {
     const { newPass1, newPass2 } = req.body;
     const email = req.session.email;
 
-    // Verify OTP was validated
     if (!req.session.otpVerified) {
       return res.render("change-password", {
         message: "Please verify your email first"
       });
     }
 
-    // Validate password format
-    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/;
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    
+    console.log('Password validation:', {
+      password: newPass1,
+      meetsRegex: passwordRegex.test(newPass1)
+    });
+
     if (!passwordRegex.test(newPass1)) {
       return res.render("reset-password", {
-        message: "Password must be at least 8 characters long and contain uppercase, lowercase and numbers"
+        message: "Password must be at least 8 characters long and contain uppercase, lowercase, numbers, and special characters"
       });
     }
 
@@ -248,16 +254,18 @@ const postNewPassword = async (req, res) => {
 }
 
 const userprofile = async(req,res)=>{
-    try {
-        const userId = req.session.user;
-        const userData = await User.findById(userId);
-        res.render('profile',{
-            user:userData,
-        })
-    } catch (error) {
-        console.error("Error for retrive profile data",error);
-        res.redirect("/pageNotFound")
-    }
+  try {
+      const userId = req.session.user;
+      const userData = await User.findById(userId);
+      const userAddress = await Address.findOne({userId : userId});
+      res.render('profile',{
+          user: userData,
+          userAddress: userAddress
+      });
+  } catch (error) {
+      console.error("Error retrieving profile data:", error);
+      res.redirect("/pageNotFound");
+  }
 }
 
 const changeEmail = async(req, res) => {
@@ -280,18 +288,14 @@ const changeEmailValid = async (req, res) => {
             });
         }
 
-        // Check if the entered email matches current email
         if (email !== currentUser.email) {
             return res.render("change-email", {
                 message: "Entered email does not match your current email"
             });
         }
-
-        // Generate and hash OTP
         const otp = generateOtp();
         const hashedOtp = await bcrypt.hash(otp, 10);
 
-        // Send email with OTP
         const emailSent = await sendVerificationEmail(email, otp);
         
         if (emailSent) {
@@ -300,7 +304,7 @@ const changeEmailValid = async (req, res) => {
             req.session.emailChangeOtp = hashedOtp;
             req.session.emailOtpExpiration = Date.now() + 5 * 60 * 1000; // 5 minutes expiration
 
-            console.log("Email change OTP sent:", otp); // For debugging
+            console.log("Email change OTP sent:", otp); 
             res.render("change-email-otp", { message: "" });
         } else {
             res.render("change-email", {
@@ -319,29 +323,24 @@ const verifyEmailChangeOtp = async (req, res) => {
     try {
         const { otp } = req.body;
         
-        // Check if OTP and email exist in session
         if (!req.session.emailChangeOtp || !req.session.currentEmail) {
             return res.render("change-email-otp", {
                 message: "Session expired. Please try again."
             });
         }
 
-        // Check OTP expiration
         if (Date.now() > req.session.emailOtpExpiration) {
             return res.render("change-email-otp", {
                 message: "OTP has expired. Please request a new one."
             });
         }
 
-        // Verify OTP
         const isOtpValid = await bcrypt.compare(otp, req.session.emailChangeOtp);
         if (!isOtpValid) {
             return res.render("change-email-otp", {
                 message: "Invalid OTP. Please try again."
             });
         }
-
-        // If OTP is valid, redirect to new email input page
         res.render("new-email", { message: "" });
 
     } catch (error) {
@@ -358,7 +357,6 @@ const verifyEmailChangeOtp = async (req, res) => {
         const { newEmail } = req.body;
         const userId = req.session.user;
 
-        // Validate email format
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(newEmail)) {
             return res.render("new-email", {
@@ -366,14 +364,12 @@ const verifyEmailChangeOtp = async (req, res) => {
             });
         }
 
-        // Check if new email is same as current email
         if (newEmail === req.session.currentEmail) {
             return res.render("new-email", {
                 message: "New email cannot be same as current email"
             });
         }
 
-        // Check if email already exists
         const existingUser = await User.findOne({ email: newEmail });
         if (existingUser) {
             return res.render("new-email", {
@@ -381,7 +377,6 @@ const verifyEmailChangeOtp = async (req, res) => {
             });
         }
 
-        // Update user's email
         await User.findByIdAndUpdate(userId, { email: newEmail });
 
         // Clear email change session data
@@ -389,7 +384,6 @@ const verifyEmailChangeOtp = async (req, res) => {
         delete req.session.currentEmail;
         delete req.session.emailOtpExpiration;
         
-        // Redirect to profile with success message
         res.redirect("/profile?message=Email updated successfully");
 
     } catch (error) {
@@ -400,77 +394,95 @@ const verifyEmailChangeOtp = async (req, res) => {
     }
 };
 
-const changePassword = async(req,res)=>{
+const changePassword = async(req, res) => {
   try {
-    res.render('change-password');
+    res.render('change-password', { message: null });
   } catch (error) {
-    console.log('change-password page not found',error)
-    res.redirect('/pageerror')
+    console.log('change-password page not found', error);
+    res.redirect('/pageerror');
   }
-}
+};
 
 
-const changePasswordValid = async(req,res)=>{
+const changePasswordValid = async(req, res) => {
   try {
-    const {email} = req.body;
+    const { email } = req.body;
+    
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.render('change-password', {
+        message: 'Please enter a valid email address'
+      });
+    }
 
-    const userExists = await User.findOne({email});
-    if(userExists){
+    const userExists = await User.findOne({ email });
+    if (userExists) {
       const otp = generateOtp();
-      const emailSent = await sendVerificationEmail(email,otp);
-      if(emailSent){
-        req.session.userOtp = otp;
-        req.session.userData = req.body;
+      const hashedOtp = await bcrypt.hash(otp, 10); 
+
+      const emailSent = await sendVerificationEmail(email, otp);
+      if (emailSent) {
+        // Store hashed OTP and expiration time in session
+        req.session.userOtp = hashedOtp;
         req.session.email = email;
-        res.render("change-password-otp");
-        console.log('Otp:',otp);
-      }else {
-        res.json({
-          success:false,
-          message:"Failed to send OTP. Please try again"
-        })
+        req.session.otpExpiration = Date.now() + 5 * 60 * 1000; 
+
+        console.log('OTP for testing:', otp);
+        res.render('change-password-otp', { message: null });
+      } else {
+        res.render('change-password', {
+          message: 'Failed to send OTP. Please try again'
+        });
       }
-    }else{
-      res.render("change-password",{
-        message:"User with email does not exist"
-      })
+    } else {
+      res.render('change-password', {
+        message: 'User with this email does not exist'
+      });
     }
   } catch (error) {
-    console.log("Error in change password validation",error);
-    res.redirect("/pageerror")
+    console.log('Error in change password validation', error);
+    res.render('change-password', {
+      message: 'An error occurred. Please try again'
+    });
   }
-}
+};
 
 
 const verifyChangepasswordOtp = async (req, res) => {
   try {
-    const enteredOtp = req.body.otp;
-    
-    // Check if OTP exists in session
-    if (!req.session.userOtp) {
-      return res.json({
-        success: false,
-        message: "OTP session expired. Please try again."
+    const { otp } = req.body;
+
+    // Check if OTP and expiration time exist in session
+    if (!req.session.userOtp || !req.session.otpExpiration) {
+      return res.render('change-password', {
+        message: 'Session expired. Please try again'
       });
     }
 
-    // Check if OTP matches
-    if (enteredOtp === req.session.userOtp) {
-      // Store verification status in session
+    // Check if OTP has expired
+    if (Date.now() > req.session.otpExpiration) {
+      return res.render('change-password-otp', {
+        message: 'OTP has expired. Please request a new one'
+      });
+    }
+
+    // Verify OTP
+    const isOtpValid = await bcrypt.compare(otp, req.session.userOtp);
+    if (isOtpValid) {
       req.session.otpVerified = true;
-      res.render("reset-password", { message: null });
+      res.render('reset-password', { message: null });
     } else {
-      res.render("change-password-otp", {
-        message: "Invalid OTP. Please try again."
+      res.render('change-password-otp', {
+        message: 'Invalid OTP. Please try again'
       });
     }
   } catch (error) {
-    console.error("Error in verifyChangepasswordOtp:", error);
-    res.render("change-password-otp", {
-      message: "An error occurred. Please try again."
+    console.error('Error in verifyChangepasswordOtp:', error);
+    res.render('change-password-otp', {
+      message: 'An error occurred. Please try again'
     });
   }
-}
+};
 
 // this middleware to protect reset password route
 const verifyOtpMiddleware = (req, res, next) => {
@@ -481,6 +493,37 @@ const verifyOtpMiddleware = (req, res, next) => {
   }
 };
 
+const addAddress = async(req,res)=>{
+  try {
+    const user = req.session.user;
+    res.render("add-address",{user:user})
+  } catch (error) {
+    res.redirect('/pageerror')
+  }
+}
+
+const postAddaddress = async(req,res)=>{
+  try {
+    const userId = req.session.user;
+    const userData = await User.findOne({_id:userId});
+    const {addressType,name,city,landmark,state,pincode,phone,altphone,address,email} = req.body;
+
+    const userAddress = await Address.findOne({userId:userData._id});
+    if(!userAddress){
+      const newAddress = new Address({
+        userId : userData._id,
+        addresses : [{addressType,name,city,landmark,state,pincode,phone,altphone,address,email}]
+      });
+      await newAddress.save();
+    }else{
+      userAddress.addresses.push({addressType,name,city,landmark,state,pincode,phone,altphone,address,email});
+      await userAddress.save();
+    }
+    res.redirect('/profile');
+  } catch (error) {
+    console.error('Error adding address',error)
+  }
+}
 
 module.exports = {
   getForgetPassPage,
@@ -498,5 +541,7 @@ module.exports = {
   changePassword,
   changePasswordValid,
   verifyChangepasswordOtp,
-  verifyOtpMiddleware
+  verifyOtpMiddleware,
+  addAddress,
+  postAddaddress
 };

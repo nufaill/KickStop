@@ -604,49 +604,42 @@ body {
 
 
                    <div class="col-lg-6">
+                    <% if (userAddress && userAddress.addresses && userAddress.addresses.length > 0) { %>
+                      <div class="addresses-container">
+                        <h3>Saved Addresses</h3>
+                        <% userAddress.addresses.forEach((address, index) => { %>
                      <div class="card mb-3 mb-lg-0">
                        <div class="card-header">
-                         <h5 class="mb-0"></h5>
+                         <h5 class="mb-0"><%= address.addressType.toUpperCase() %></h5>
                        </div>
-
-
-
-
-
-                       <div class="card-body">
-                         <address>
-                        
-
-
-                        
-                         </address>
-                         <p></p>
-                      
-
-
-
-                         <div class="d-flex justify-content-between">
-                           <a href="#" class="btn-small">Edit</a>
-                           <a href="#" class="btn-small" onclick="">Delete</a>
-                         </div>
+                              <div class="address-card">
+                                <h4><%= address.name %></h4>
+                                <p><%= address.address %></p>
+                                <p><%= address.city %>, <%= address.state %> - <%= address.pincode %></p>
+                                <p>Phone: <%= address.phone %></p>
+                                <% if (address.altPhone) { %>
+                                  <p>Alternate Phone: <%= address.altPhone %></p>
+                                <% } %>
+                                <p>Email: <%= address.email %></p>
+                              </div><br>
+                              
+                              <div class="d-flex justify-content-between">
+                             <a href="#" class="btn-small">Edit</a>
+                             <a href="#" class="btn-small" onclick="">Delete</a>
+                           </div>
+                           
                         
                        </div>
                      </div>
-                   </div>
-                
-                   <div class="col-lg-6">
-                     <div class="card mb-3 mb-lg-0">
-                       <div class="card-header">
-                         <h5 class="mb-0"></h5>
-                       </div>
-                       <div class="card-body">
-                         <address>No address</address>
-                       </div>
-                     </div>
+                     <% }); %>
+                    </div><br>
+                  <% } else { %>
+                    <p>No addresses found. <a href="/addAddress">Add a new address</a></p>
+                  <% } %>
                    </div>
               
                    <div>
-                     <a href="#">
+                     <a href="/addAddress">
                        <button class="btn btn-primary w-70">
                          Add address
                        </button>
