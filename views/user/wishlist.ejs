@@ -1,0 +1,174 @@
+<%- include('../layouts/user/header') %>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f7f7f7;
+      margin: 0;
+      padding: 0;
+    }
+
+    header {
+      background-color: #800000;
+      color: #fff;
+      padding: 15px 20px;
+      text-align: center;
+    }
+
+    .container {
+      margin: 20px auto;
+      width: 90%;
+      max-width: 800px;
+    }
+
+    .wishlist-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: #fff;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      margin-bottom: 15px;
+      padding: 15px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .wishlist-item h3 {
+      margin: 0;
+      font-size: 18px;
+    }
+
+    .btn {
+      padding: 8px 15px;
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .add-btn {
+      background-color: #800000;
+      color: #fff;
+    }
+
+    .remove-btn {
+      background-color: #ddd;
+      color: #333;
+    }
+
+    .remove-all-btn {
+      background-color: #800000;
+      color: #fff;
+      margin-top: 15px;
+      width: 100%;
+    }
+
+    .add-btn:hover {
+      background-color: #a00000;
+    }
+
+    .remove-btn:hover, .remove-all-btn:hover {
+      background-color: #bbb;
+    }
+
+    .search-bar {
+      margin-bottom: 20px;
+    }
+
+    .search-input {
+      width: calc(100% - 50px);
+      padding: 8px;
+      font-size: 14px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+    }
+
+    .search-btn {
+      padding: 8px 10px;
+      border: none;
+      background-color: #800000;
+      color: white;
+      border-radius: 3px;
+      font-size: 14px;
+      margin-left: 5px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Wishlist</h1>
+  </header>
+  <div class="container">
+    <!-- Search Bar -->
+    <div class="search-bar">
+      <input type="text" id="search" class="search-input" placeholder="Search wishlist..." onkeyup="searchWishlist()" />
+      <button class="btn search-btn">Search</button>
+    </div>
+
+    <!-- Wishlist Items -->
+    <% if (wishlist.length > 0) { %>
+      <% wishlist.forEach((item) => { %>
+        <div class="wishlist-item" data-name="<%= item.name.toLowerCase() %>">
+          <h3><%= item.name %></h3>
+          <div>
+            <button class="btn remove-btn" onclick="removeFromWishlist('<%= item.id %>')">Remove</button>
+          </div>
+        </div>
+      <% }) %>
+    <% } else { %>
+      <p>Your wishlist is empty!</p>
+    <% } %>
+
+    <!-- Add to Wishlist -->
+    <div>
+      <h2>Add to Wishlist</h2>
+      <input type="text" id="newItem" placeholder="Enter item name" />
+      <button class="btn add-btn" onclick="addToWishlist()">Add Item</button>
+    </div>
+
+    <!-- Remove All Button -->
+    <% if (wishlist.length > 0) { %>
+      <button class="btn remove-all-btn" onclick="clearWishlist()">Remove All Items</button>
+    <% } %>
+  </div>
+
+  <script>
+    function addToWishlist() {
+      const newItem = document.getElementById('newItem').value.trim();
+      if (!newItem) {
+        alert('Please enter an item name!');
+        return;
+      }
+      // Simulate backend call
+      alert(`"${newItem}" added to wishlist!`);
+      // Add actual functionality here
+    }
+
+    function removeFromWishlist(itemId) {
+      if (confirm('Are you sure you want to remove this item?')) {
+        alert(`Item with ID ${itemId} removed from wishlist!`);
+        // Add actual functionality here
+      }
+    }
+
+    function clearWishlist() {
+      if (confirm('Are you sure you want to clear the entire wishlist?')) {
+        alert('All items removed from wishlist!');
+        // Add actual functionality here
+      }
+    }
+
+    function searchWishlist() {
+      const searchValue = document.getElementById('search').value.toLowerCase();
+      const items = document.querySelectorAll('.wishlist-item');
+      items.forEach((item) => {
+        const name = item.getAttribute('data-name');
+        if (name.includes(searchValue)) {
+          item.style.display = 'flex';
+        } else {
+          item.style.display = 'none';
+        }
+      });
+    }
+  </script>
+
+<%- include('../layouts/user/footer') %>

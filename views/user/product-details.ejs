@@ -211,9 +211,12 @@
                                             <%=product.productName%>
                                         </h2>
                                         <div class="product-detail-rating">
-                                            <div class="pro-details-brand">
+                                            <div class="pro-details-category">
                                                 <span>Category : <a href="#"><%=product.category.name%></a></span>
                                             </div>
+                                            <!-- <div class="pro-details-brand">
+                                                <span>Brand : <a href="#"><%=product.brand.name%></a></span>
+                                            </div> -->
                                             <div class="product-rate-cover text-end">
                                                 <div class="product-rate d-inline-block">
                                                     <div class="product-rating" style="width:90%">
@@ -283,9 +286,15 @@
                                                 <a href="#" class="qty-up"><i class="fi-rs-angle-small-up"></i></a>
                                             </div>
                                             <div class="product-extra-link2">
-                                                <button type="submit" class="button button-add-to-cart">Add to
-                                                    cart</button>
-                                                <button type="submit" class="button button-add-to-cart">Buy Now</button>
+                                                <form action="/add-to-cart?id=<%= product._id %>" method="POST" style="display: inline;" onsubmit="syncQuantity()">
+                                                    <input type="hidden" name="quantity" id="cart-quantity" value="1">
+                                                    <button type="submit" class="btn action-btn">Add to Cart</button>
+                                                  </form>
+                                                  <form action="/checkout?id=<%= product._id %>" method="get" style="display: inline;" onsubmit="syncQuantity()">
+                                                    <input type="hidden" name="quantity" id="cart-quantity" value="1">
+                                                    <button type="submit" class="btn action-btn">Buy Now</button>
+                                                  </form>
+                                                  
                                                 <a aria-label="Add To Wishlist" class="action-btn hover-up"
                                                     href="shop-wishlist.html"><i class="fi-rs-heart"></i></a>
                                                 <a aria-label="Compare" class="action-btn hover-up"
@@ -367,5 +376,18 @@
             </div>
         </section>
     </main>
+    <script>
+        function syncQuantity() {
+          // Get the quantity input field by its ID
+          const quantityInput = document.getElementById('cart-quantity');
+      
+          // Validate or set a default value for the quantity
+          if (!quantityInput.value || quantityInput.value <= 0) {
+            alert('Please enter a valid quantity!'); // Show an alert for invalid input
+            quantityInput.value = 1; // Set a default quantity of 1
+          }
+        }
+      </script>
+      
 
     <%- include('../layouts/user/footer.ejs') %>

@@ -41,6 +41,12 @@
             transform: scale(1.05);
             /* Image zoom effect on hover */
         }
+        /* .slider-img img {
+    width: 100vw;
+    height: 100vh;
+    object-fit: cover;
+} */
+
     </style>
     <div class="mobile-header-active mobile-header-wrapper-style">
         <div class="mobile-header-wrapper-inner">
@@ -212,54 +218,58 @@
         </div>
     </div>
     <main class="main">
-        <section class="home-slider position-relative pt-25 pb-20">
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-9">
-                        <div class="position-relative">
-                            <div class="hero-slider-1 style-3 dot-style-1 dot-style-1-position-1">
-                                <div class="single-hero-slider single-animation-wrap">
-                                    <div class="container">
-                                        <div class="slider-1-height-3 slider-animated-1">
-                                            <div class="hero-slider-content-2">
-                                                <!-- <h4 class="animated">Trade-In Offer</h4>
-                                                <h2 class="animated fw-900">Supper Value Deals</h2>
-                                                <h1 class="animated fw-900 text-brand">On All Products</h1>
-                                                <p class="animated">Save more with coupons & up to 70% off</p> -->
-                                                <a class="animated btn btn-brush btn-brush-3"
-                                                    href="shop-product-right.html"> Shop Now </a>
-                                            </div>
-                                            <div class="slider-img">
-                                                <img  src="evara-frontend/assets/imgs/new_images/banner1.webp" alt="">
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="single-hero-slider single-animation-wrap">
-                                    <div class="container">
-                                        <div class="slider-1-height-3 slider-animated-1">
-                                            <div class="hero-slider-content-2">
-                                                <!-- <h4 class="animated">Tech Promotions</h4>
-                                                <h2 class="animated fw-900">Tech Trending</h2>
-                                                <h1 class="animated fw-900 text-brand">Great Collection</h1>
-                                                <p class="animated">Save more with coupons & up to 20% off</p> -->
-                                                <a class="animated btn btn-brush btn-brush-3"
-                                                    href="shop-product-right.html"> Shop Now </a>
-                                            </div>
-                                            <div class="slider-img">
-                                                <img style="height: 100%;"
-                                                    src="evara-frontend/assets/imgs/new_images/banner3.webp" alt="">
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="slider-arrow hero-slider-1-arrow style-3"></div>
+        <section class="home-slider position-relative" style="width: 100%; padding: 0; margin: 0;">
+            <div class="hero-slider-1 style-3 dot-style-1 dot-style-1-position-1">
+                <div class="single-hero-slider single-animation-wrap">
+                    <div class="slider-1-height-3 slider-animated-1">
+                        <div class="hero-slider-content-2">
+                            <!-- Add content here if needed -->
+                        </div>
+                        <div class="slider-img">
+                            <img style="width: 100%; height: auto;" src="evara-frontend/assets/imgs/new_images/banner1.webp" alt="">
+                        </div>
+                    </div>
+                </div>
+                <div class="single-hero-slider single-animation-wrap">
+                    <div class="slider-1-height-3 slider-animated-1">
+                        <div class="hero-slider-content-2">
+                            <!-- Add content here if needed -->
+                        </div>
+                        <div class="slider-img">
+                            <img style="width: 100%; height: auto;" src="evara-frontend/assets/imgs/new_images/banner3.webp" alt="">
                         </div>
                     </div>
                 </div>
             </div>
+            <div class="slider-arrow hero-slider-1-arrow style-3"></div>
         </section>
+        
+        <section class="home-slider position-relative" style="width: 100%; padding: 0; margin: 0;">
+            <div class="hero-slider-1 style-3 dot-style-1 dot-style-1-position-1">
+                <div class="single-hero-slider single-animation-wrap">
+                    <div class="slider-1-height-3 slider-animated-1">
+                        <div class="hero-slider-content-2">
+                            <!-- Add content here if needed -->
+                        </div>
+                        <div class="slider-img">
+                            <img style="width: 100vw; height:100%;" src="evara-frontend/assets/imgs/new_images/bannerlm.avif" alt="">
+                        </div>
+                    </div>
+                </div>
+                <div class="single-hero-slider single-animation-wrap">
+                    <div class="slider-1-height-3 slider-animated-1">
+                        <div class="hero-slider-content-2">
+                            <!-- Add content here if needed -->
+                        </div>
+                        <div class="slider-img">
+                            <img style="width: 100vw; height: auto;" src="evara-frontend/assets/imgs/new_images/lm4.jpg"  alt="">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="slider-arrow hero-slider-1-arrow style-3"></div>
+        </section>
+        
         <section class="product-tabs section-padding wow fadeIn animated">
             <div class="container">
                 <div class="tab-header">
@@ -328,9 +338,15 @@
                                                 </span>
                                             </div>
                                             <div class="product-action-1 show">
-                                                <a aria-label="Add To Cart" class="action-btn hover-up"
-                                                    href="shop-cart.html"><i class="fi-rs-shopping-bag-add"></i></a>
+                                                <a 
+                                                    aria-label="Add To Cart" 
+                                                    class="action-btn hover-up"
+                                                    href="/add-to-cart?productId=<%=products[i]._id%>"
+                                                >
+                                                    <i class="fi-rs-shopping-bag-add"></i>
+                                                </a>
                                             </div>
+                                            
                                         </div>
                                     </div>
                                 </div>
@@ -383,9 +399,15 @@
                                                 </span>
                                             </div>
                                             <div class="product-action-1 show">
-                                                <a aria-label="Add To Cart" class="action-btn hover-up"
-                                                    href="shop-cart.html"><i class="fi-rs-shopping-bag-add"></i></a>
+                                                <a 
+                                                    aria-label="Add To Cart" 
+                                                    class="action-btn hover-up"
+                                                    href="/add-to-cart?productId=<%=products[i]._id%>"
+                                                >
+                                                    <i class="fi-rs-shopping-bag-add"></i>
+                                                </a>
                                             </div>
+                                            
                                         </div>
                                     </div>
                                 </div>
@@ -451,7 +473,7 @@
                 <div class="carausel-6-columns-cover position-relative wow fadeIn animated">
                     <div class="slider-arrow slider-arrow-2 carausel-6-columns-arrow" id="carausel-6-columns-3-arrows">
                     </div>
-                    <div class="carausel-6-columns text-center" id="carausel-6-columns-3">
+             <a href="/allbrands">    <div class="carausel-6-columns text-center" id="carausel-6-columns-3">
                         <div class="brand-logo">
                             <img class="img-grey-hove" src="evara-frontend/assets/imgs/new_images/brand-1.webp" alt="">
                         </div>
@@ -474,6 +496,7 @@
                             <img class="img-grey-hove" src="evara-frontend/assets/imgs/new_images/brand-4.webp" alt="">
                         </div>
                     </div>
+              </a>
                 </div>
             </div>
         </section>

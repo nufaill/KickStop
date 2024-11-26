@@ -44,6 +44,8 @@ const handleLogin = async (req, res) => {
         }
 
         req.session.admin = admin;
+        req.session.adminExpiresAt = Date.now() + (1 * 60 * 60 * 1000); // 1 hour
+        
         res.redirect("/admin/");
         
     } catch (error) {
@@ -55,32 +57,35 @@ const handleLogin = async (req, res) => {
 
 const loadDashbaord = async (req, res) => {
     try {
-        // Add session check
-        if (!req.session.admin) {
+        if (!req.session.admin || (req.session.adminExpiresAt && Date.now() > req.session.adminExpiresAt)) {
+            if (req.session) {
+                req.session.destroy();
+            }
             return res.redirect("/admin/login");
         }
         res.render("dashboard");
     } catch (error) {
         console.error("Error loading dashboard:", error);
-        res.redirect('/admin/pageerror');
+        res.redirect('/pageerror');
     }
 };
 
 
-const logout = async (req,res)=>{
+
+const logout = async (req, res) => {
     try {
-        req.session.destroy(err=>{
-            if(err){
-                console.log("Error destroying session",err);
-                return res.redirect("/error")
+        req.session.destroy(err => {
+            if (err) {
+                console.log("Error destroying session", err);
+                return res.redirect("/error");
             }
-            res.redirect("/admin/login")
-        })
+            res.redirect("/admin/login");
+        });
     } catch (error) {
-        coonsoole.log("unexpexted error during logout",error);
-        res.redirect("/error")
+        console.log("Unexpected error during logout", error);
+        res.redirect("/error");
     }
-}
+};
 
 module.exports = {
     loadLogin,

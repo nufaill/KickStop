@@ -3,6 +3,8 @@ const  router = express.Router();
 const userController = require("../controllers/user/userController");
 const productController = require('../controllers/user/productController')
 const profileController = require("../controllers/user/profileController");
+const cartController = require("../controllers/user/cartController");
+const wishlistController = require("../controllers/user/wishlistController")
 const passport = require("../config/passport"); 
 const {userAuth,adminAuth} = require("../middlewares/auth");
 const User = require('../models/userSchema')
@@ -41,6 +43,8 @@ router.get('/signup',userController.loadsignup);
 router.post('/signup',userController.signup);
 router.post("/verify-otp",userController.verifyOtp);
 router.post("/resend-otp",userController.resendOtp);
+router.get("/auth/google", passport.authenticate("google", { scope: ["profile", "email"] }));
+router.get("/auth/google/callback",passport.authenticate("google", { failureRedirect: "/signup" }),(req, res) => { console.log('Google Auth Success:', req.user); res.redirect("/");});
 
 
 router.get('/forgot-password',profileController.getForgetPassPage);
@@ -61,11 +65,27 @@ router.post('/verify-changepassword-otp',userAuth,profileController.verifyChange
 //address Management
 router.get('/addAddress',userAuth,profileController.addAddress);
 router.post('/addAddress',userAuth,profileController.postAddaddress);
+router.get('/editAddress',userAuth,profileController.editAddress);
+router.post('/editAddress',userAuth, profileController.updateAddress);
+router.get('/deleteAddress',userAuth, profileController.deleteAddress);
 
-router.get("/auth/google", passport.authenticate("google", { scope: ["profile", "email"] }));
-router.get("/auth/google/callback",passport.authenticate("google", { failureRedirect: "/signup" }),(req, res) => { console.log('Google Auth Success:', req.user); res.redirect("/");});
+//user cart
+router.get('/cart',userAuth,cartController.loadCart);
+router.post('/add-to-cart',userAuth,cartController.addcart);
+router.post('/remove-cart-item',userAuth,cartController.removeCartItems);
+router.post('/update-cart-quantity', cartController.updateCart);
 
-router.get('/product-details',productController.productDetails)
+
+//order management
+router.get('/checkout',userAuth,productController.loadCheckout)
+
+// products management
+router.get('/product-details',productController.productDetails);
+router.get('/all-products',productController.loadallProducts);
+router.get('/allbrands',productController.getBrands);
+
+//wishlist management
+router.get('/wishlist',userAuth,wishlistController.loadWishlist);
 
 router.use(userController.pageNotFound);
 module.exports = router;

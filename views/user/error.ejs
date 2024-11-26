@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Error <%= errorCode %></title>
+    <title>Error <%= errorCode || statusCode || 'Unknown' %></title>
+
+    <!-- Rest of your error template -->
     <style>
         /* General Styling */
 body, html {

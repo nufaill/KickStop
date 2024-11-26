@@ -72,12 +72,10 @@ const getForgetPassPage = async (req, res) => {
   }
 };
 
-// Validate email and send OTP
 const forgotEmailValid = async (req, res) => {
   try {
     const { email } = req.body;
 
-    // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       return res.json({ success: false, message: "Invalid email format" });
@@ -525,6 +523,146 @@ const postAddaddress = async(req,res)=>{
   }
 }
 
+const editAddress = async (req, res) => {
+  try {
+    const addressId = req.query.id;
+    const user = req.session.user;
+    
+    const currAddress = await Address.findOne({
+      "addresses._id": addressId,
+    });
+    
+    if (!currAddress) {
+      return res.status(404).render('user/error', { 
+        message: 'Address not found',
+        errorCode: 404 
+      });
+    }
+    
+    const addressData = currAddress.addresses.find((item) => {
+      return item._id.toString() === addressId.toString();
+    });
+    
+    if (!addressData) {
+      return res.status(404).render('user/error', { 
+        message: 'Specific address details not found',
+        errorCode: 404 
+      });
+    }
+    
+    res.render("edit-address", { address: addressData, user: user });
+
+  } catch (error) {
+    console.error("Error in edit address", error);
+    res.status(500).render('user/error', { 
+      message: 'Internal server error',
+      errorCode: 500
+    });
+  }
+}
+
+const deleteAddress = async (req, res) => {
+  try {
+    const addressId = req.query.id;
+    const userId = req.session.user;
+
+    const result = await Address.findOneAndUpdate(
+      { userId: userId },
+      { $pull: { addresses: { _id: addressId } } },
+      { new: true }
+    );
+
+    if (!result) {
+      return res.status(404).render('user/error', { 
+        message: 'Address not found',
+        errorCode: 404 
+      });
+    }
+
+    res.redirect('/profile?message=Address deleted successfully');
+  } catch (error) {
+    console.error("Error deleting address", error);
+    res.status(500).render('user/error', { 
+      message: 'Internal server error',
+      errorCode: 500
+    });
+  }
+}
+const updateAddress = async (req, res) => {
+  try {
+    const addressId = req.query.id;
+    const userId = req.session.user;
+    const {addressType, name, city, landmark, state, pincode, phone, altphone, address, email} = req.body;
+
+    // Validation checks
+    if (!addressId || !userId) {
+      return res.status(400).render('user/error', { 
+        message: 'Invalid address or user information',
+        errorCode: 400 
+      });
+    }
+
+    // Add more robust validation
+    const validationErrors = [];
+    if (!name) validationErrors.push('Name is required');
+    if (!city) validationErrors.push('City is required');
+    if (!state) validationErrors.push('State is required');
+    if (!pincode || !/^\d{6}$/.test(pincode)) validationErrors.push('Valid Pincode is required');
+    if (!phone || !/^\d{10}$/.test(phone)) validationErrors.push('Valid Phone number is required');
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) validationErrors.push('Valid Email is required');
+
+    if (validationErrors.length > 0) {
+      return res.status(400).render('edit-address', { 
+        message: validationErrors.join(', '),
+        address: req.body
+      });
+    }
+
+    const result = await Address.findOneAndUpdate(
+      { 
+        userId: userId, 
+        "addresses._id": addressId 
+      },
+      { 
+        $set: { 
+          "addresses.$": {
+            _id: addressId,
+            addressType: addressType || 'home', 
+            name, 
+            city, 
+            landmark: landmark || '', 
+            state, 
+            pincode, 
+            phone, 
+            altphone: altphone || '', 
+            address, 
+            email
+          }
+        }
+      },
+      { 
+        new: true,  // Return the modified document
+        runValidators: true 
+      }
+    );
+
+    if (!result) {
+      return res.status(404).render('user/error', { 
+        message: 'Address not found or could not be updated',
+        errorCode: 404 
+      });
+    }
+
+    res.redirect('/profile?message=Address updated successfully');
+  } catch (error) {
+    console.error("Detailed error updating address:", error);
+    res.status(500).render('user/error', { 
+      message: 'Internal server error',
+      errorCode: 500,
+      details: error.message
+    });
+  }
+}
 module.exports = {
   getForgetPassPage,
   forgotEmailValid,
@@ -543,5 +681,8 @@ module.exports = {
   verifyChangepasswordOtp,
   verifyOtpMiddleware,
   addAddress,
-  postAddaddress
+  postAddaddress,
+  editAddress,
+  deleteAddress,
+  updateAddress
 };

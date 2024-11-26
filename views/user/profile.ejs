@@ -523,6 +523,131 @@ body {
     font-size: 1.875rem;
   }
 }
+/* My Address Page Styles */
+.addresses-container {
+  padding: 2rem;
+  background-color: var(--gray-50);
+  border-radius: 16px;
+  box-shadow: var(--shadow-md);
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.section-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--gray-700);
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+/* Address Cards */
+.address-card {
+  background: white;
+  border-radius: 12px;
+  border: 1px solid var(--gray-200);
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition-all);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.address-card:hover {
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-4px);
+}
+
+.card-header {
+  background: var(--primary-50);
+  padding: 1rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--primary-600);
+  border-bottom: 1px solid var(--gray-200);
+}
+
+.card-body {
+  padding: 1.5rem;
+  color: var(--gray-600);
+}
+
+.card-footer {
+  background: var(--gray-50);
+  padding: 1rem;
+  text-align: right;
+  border-top: 1px solid var(--gray-200);
+}
+
+.card-footer .btn {
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  border-radius: 8px;
+  font-weight: 500;
+  transition: var(--transition-all);
+}
+
+.btn-outline-primary {
+  border: 1px solid var(--l-600);
+  color: var(--primary-600);
+}
+
+.btn-outline-primary:hover {
+  background: var(--primary-100);
+  color: var(--primary-700);
+}
+
+.btn-outline-danger {
+  border: 1px solid var(--danger-600);
+  color: var(--danger-600);
+}
+
+.btn-outline-danger:hover {
+  background: var(--danger-50);
+  color: var(--danger-700);
+}
+
+/* Address Details */
+.address-name {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--gray-800);
+  margin-bottom: 0.5rem;
+}
+
+.address-details {
+  font-size: 1rem;
+  color: var(--gray-600);
+  margin-bottom: 1rem;
+}
+
+/* Layout */
+.address-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+@media (min-width: 1024px) {
+  .dashboard-container {
+    max-width: 1600px;
+    padding: 2rem 6rem;
+  }
+
+  .addresses-container {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .address-card {
+    padding: 1rem;
+  }
+
+  .card-body {
+    padding: 1.5rem 2rem;
+  }
+}
 
 </style>
 <main class="main">
@@ -593,59 +718,52 @@ body {
                </div>
 
 
-               <div
-                 class="tab-pane fade"
-                 id="address"
-                 role="tabpanel"
-                 aria-labelledby="address-tab"
-               >
-                 <div class="row">
-                
-
-
-                   <div class="col-lg-6">
-                    <% if (userAddress && userAddress.addresses && userAddress.addresses.length > 0) { %>
-                      <div class="addresses-container">
-                        <h3>Saved Addresses</h3>
-                        <% userAddress.addresses.forEach((address, index) => { %>
-                     <div class="card mb-3 mb-lg-0">
-                       <div class="card-header">
-                         <h5 class="mb-0"><%= address.addressType.toUpperCase() %></h5>
-                       </div>
-                              <div class="address-card">
-                                <h4><%= address.name %></h4>
-                                <p><%= address.address %></p>
-                                <p><%= address.city %>, <%= address.state %> - <%= address.pincode %></p>
-                                <p>Phone: <%= address.phone %></p>
-                                <% if (address.altPhone) { %>
-                                  <p>Alternate Phone: <%= address.altPhone %></p>
-                                <% } %>
-                                <p>Email: <%= address.email %></p>
-                              </div><br>
-                              
-                              <div class="d-flex justify-content-between">
-                             <a href="#" class="btn-small">Edit</a>
-                             <a href="#" class="btn-small" onclick="">Delete</a>
+               <div class="tab-pane fade"
+               id="address"
+               role="tabpanel"
+               aria-labelledby="address-tab"
+             >
+               <div class="row">
+                 <div class="col-lg-12 col-md-6">
+                   <% if (userAddress && userAddress.addresses && userAddress.addresses.length > 0) { %>
+                     <div class="  addresses-container ">
+                       <h3 class="section-title">Saved Addresses</h3>
+                       <% userAddress.addresses.forEach((address, index) => { %>
+                         <div class="card mb-3 address-card">
+                           <div class="card-header bg-light">
+                             <h5 class="mb-0"><%= address.addressType.toUpperCase() %></h5>
                            </div>
-                           
-                        
-                       </div>
+                           <div class="card-body">
+                             <h4 class="address-name"><%= address.name %></h4>
+                             <p class="address-details"><%= address.address %></p>
+                             <p class="address-details">
+                               <%= address.city %>, <%= address.state %> - <%= address.pincode %>
+                             </p>
+                             <p class="address-details">Phone: <%= address.phone %></p>
+                             <% if (address.altPhone) { %>
+                               <p class="address-details">Alternate Phone: <%= address.altPhone %></p>
+                             <% } %>
+                             <p class="address-details">Email: <%= address.email %></p>
+                           </div>
+                           <div class="card-footer d-flex justify-content-between">
+                            <a href="/editAddress?id=<%= address._id.toString() %>" class="btn btn-outline-primary btn-sm">Edit</a>
+                            <a href="/deleteAddress?id=<%= address._id.toString() %>" class="btn btn-outline-danger btn-sm" onclick="return confirm('Are you sure you want to delete this address?')">Delete</a>
+                          </div>
+                         </div>
+                       <% }); %>
                      </div>
-                     <% }); %>
-                    </div><br>
-                  <% } else { %>
-                    <p>No addresses found. <a href="/addAddress">Add a new address</a></p>
-                  <% } %>
-                   </div>
-              
-                   <div>
-                     <a href="/addAddress">
-                       <button class="btn btn-primary w-70">
-                         Add address
-                       </button>
-                     </a>
-                   </div>
+                   <% } else { %>
+                     <p class="text-muted">No addresses found. <a href="/addAddress" class="text-primary">Add a new address</a></p>
+                   <% } %>
                  </div>
+                 <div class="col-lg-12 text-center mt-4">
+                   <a href="/addAddress">
+                     <button class="btn btn-primar w-50">Add Address</button>
+                   </a>
+                 </div>
+               </div>
+             </div>
+             
                </div>
 
 

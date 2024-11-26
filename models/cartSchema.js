@@ -17,10 +17,12 @@ const cartSchema = new Schema({
       quantity: {
         type: Number,
         default: 1,
+        min: [1, "Quantity must be at least 1"],
       },
       price: {
         type: Number,
         required: true,
+        min: [0, "Price must be non-negative"],
       },
       totalPrice: {
         type: Number,
@@ -28,14 +30,22 @@ const cartSchema = new Schema({
       },
       status: {
         type: String,
+        enum: ["Placed", "Cancelled", "Processing", "Shipped"],
         default: "Placed",
       },
       cancellationReason: {
         type: String,
-        default: "none",
+        default: null,
       },
     },
   ],
+});
+
+cartSchema.pre("save", function (next) {
+  this.items.forEach(item => {
+    item.totalPrice = item.quantity * item.price;
+  });
+  next();
 });
 
 const Cart = mongoose.model("Cart", cartSchema);

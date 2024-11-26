@@ -181,55 +181,91 @@ const getEditProduct = async (req,res) => {
     }
 }
 
-const editProduct = async (req,res) => {
+const editProduct = async (req, res) => {
     try {
         const id = req.params.id;
-        const product = await Product.findOne({_id:id});
         const data = req.body;
-        const existingProduct = await Product.findOne({
-            productName:data.productName,
-            _id:{$ne:id}
-        })
-
-        if(existingProduct){
-            res.status(400).json({error:"Product with this name already exists. Please try with another name"})
-            res.render('edit-product',{message:"Product with this name already exists. Please try with another name"})
+        
+        // Enhanced Validation
+        if (!data.productName || !data.category || !data.brand) {
+            return res.status(400).json({
+                error: "Missing required fields",
+                details: {
+                    productName: !data.productName,
+                    category: !data.category,
+                    brand: !data.brand
+                }
+            });
         }
 
+        // Existing Duplicate Check
+        const existingProduct = await Product.findOne({
+            productName: data.productName,
+            _id: { $ne: id }
+        });
+
+        if (existingProduct) {
+            return res.status(400).json({
+                error: "Product with this name already exists"
+            });
+        }
+
+        // Enhanced Image Handling
         const images = [];
+        const MAX_IMAGES = 4;
 
-        const category = await Category.findOne({name:data.category})
+        if (req.files && req.files.length > 0) {
+            if (req.files.length > MAX_IMAGES) {
+                return res.status(400).json({
+                    error: `Maximum ${MAX_IMAGES} images allowed`
+                });
+            }
 
-        if (req.files && Array.isArray(req.files) && req.files.length > 0) {
             req.files.forEach(file => {
                 images.push(file.filename);
             });
         }
 
-        const updateFields = {
-            productName:data.productName,
-            description:data.description,
-            brand:data.brand,
-            category:category._id,
-            regularPrice:data.regularPrice,
-            salePrice:data.salePrice,
-            quantity:data.quantity,
-            color:data.color
+        const category = await Category.findOne({ name: data.category });
+        if (!category) {
+            return res.status(400).json({ error: "Invalid category" });
         }
 
-        if(req.files.length>0){
-            updateFields.$push = {productImage:{$each:images}};
+        const updateData = {
+            productName: data.productName,
+            description: data.description,
+            brand: data.brand,
+            category: category._id,
+            regularPrice: data.regularPrice,
+            salePrice: data.salePrice || data.regularPrice,
+            quantity: data.quantity,
+            color: data.color
+        };
+
+        // Only update images if new images are uploaded
+        if (images.length > 0) {
+            updateData.$push = { productImage: { $each: images } };
         }
 
-        await Product.findByIdAndUpdate(id,updateFields,{new:true});
+        const updatedProduct = await Product.findByIdAndUpdate(
+            id, 
+            updateData, 
+            { new: true, runValidators: true }
+        );
+
+        if (!updatedProduct) {
+            return res.status(404).json({ error: "Product not found" });
+        }
+
         res.redirect('/admin/products');
-
     } catch (error) {
-        console.error(error);
-        res.redirect('/admin/pageerror')
+        console.error("Edit Product Error:", error);
+        res.status(500).json({ 
+            error: "Internal server error", 
+            details: error.message 
+        });
     }
-}
-
+};
 const addProductOffer = async (req, res) => {
     try {
       const { productId, percentage } = req.body;

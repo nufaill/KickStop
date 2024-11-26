@@ -437,10 +437,6 @@
                         const img = document.getElementById(`imgView${index}`);
                         img.src = URL.createObjectURL(blob);
                         
-                        // Hide cropper
-                        document.getElementById(`cropperContainer${index}`).style.display = 'none';
-                        window.currentCropper.destroy();
-                        window.currentCropper = null;
                     }, 'image/jpeg');
                 }
             });
