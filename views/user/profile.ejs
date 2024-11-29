@@ -668,8 +668,7 @@ body {
           <% const tabs = [
             { id: 'dashboard', name: 'Dashboard', icon: 'fi-rs-home' },
             { id: 'address', name: 'My Address', icon: 'fi-rs-marker' },
-            { id: 'orders', name: 'Orders', icon: 'fi-rs-shopping-bag' },
-            { id: 'wallet', name: 'Wallet', icon: 'fi-rs-wallet' },
+            { id: 'wallet', name: 'Wallet', icon: 'fa fa-wallet' },
             { id: 'history', name: 'Transaction History', icon: 'fi-rs-time-past' },
             { id: 'referral', name: 'Referrals', icon: 'fi-rs-users' }
           ]; %>
@@ -686,7 +685,12 @@ body {
               </a>
             </li>
           <% }); %>
-          
+          <li class="nav-item">
+            <a class="nav-link logout" href="/order-history">
+              <i class='fi-rs-shopping-bag'></i>
+              Orders
+            </a>
+          </li>
           <li class="nav-item">
             <a class="nav-link logout" href="/logout">
               <i class="fi-rs-sign-out"></i>

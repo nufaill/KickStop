@@ -1,4 +1,29 @@
 <%- include('../layouts/user/header.ejs') %>
+<style>
+.product-extra-link2 .buy-now-btn {
+    background-color: #800000;
+    color: #fff;
+    border: 1px solid #800000;
+    text-align: center;
+    width: 160px;
+    height: 45px;
+    font-weight: bold;
+    text-transform: uppercase;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+.buy-now-btn{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.product-extra-link2 .buy-now-btn:hover {
+    background-color: #800000;
+    color: #fff;
+}
+
+
+</style>
     <div class="mobile-header-active mobile-header-wrapper-style">
         <div class="mobile-header-wrapper-inner">
             <div class="mobile-header-top">
@@ -212,7 +237,9 @@
                                         </h2>
                                         <div class="product-detail-rating">
                                             <div class="pro-details-category">
-                                                <span>Category : <a href="#"><%=product.category.name%></a></span>
+                                                <span>Category : <a href="#">
+                                                        <%=product.category.name%>
+                                                    </a></span>
                                             </div>
                                             <!-- <div class="pro-details-brand">
                                                 <span>Brand : <a href="#"><%=product.brand.name%></a></span>
@@ -232,7 +259,9 @@
                                                 <ins><span class="old-price font-md ml-15">₹
                                                         <%=product.regularPrice.toLocaleString()%>
                                                     </span></ins>
-                                                <span class="save-price  font-md color3 ml-15"><%=product.productOffer%>%Offer</span>
+                                                <span class="save-price  font-md color3 ml-15">
+                                                    <%=product.productOffer%>%Offer
+                                                </span>
                                             </div>
                                         </div>
                                         <div class="bt-1 border-color-1 mt-15 mb-15"></div>
@@ -272,10 +301,10 @@
                                             <strong class="mr-10">Size</strong>
                                             <ul class="list-filter size-filter font-small">
                                                 <li><a href="#">5</a></li>
-                                                <li class="active"><a href="#">5.5</a></li>
-                                                <li><a href="#">6</a></li>
-                                                <li><a href="#">6.5</a></li>
+                                                <li class="active"><a href="#">6</a></li>
+                                                <li><a href="#">7</a></li>
                                                 <li><a href="#">8</a></li>
+                                                <li><a href="#">9</a></li>
                                             </ul>
                                         </div>
                                         <div class="bt-1 border-color-1 mt-30 mb-30"></div>
@@ -286,15 +315,12 @@
                                                 <a href="#" class="qty-up"><i class="fi-rs-angle-small-up"></i></a>
                                             </div>
                                             <div class="product-extra-link2">
-                                                <form action="/add-to-cart?id=<%= product._id %>" method="POST" style="display: inline;" onsubmit="syncQuantity()">
-                                                    <input type="hidden" name="quantity" id="cart-quantity" value="1">
-                                                    <button type="submit" class="btn action-btn">Add to Cart</button>
-                                                  </form>
-                                                  <form action="/checkout?id=<%= product._id %>" method="get" style="display: inline;" onsubmit="syncQuantity()">
-                                                    <input type="hidden" name="quantity" id="cart-quantity" value="1">
-                                                    <button type="submit" class="btn action-btn">Buy Now</button>
-                                                  </form>
-                                                  
+                                                <input type="hidden" name="quantity" id="cart-quantity" value="1">
+                                                <button type="submit" class="btn action-btn standard-size"
+                                                    onclick="addToCart('<%= product._id %>')">Add to
+                                                    Cart</button>
+                                                    <a href="/checkout?id=<%= product._id %>" class="btn action-btn buy-now-btn">Buy Now</a>
+
                                                 <a aria-label="Add To Wishlist" class="action-btn hover-up"
                                                     href="shop-wishlist.html"><i class="fi-rs-heart"></i></a>
                                                 <a aria-label="Compare" class="action-btn hover-up"
@@ -305,7 +331,9 @@
                                             <li class="mb-5">SKU: <a href="#">FWM15VKT</a></li>
                                             <li class="mb-5">Tags: <a href="#" rel="tag">Brand</a><a href="#"
                                                     rel="tag"></a>, Shoe's<a href="#" rel="tag"></a> Only </li>
-                                            <li>Availability:<span class="in-stock text-success ml-5"><%=product.quantity%> Stock</span></li>
+                                            <li>Availability:<span class="in-stock text-success ml-5">
+                                                    <%=product.quantity%> Stock
+                                                </span></li>
                                         </ul>
                                     </div>
                                     <!-- Detail Info -->
@@ -333,8 +361,9 @@
                                                         </div>
                                                         <div class="product-action-1">
                                                             <a aria-label="Quick view" class="action-btn small hover-up"
-                                                                data-bs-toggle="modal" data-bs-target="#quickViewModal
-    "><i class="fi-rs-search"></i></a>
+                                                                data-bs-toggle="modal"
+                                                                data-bs-target="#quickViewModal"><i
+                                                                    class="fi-rs-search"></i></a>
                                                             <a aria-label="Add To Wishlist"
                                                                 class="action-btn small hover-up"
                                                                 href="shop-wishlist.html" tabindex="0"><i
@@ -349,24 +378,30 @@
                                                         </div>
                                                     </div>
                                                     <div class="product-content-wrap">
-                                                        <h2><a href="shop-product-right.html" tabindex="0"><%= relatedProducts.productName %></a></h2>
+                                                        <h2><a href="shop-product-right.html" tabindex="0">
+                                                                <%= relatedProducts.productName %>
+                                                            </a></h2>
                                                         <div class="rating-result" title="90%">
                                                             <span>
                                                             </span>
                                                         </div>
                                                         <div class="product-price">
-                                                            <span class="old-price"><%= relatedProducts[i].regularPrice %></span>
-                                                            <span><%= relatedProducts[i].salePrice %></span>
+                                                            <span class="old-price">
+                                                                <%= relatedProducts[i].regularPrice %>
+                                                            </span>
+                                                            <span>
+                                                                <%= relatedProducts[i].salePrice %>
+                                                            </span>
                                                         </div>
                                                     </div>
                                                 </div>
                                             </div>
 
                                             <% } %>
-                                            <% if (!relatedProducts.length) { %>
-                                             <p class="text-secondary text-center mb-3">No related product    :)</p>
-                                             <hr>
-                                            <% } %>
+                                                <% if (!relatedProducts.length) { %>
+                                                    <p class="text-secondary text-center mb-3">No related product :)</p>
+                                                    <hr>
+                                                    <% } %>
                                     </div>
                                 </div>
                             </div>
@@ -377,17 +412,41 @@
         </section>
     </main>
     <script>
-        function syncQuantity() {
-          // Get the quantity input field by its ID
-          const quantityInput = document.getElementById('cart-quantity');
-      
-          // Validate or set a default value for the quantity
-          if (!quantityInput.value || quantityInput.value <= 0) {
-            alert('Please enter a valid quantity!'); // Show an alert for invalid input
-            quantityInput.value = 1; // Set a default quantity of 1
-          }
+        async function addToCart(id) {
+            try {
+                const quantity = document.getElementById('cart-quantity').value
+                const response = await fetch(`/add-to-cart/?id=${id}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ quantity }),
+                });
+                const data = await response.json();
+                console.log("data",data);
+                console.log("response",response)
+                if (data.success) {
+                    Swal.fire({
+                        position: "center",
+                        icon: "success",
+                        title: data.message,
+                        showConfirmButton: false,
+                        timer: 1500
+                    });
+                } else {
+                    Swal.fire({
+                        position: "center",
+                        icon: 'error',
+                        title: data.message,
+                        showConfirmButton: false,
+                        timer: 1500
+                    });
+                }
+            } catch (error) {
+                console.error('Error adding to cart:', error.message);
+            }
         }
-      </script>
-      
+    </script>
+
 
     <%- include('../layouts/user/footer.ejs') %>

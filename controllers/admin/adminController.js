@@ -55,7 +55,7 @@ const handleLogin = async (req, res) => {
 }
 
 
-const loadDashbaord = async (req, res) => {
+const loadDashboard = async (req, res) => {
     try {
         if (!req.session.admin || (req.session.adminExpiresAt && Date.now() > req.session.adminExpiresAt)) {
             if (req.session) {
@@ -90,7 +90,7 @@ const logout = async (req, res) => {
 module.exports = {
     loadLogin,
     handleLogin,
-    loadDashbaord,
+    loadDashboard,
     logout,
     pageError
 }

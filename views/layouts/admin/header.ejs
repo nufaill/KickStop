@@ -127,6 +127,90 @@
     transform: translate3d(0, 0, 0);
 }
 
+.menu-aside .menu-item {
+    opacity: 0;
+    transform: translateX(-20px);
+    animation: slideIn 0.5s ease-out forwards;
+}
+
+.menu-aside .menu-item:nth-child(1) {
+    animation-delay: 0.1s;
+}
+
+.menu-aside .menu-item:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.menu-aside .menu-item:nth-child(3) {
+    animation-delay: 0.3s;
+}
+
+.menu-aside .menu-item:nth-child(4) {
+    animation-delay: 0.4s;
+}
+
+.menu-aside .menu-item:nth-child(5) {
+    animation-delay: 0.5s;
+}
+
+.menu-aside .menu-item:nth-child(6) {
+    animation-delay: 0.6s;
+}
+
+.menu-aside .menu-item:nth-child(7) {
+    animation-delay: 0.7s;
+}
+
+.menu-aside .menu-item:nth-child(8) {
+    animation-delay: 0.8s;
+}
+
+.menu-aside .menu-item:nth-child(9) {
+    animation-delay: 0.9s;
+}
+
+.menu-aside .menu-item:nth-child(10) {
+    animation-delay: 1s;
+}
+
+@keyframes slideIn {
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+.menu-aside .menu-link i {
+    font-size: 24px;
+    color: #9f9f9f;
+    vertical-align: middle;
+    transition: transform 0.3s ease, color 0.3s ease;
+}
+.menu-aside .menu-item a:hover i {
+    color: #800000;
+    transform: scale(1.2);
+}
+
+.menu-aside .menu-link:hover {
+    background-color: rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s ease;
+}
+
+.menu-aside .menu-item.active .menu-link i {
+    color: #800000;
+    transform: scale(1.1);
+}
+
+.menu-aside .menu-link .text {
+    margin-left: 10px;
+    transition: all 0.3s ease;
+}
+
+
+.menu-aside .menu-item a:hover .text {
+    color: #800000;
+}
+
+
 @keyframes shake {
     10%, 90% { transform: translate3d(-1px, 0, 0); }
     20%, 80% { transform: translate3d(2px, 0, 0); }
@@ -163,6 +247,8 @@
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css"
     />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cropperjs/dist/cropper.min.css">
 </head>
 
@@ -180,53 +266,66 @@
         <nav>
             <ul class="menu-aside">
                 <li class="menu-item active">
-                    <a class="menu-link" href="/admin"> <i class="icon material-icons md-home"></i>
+                    <a class="menu-link" href="/admin"> 
+                        <i class="icon material-icons md-home"></i>
                         <span class="text">Dashboard</span>
                     </a>
                 </li>
                 <li class="menu-item">
-                    <a class="menu-link" href="/admin/users"> <i class="icon material-icons md-store"></i>
+                    <a class="menu-link" href="/admin/users"> 
+                        <i class="icon material-icons md-store"></i>
                         <span class="text">Users</span>
                     </a>
                 </li>
                 <li class="menu-item">
-                    <a class="menu-link" href="/admin/category"> <i class="icon material-icons md-shopping_bag"></i>
+                    <a class="menu-link" href="/admin/category"> 
+                        <i class="icon material-icons md-shopping_bag"></i>
                         <span class="text">Categories</span>
                     </a>
                 </li>
                 <li class="menu-item">
-                    <a class="menu-link" href="/admin/brands"> <i class="icon material-icons md-stars"></i>
-                        <span class="text">Brands</span> </a>
+                    <a class="menu-link" href="/admin/brands"> 
+                        <i class="icon material-icons md-stars"></i>
+                        <span class="text">Brands</span>
+                    </a>
                 </li>
                 <li class="menu-item">
-                    <a class="menu-link" href="/admin/products"> <i class="icon material-icons md-shopping_cart"></i>
+                    <a class="menu-link" href="/admin/products"> 
+                        <i class="icon material-icons md-shopping_cart"></i>
                         <span class="text">Product</span>
                     </a>
                 </li>
                 <li class="menu-item">
-                    <a class="menu-link" href="/admin/orders"> <i class="icon material-icons md-shopping_cart"></i>
+                    <a class="menu-link" href="/admin/orders"> 
+                        <i class="icon material-icons md-shopping_cart"></i>
                         <span class="text">Orders</span>
                     </a>
-                </li><li class="menu-item">
-                    <a class="menu-link" href="/admin/stocks"> <i class="icon material-icons md-inventory_2"></i>
+                </li>
+                <li class="menu-item">
+                    <a class="menu-link" href="/admin/stocks"> 
+                        <i class="fas fa-warehouse"></i>
                         <span class="text">Stocks</span>
                     </a>
                 </li>
                 <li class="menu-item">
-                    <a class="menu-link" href="/admin/banner"> <i class="icon material-icons md-image"></i>
+                    <a class="menu-link" href="/admin/banner"> 
+                        <i class="icon material-icons md-image"></i>
                         <span class="text">Banner</span>
                     </a>
                 </li>
                 <li class="menu-item">
-                    <a class="menu-link" href="/admin/coupons"> <i class="icon material-icons md-local_activity"></i>
+                    <a class="menu-link" href="/admin/coupons"> 
+                        <i class="icon material-icons md-local_activity"></i>
                         <span class="text">Coupons</span>
                     </a>
                 </li>
                 <li class="menu-item">
-                    <a class="menu-link" href="/admin/sales-report"> <i class="icon material-icons md-pie_chart"></i>
+                    <a class="menu-link" href="/admin/sales-report"> 
+                        <i class="icon material-icons md-pie_chart"></i>
                         <span class="text">Sales Report</span>
                     </a>
                 </li>
+            
                 <!-- <li class="menu-item has-submenu">
                     <a class="menu-link" href="page-transactions-1.html"> <i class="icon material-icons md-monetization_on"></i>
                         <span class="text">Transactions</span>

@@ -5,6 +5,8 @@ const customerController = require("../controllers/admin/customerController");
 const categoryController = require("../controllers/admin/categoryController");
 const brandController = require("../controllers/admin/brandController");
 const productController = require("../controllers/admin/productController");
+const orderController = require("../controllers/admin/orderController");
+const stockController = require('../controllers/admin/stockController');
 const {userAuth,adminAuth} = require("../middlewares/auth");
 const multer = require("multer");
 const storage = require("../helpers/multer");
@@ -16,7 +18,7 @@ router.get('/pageerror',adminController.pageError)
 
 router.get("/login", adminController.loadLogin);
 router.post("/login", adminController.handleLogin); 
-router.get('/', adminAuth,adminController.loadDashbaord);
+router.get('/', adminAuth,adminController.loadDashboard);
  router.get("/logout",adminController.logout);
 
 //customer Controller
@@ -52,5 +54,14 @@ router.post('/editproduct/:id',adminAuth,uploads.array('images',4),productContro
 router.post('/addproductoffer',adminAuth,productController.addProductOffer);
 router.post('/removeproductoffer',adminAuth,productController.removeProductOffer);
 router.post('/deleteimage',adminAuth,productController.deleteSingleImage);
+
+//order Controller
+router.get('/orders', adminAuth, orderController.loadOrders)
+
+
+//stock Controller
+router.get('/stocks',adminAuth,stockController.loadStock);
+router.post('/update-stock',adminAuth,stockController.updateStock)
+
 
 module.exports = router;

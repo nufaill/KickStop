@@ -26,6 +26,10 @@ const sendVerificationEmail = async (email, otp) => {
         user: process.env.NODEMAILER_EMAIL,
         pass: process.env.NODEMAILER_PASSWORD,
       },
+      tls: {
+        rejectUnauthorized: false, 
+    },
+
     });
 
     const info = await transporter.sendMail({
@@ -63,7 +67,6 @@ const securePassword = async (password)=>{
     }
 }
 
-// Render forgot-password page
 const getForgetPassPage = async (req, res) => {
   try {
     res.render("forgot-password");
@@ -90,7 +93,7 @@ const forgotEmailValid = async (req, res) => {
       if (emailSent) {
         req.session.userOtp = hashedOtp;
         req.session.email = email;
-        req.session.otpExpiration = Date.now() + 5 * 60 * 1000; // OTP expires in 5 minutes
+        req.session.otpExpiration = Date.now() + 5 * 60 * 1000; 
 
         res.render("forgotpass-otp");
         console.log("OTP sent:", otp);
@@ -99,7 +102,7 @@ const forgotEmailValid = async (req, res) => {
       }
     } else {
       res.render("forgot-password", {
-        message: "User with this email does not exist",
+        message: "User with this email does not exist"
       });
     }
   } catch (error) {
@@ -112,7 +115,6 @@ const verifyForgotPassOtp = async (req, res) => {
     try {
       const { otp } = req.body;
   
-      // Check if OTP has expired
       if (Date.now() > req.session.otpExpiration) {
         return res.json({ success: false, message: "OTP has expired. Please request a new one." });
       }

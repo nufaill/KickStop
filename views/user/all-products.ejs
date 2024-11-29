@@ -51,9 +51,9 @@
                                             data-bs-toggle="modal" data-bs-target="#quickViewModal"><i
                                                 class="fi-rs-eye"></i></a>
                                         <a aria-label="Add To Wishlist" class="action-btn hover-up"
-                                            href="shop-wishlist.html"><i class="fi-rs-heart"></i></a>
+                                            href="#"><i class="fi-rs-heart"></i></a>
                                         <a aria-label="Compare" class="action-btn hover-up"
-                                            href="shop-compare.html"><i class="fi-rs-shuffle"></i></a>
+                                            href="#"><i class="fi-rs-shuffle"></i></a>
                                     </div>
                                     <div class="product-badges product-badges-position product-badges-mrg">
                                         <span class="hot">Hot</span>
@@ -77,10 +77,7 @@
                                     </div>
                                     <div class="product-action-1 show">
                                         <a 
-                                            aria-label="Add To Cart" 
-                                            class="action-btn hover-up"
-                                            href="/add-to-cart?productId=<%=products[i]._id%>"
-                                        >
+                                            aria-label="Add To Cart" class="action-btn hover-up" onclick="addToCart('<%= products[i]._id %>')">
                                             <i class="fi-rs-shopping-bag-add"></i>
                                         </a>
                                     </div>
@@ -157,66 +154,89 @@
 </main>
 
 <script>
-    function catFilter() {
-        const selectedCategory = document.getElementById('cat-filter').value;
+    // Function to fetch and update products based on sorting
+function handleSortChange() {
+    const sortBy = document.getElementById('sort-by').value;
+    const category = document.getElementById('cat-filter').value;
 
-        fetch(`/filter-by-category?category=${selectedCategory}`, {
-            method: 'GET',
-        })
-            .then(response => response.json())
-            .then(data => {
-                updateProductList(data.products);
-            })
-            .catch(error => console.error('Error:', error));
+    fetch('/sort-and-search', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ sort: sortBy, category }),
+    })
+        .then(response => response.json())
+        .then(data => updateProductList(data.products))
+        .catch(error => console.error('Error:', error));
+}
+
+
+function catFilter() {
+    handleSortChange();
+}
+
+// Function to update the product list in the DOM
+function updateProductList(products) {
+    const productsContainer = document.getElementById('products-container');
+    productsContainer.innerHTML = ''; // Clear previous products
+
+    if (products.length === 0) {
+        productsContainer.innerHTML = '<p>No products found.</p>';
+        return;
     }
 
-    function handleSortChange() {
-        const sortBy = document.getElementById('sort-by').value;
-
-        fetch(`/sort?sort=${sortBy}`, {
-            method: 'GET',
-        })
-            .then(response => response.json())
-            .then(data => {
-                updateProductList(data.products);
-            })
-            .catch(error => console.error('Error:', error));
-    }
-
-    function updateProductList(products) {
-        const productsContainer = document.getElementById('products-container');
-        productsContainer.innerHTML = '';
-
-        if (products.length === 0) {
-            productsContainer.innerHTML = '<p>No products found.</p>';
-            return;
-        }
-
-        products.forEach(product => {
-            const productHTML = `
-                <div class="col-lg-3 col-md-4 col-12 col-sm-6">
-                    <div class="product-cart-wrap mb-30">
-                        <div class="product-img-action-wrap">
-                            <div class="product-img product-img-zoom">
-                                <a href="/productdetails?id=${product._id}">
-                                    <img class="default-img" src="/uploads/re-image/${product.productImage[0]}" alt="${product.productName}">
-                                </a>
-                            </div>
-                        </div>
-                        <div class="product-content-wrap">
-                            <h6>${product.productName}</h6>
-                            <h5>₹${product.salePrice.toLocaleString()}</h5>
-                            <h6 style="text-decoration: line-through; color: rgb(164, 103, 103);">₹${product.regularPrice.toLocaleString()}</h6>
-                            <p>Rating: ${product.rating !== undefined ? product.rating : 'N/A'}</p>
-                            ${product.quantity > 0
-                    ? `<span class="text-success">${product.quantity} stocks left</span>`
-                    : `<span class="text-danger">Out of Stock</span>`}
-                        </div>
+    // Render each product
+    products.forEach(product => {
+        const productHTML = `
+            <div class="col-lg-3 col-md-4 col-12 col-sm-6">
+                <div class="product-cart-wrap mb-30">
+                    <div class="product-img-action-wrap">
+                        <a href="/product-details?productId=${product._id}">
+                            <img src="/uploads/re-image/${product.productImage[0]}" alt="${product.productName}">
+                        </a>
+                    </div>
+                    <div class="product-content-wrap">
+                        <h5>${product.productName}</h5>
+                        <p>₹${product.salePrice.toLocaleString()}</p>
+                        <span class="text-muted">₹${product.regularPrice.toLocaleString()}</span>
                     </div>
                 </div>
-            `;
-            productsContainer.insertAdjacentHTML('beforeend', productHTML);
-        });
-    }
+            </div>
+        `;
+        productsContainer.insertAdjacentHTML('beforeend', productHTML);
+    });
+};
+  async function addToCart(id) {
+            try {
+                const response = await fetch(`/add-to-cart/?id=${id}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                });
+                const data = await response.json();
+                console.log(data)
+                if (data.success) {
+                    Swal.fire({
+                        position: "center",
+                        icon: "success",
+                        title: data.message,
+                        showConfirmButton: false,
+                        timer: 1500
+                    });
+                } else {
+                    Swal.fire({
+                        position: "center",
+                        icon: "error",
+                        title: data.message,
+                        showConfirmButton: false,
+                        timer: 1500
+                    });
+                }
+            } catch (error) {
+                console.error('Error adding to cart:', error.message);
+            }
+        }
 </script>
 <%- include('../layouts/user/footer') %>

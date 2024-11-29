@@ -4,7 +4,8 @@ const userController = require("../controllers/user/userController");
 const productController = require('../controllers/user/productController')
 const profileController = require("../controllers/user/profileController");
 const cartController = require("../controllers/user/cartController");
-const wishlistController = require("../controllers/user/wishlistController")
+const wishlistController = require("../controllers/user/wishlistController");
+const filterController = require("../controllers/user/filterController");
 const passport = require("../config/passport"); 
 const {userAuth,adminAuth} = require("../middlewares/auth");
 const User = require('../models/userSchema')
@@ -77,7 +78,11 @@ router.post('/update-cart-quantity', cartController.updateCart);
 
 
 //order management
-router.get('/checkout',userAuth,productController.loadCheckout)
+router.get('/checkout',userAuth,productController.loadCheckout);
+router.post('/place-order-initial',userAuth, productController.placeOrderInitial);
+router.get('/order-confirmation',userAuth, productController.getOrderConfirmation);
+router.post('/cancel-order', userAuth,productController.cancelOrder);
+router.get('/order-history', userAuth, productController.getOrderHistory);
 
 // products management
 router.get('/product-details',productController.productDetails);
@@ -86,6 +91,9 @@ router.get('/allbrands',productController.getBrands);
 
 //wishlist management
 router.get('/wishlist',userAuth,wishlistController.loadWishlist);
+
+//filter
+router.post('/sort-and-search',filterController.sortSearch)
 
 router.use(userController.pageNotFound);
 module.exports = router;
