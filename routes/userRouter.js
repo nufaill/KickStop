@@ -45,19 +45,22 @@ router.post('/signup',userController.signup);
 router.post("/verify-otp",userController.verifyOtp);
 router.post("/resend-otp",userController.resendOtp);
 router.get("/auth/google", passport.authenticate("google", { scope: ["profile", "email"] }));
-router.get("/auth/google/callback",passport.authenticate("google", { failureRedirect: "/signup" }),(req, res) => { console.log('Google Auth Success:', req.user); res.redirect("/");});
+router.get("/auth/google/callback",passport.authenticate("google", { failureRedirect: "/signup" }),(req, res) => { 
+    req.session.user = req.user;
+     res.redirect("/");});
 
 
 router.get('/forgot-password',profileController.getForgetPassPage);
 router.post('/forgot-email-valid',profileController.forgotEmailValid);
 router.post("/verify-passForgot-otp",profileController.verifyForgotPassOtp);
 router.get("/reset-password",profileController.getResetPassPage);
-router.post('/resend-forgot-otp',profileController.resendOtp);
+router.post('/resend-forgot-otp',profileController.resendForgotOtp);
 router.post('/reset-password',profileController.postNewPassword);
 router.get('/profile',userAuth,profileController.userprofile);
 router.get('/change-email', userAuth, profileController.changeEmail);
 router.post('/change-email', userAuth, profileController.changeEmailValid);
 router.post('/verify-email-otp', userAuth, profileController.verifyEmailChangeOtp);
+// router.post("/resend-email-otp",profileController.resendOtp);
 router.post('/update-email', userAuth, profileController.updateEmail);
 router.get('/change-password',userAuth,profileController.changePassword);
 router.post('/change-password',userAuth,profileController.changePasswordValid);

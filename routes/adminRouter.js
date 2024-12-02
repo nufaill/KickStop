@@ -56,7 +56,8 @@ router.post('/removeproductoffer',adminAuth,productController.removeProductOffer
 router.post('/deleteimage',adminAuth,productController.deleteSingleImage);
 
 //order Controller
-router.get('/orders', adminAuth, orderController.loadOrders)
+router.get('/orders', adminAuth, orderController.loadOrders);
+router.post('/update-order-status', adminAuth, orderController.updateOrderStatus);
 
 
 //stock Controller

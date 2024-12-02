@@ -169,7 +169,7 @@
                     <input type="hidden" name="addressId" id="addressId">
 
                     <% if (product) { %>
-                        <input type="hidden" name="singleProduct" value="<%= JSON.stringify(product) %>">
+                        <input type="hidden" name="singleProduct" value="<%= product._id %>">
                     <% } %>
 
                     <button type="submit" class="btn-place-order mt-3" >Place Order</button>

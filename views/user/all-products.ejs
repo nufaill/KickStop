@@ -195,12 +195,31 @@ function updateProductList(products) {
                         <a href="/product-details?productId=${product._id}">
                             <img src="/uploads/re-image/${product.productImage[0]}" alt="${product.productName}">
                         </a>
+                         <div class="product-action-1">
+                                        <a aria-label="Quick view" class="action-btn hover-up"
+                                            data-bs-toggle="modal" data-bs-target="#quickViewModal"><i
+                                                class="fi-rs-eye"></i></a>
+                                        <a aria-label="Add To Wishlist" class="action-btn hover-up"
+                                            href="#"><i class="fi-rs-heart"></i></a>
+                                        <a aria-label="Compare" class="action-btn hover-up"
+                                            href="#"><i class="fi-rs-shuffle"></i></a>
+                                    </div>
+                                     <div class="product-badges product-badges-position product-badges-mrg">
+                                        <span class="hot">Hot</span>
+                                    </div>
                     </div>
                     <div class="product-content-wrap">
                         <h5>${product.productName}</h5>
                         <p>₹${product.salePrice.toLocaleString()}</p>
                         <span class="text-muted">₹${product.regularPrice.toLocaleString()}</span>
+                        <div class="rating-result" title="90%">
+                                        <span>
+                                            <span>90%</span>
+                                        </span>
+                        </div>
+                        
                     </div>
+                    
                 </div>
             </div>
         `;

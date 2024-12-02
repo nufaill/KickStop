@@ -14,15 +14,15 @@ app.use(express.json());
 app.use(express.urlencoded({extended:true}));
 
 app.use(session({
-    secret: 'your_secret_key',
-    resave: false,
-    saveUninitialized: true,
-    cookie: { 
-      maxAge: 1 * 60 * 60 * 1000, 
-      secure: process.env.NODE_ENV === 'production', // use secure in production
-      httpOnly: true 
-    }
-  }));
+  secret:process.env.SESSION_SECRET,
+  resave:false,
+  saveUninitialized:true,
+  cookie:{
+      secure:false,
+      httpOnly:true,
+      maxAge:72*60*60*1000
+   }
+}))
 app.use((req, res, next) => {
     res.set({
         'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',

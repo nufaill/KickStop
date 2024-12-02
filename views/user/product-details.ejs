@@ -1,25 +1,28 @@
 <%- include('../layouts/user/header.ejs') %>
 <style>
-.product-extra-link2 .buy-now-btn {
+.product-extra-link2 .btn.action-btn.standard-size {
     background-color: #800000;
     color: #fff;
     border: 1px solid #800000;
-    text-align: center;
-    width: 160px;
-    height: 45px;
+    padding: 10px 20px;
+    font-size: 16px;
     font-weight: bold;
     text-transform: uppercase;
-    transition: background-color 0.3s ease, color 0.3s ease;
-}
-.buy-now-btn{
-    display: flex;
+    border-radius: 5px;
+    cursor: pointer;
+    text-align: center;
+    width: 170px; 
+    height: 40px;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+    display: inline-flex;
     justify-content: center;
     align-items: center;
+    text-decoration: none;
 }
 
-.product-extra-link2 .buy-now-btn:hover {
-    background-color: #800000;
-    color: #fff;
+.product-extra-link2 .btn.action-btn.standard-size:hover {
+    background-color: #600000;
+    transform: scale(1.05);
 }
 
 
@@ -260,7 +263,7 @@
                                                         <%=product.regularPrice.toLocaleString()%>
                                                     </span></ins>
                                                 <span class="save-price  font-md color3 ml-15">
-                                                    <%=product.productOffer%>%Offer
+                                                    <%=product.productOffer%>% Off
                                                 </span>
                                             </div>
                                         </div>
@@ -278,7 +281,7 @@
                                                 </li>
                                             </ul>
                                         </div>
-                                        <div class="attr-detail attr-color mb-15">
+                                        <!-- <div class="attr-detail attr-color mb-15">
                                             <strong class="mr-10">Color</strong>
                                             <ul class="list-filter color-filter">
                                                 <li><a href="#" data-color="Red"><span
@@ -296,7 +299,7 @@
                                                 <li><a href="#" data-color="Purple"><span
                                                             class="product-color-purple"></span></a></li>
                                             </ul>
-                                        </div>
+                                        </div> -->
                                         <div class="attr-detail attr-size">
                                             <strong class="mr-10">Size</strong>
                                             <ul class="list-filter size-filter font-small">
@@ -319,7 +322,7 @@
                                                 <button type="submit" class="btn action-btn standard-size"
                                                     onclick="addToCart('<%= product._id %>')">Add to
                                                     Cart</button>
-                                                    <a href="/checkout?id=<%= product._id %>" class="btn action-btn buy-now-btn">Buy Now</a>
+                                                    <a href="/checkout?id=<%= product._id %>" class="btn action-btn standard-size"> Buy Now</a>
 
                                                 <a aria-label="Add To Wishlist" class="action-btn hover-up"
                                                     href="shop-wishlist.html"><i class="fi-rs-heart"></i></a>
@@ -331,9 +334,12 @@
                                             <li class="mb-5">SKU: <a href="#">FWM15VKT</a></li>
                                             <li class="mb-5">Tags: <a href="#" rel="tag">Brand</a><a href="#"
                                                     rel="tag"></a>, Shoe's<a href="#" rel="tag"></a> Only </li>
-                                            <li>Availability:<span class="in-stock text-success ml-5">
-                                                    <%=product.quantity%> Stock
-                                                </span></li>
+                                                    <li>Availability:
+                                                        <span class="<%= product.quantity === 0 ? 'text-danger' : 'text-success' %> ml-5">
+                                                            <%= product.quantity === 0 ? 'Out of Stock' : 'In Stock' %>
+                                                        </span>
+                                                    </li>
+                                                    
                                         </ul>
                                     </div>
                                     <!-- Detail Info -->
@@ -412,6 +418,7 @@
         </section>
     </main>
     <script>
+
         async function addToCart(id) {
             try {
                 const quantity = document.getElementById('cart-quantity').value

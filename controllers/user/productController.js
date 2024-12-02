@@ -83,8 +83,8 @@ const loadCheckout = async (req, res) => {
             return res.redirect('/login');
         }
 
-        const addressDoc = await Address.findOne({ userId: user });
-        const addressesList = addressDoc ? addressDoc.addresses : [];
+        const addressDoc = await Address.find({ userId: user });
+        const addressesList = addressDoc ? addressDoc : [];
         let totalPrice = 0;
 
         if (req.query.id) {
@@ -135,6 +135,8 @@ const loadCheckout = async (req, res) => {
 const placeOrderInitial = async (req, res) => {
     try {
         const { cart, singleProduct, totalPrice, addressId, payment_method } = req.body;
+        console.log(singleProduct)
+        
         const user = req.session.user;
 
         if (!user) {
@@ -150,7 +152,7 @@ const placeOrderInitial = async (req, res) => {
         let finalAmount = totalPrice;
 
         if (singleProduct) {
-            const product = await Product.findById(singleProduct._id);
+            const product = await Product.findById(singleProduct);
             if (!product) {
                 return res.status(404).json({ success: false, message: 'Product not found' });
             }

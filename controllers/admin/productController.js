@@ -220,12 +220,16 @@ const editProduct = async (req, res) => {
                     error: `Maximum ${MAX_IMAGES} images allowed`
                 });
             }
-
+        
             req.files.forEach(file => {
                 images.push(file.filename);
             });
         }
-
+        
+        // If new images are uploaded
+        if (images.length > 0) {
+            updateData.$push = { productImage: { $each: images } };
+        }
         const category = await Category.findOne({ name: data.category });
         if (!category) {
             return res.status(400).json({ error: "Invalid category" });

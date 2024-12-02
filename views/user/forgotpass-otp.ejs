@@ -255,11 +255,11 @@
   // Send AJAX request to resend OTP
   $.ajax({
     type: "POST",
-    url: "/resend-otp", // Correct endpoint
+    url: "/resend-forgot-otp", 
     success: function (response) {
       if (response.success) {
         Swal.fire({
-          icon: "success", // Correct icon
+          icon: "success",
           title: "OTP Resent Successfully",
           showConfirmButton: false,
           timer: 1500,
@@ -268,7 +268,7 @@
         Swal.fire({
           icon: "error",
           title: "Error",
-          text: "An error occurred while resending OTP. Please try again.",
+          text: response.message || "An error occurred while resending OTP",
         });
       }
     },
@@ -283,8 +283,6 @@
 
   return false; 
 }
-
-
   </script>
 </body>
 
