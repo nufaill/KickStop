@@ -296,7 +296,6 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body" id="orderDetailsModalBody">
-                <!-- Order details will be dynamically populated here -->
             </div>
         </div>
     </div>
@@ -353,16 +352,12 @@
 
     function showOrderDetails(orderData) {
     try {
-        // Parse the order data
         const order = typeof orderData === 'string' ? JSON.parse(orderData) : orderData;
         
-        // Defensive logging
-        console.log('Raw Order Data:', orderData);
-        console.log('Parsed Order Object:', JSON.stringify(order, null, 2));
+        // console.log('Raw Order Data:', orderData);
+        // console.log('Parsed Order Object:', JSON.stringify(order, null, 2));
         
         const modalBody = document.getElementById('orderDetailsModalBody');
-        
-        // Detailed null checks and fallbacks
         const orderDetails = {
             orderId: order.orderId || 'N/A',
             date: order.createdAt ? new Date(order.createdAt).toLocaleDateString() : 'N/A',
@@ -372,8 +367,6 @@
             shippingAddress: order.shippingAddress || null,
             items: order.items || []
         };
-
-        // Create detailed HTML with extensive fallback handling
         let detailsHTML = `
             <div class="row">
                 <div class="col-md-6">

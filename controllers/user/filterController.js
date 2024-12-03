@@ -6,7 +6,6 @@ const sortSearch = async (req, res) => {
         const { search = '', category = 'all-categories', sort = 'default' } = req.body;
         let SortingCondition;
 
-        // Map sort options to MongoDB sorting logic
         switch (sort) {
             case 'popularity':
                 SortingCondition = { popularity: -1 };
@@ -24,24 +23,30 @@ const sortSearch = async (req, res) => {
                 SortingCondition = { createdAt: -1 };
                 break;
             case 'alphabetical-a-z':
-                SortingCondition = { productName: -1 };
+                SortingCondition = { productName: 1 };
                 break;
             case 'alphabetical-z-a':
-                SortingCondition = { productName: 1 };
+                SortingCondition = { productName: -1 };
                 break;
             default:
                 SortingCondition = { createdAt: -1 };
         }
 
-        // Build query
         const query = {
-            productName: { $regex: search, $options: 'i' }, // Case-insensitive search
+            productName: { $regex: search, $options: 'i' }, 
         };
+
+        // Handle category filtering
         if (category !== 'all-categories') {
-            query.category = category;
+            // For standard categories (Mens, Womens, Kids)
+            if (['Mens', 'Womens', 'Kids'].includes(category)) {
+                query.category = category;
+            } else {
+                // For other custom categories (using _id)
+                query.category = category;
+            }
         }
 
-        // Fetch products
         const products = await Product.find(query).sort(SortingCondition);
         res.status(200).json({ products });
     } catch (error) {

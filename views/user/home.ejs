@@ -312,8 +312,8 @@
                                                 <a aria-label="Quick view" class="action-btn hover-up"
                                                     data-bs-toggle="modal" data-bs-target="#quickViewModal"><i
                                                         class="fi-rs-eye"></i></a>
-                                                <a aria-label="Add To Wishlist" class="action-btn hover-up"
-                                                    href="shop-wishlist.html"><i class="fi-rs-heart"></i></a>
+                                                        <a aria-label="Add To Wishlist" class="action-btn hover-up"
+                                                        onclick="addToWishlist('<%= products[i]._id %>')"><i class="fi-rs-heart"></i></a>
                                                 <a aria-label="Compare" class="action-btn hover-up"
                                                     href="shop-compare.html"><i class="fi-rs-shuffle"></i></a>
                                             </div>
@@ -339,12 +339,12 @@
                                             </div>
                                             <div class="product-action-1 show">
                                                 <a 
-                                                    aria-label="Add To Cart" 
-                                                    class="action-btn hover-up"
-                                                    href="/add-to-cart?productId=<%=products[i]._id%>"
-                                                >
-                                                    <i class="fi-rs-shopping-bag-add"></i>
-                                                </a>
+                                                aria-label="Add To Cart" 
+                                                class="action-btn hover-up"
+                                                onclick="addToCart('<%= products[i]._id %>')"
+                                            >
+                                                <i class="fi-rs-shopping-bag-add"></i>
+                                            </a>
                                             </div>
                                             
                                         </div>
@@ -373,8 +373,8 @@
                                                 <a aria-label="Quick view" class="action-btn hover-up"
                                                     data-bs-toggle="modal" data-bs-target="#quickViewModal"><i
                                                         class="fi-rs-eye"></i></a>
-                                                <a aria-label="Add To Wishlist" class="action-btn hover-up"
-                                                    href="shop-wishlist.html"><i class="fi-rs-heart"></i></a>
+                                                        <a aria-label="Add To Wishlist" class="action-btn hover-up"
+                                                        onclick="addToWishlist('<%= products[i]._id %>')"><i class="fi-rs-heart"></i></a>
                                                 <a aria-label="Compare" class="action-btn hover-up"
                                                     href="shop-compare.html"><i class="fi-rs-shuffle"></i></a>
                                             </div>
@@ -400,12 +400,12 @@
                                             </div>
                                             <div class="product-action-1 show">
                                                 <a 
-                                                    aria-label="Add To Cart" 
-                                                    class="action-btn hover-up"
-                                                    href="/add-to-cart?productId=<%=products[i]._id%>"
-                                                >
-                                                    <i class="fi-rs-shopping-bag-add"></i>
-                                                </a>
+                                                aria-label="Add To Cart" 
+                                                class="action-btn hover-up"
+                                                onclick="addToCart('<%= products[i]._id %>')"
+                                            >
+                                                <i class="fi-rs-shopping-bag-add"></i>
+                                            </a>
                                             </div>
                                             
                                         </div>
@@ -501,5 +501,103 @@
             </div>
         </section>
     </main>
+    <script>
+         async function addToWishlist(id) {
+    try {
+        const response = await fetch('/add-to-wishlist', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ productId: id })
+        });
+        const data = await response.json();
+        
+        if (data.success) {
+            Swal.fire({
+                position: "top-end", 
+                icon: "success",
+                title: "Added to Wishlist",
+                showConfirmButton: false,
+                timer: 3000, 
+                timerProgressBar: true,
+                toast: true,
+                didOpen: (toast) => {
+                    toast.addEventListener('mouseenter', Swal.stopTimer)
+                    toast.addEventListener('mouseleave', Swal.resumeTimer)
+                }
+            });
+        } else {
+            Swal.fire({
+                position: "top-end",
+                icon: "error",
+                title: data.message,
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true,
+                toast: true,
+                didOpen: (toast) => {
+                    toast.addEventListener('mouseenter', Swal.stopTimer)
+                    toast.addEventListener('mouseleave', Swal.resumeTimer)
+                }
+            });
+        }
+    } catch (error) {
+        console.error('Error adding to wishlist:', error.message);
+        Swal.fire({
+                position: "top-end", 
+                icon: "success",
+                title: "Added to Wishlist",
+                showConfirmButton: false,
+                timer: 3000, 
+                timerProgressBar: true,
+                toast: true,
+                didOpen: (toast) => {
+                    toast.addEventListener('mouseenter', Swal.stopTimer)
+                    toast.addEventListener('mouseleave', Swal.resumeTimer)
+                }
+            });
+    }
+}
+async function addToCart(id) {
+    try {
+        const response = await fetch('/add-to-cart', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ productId: id })
+        });
+        const data = await response.json();
+        
+        if (data.success) {
+            Swal.fire({
+                position: "center",
+                icon: "success",
+                title: data.message || "Item added to cart",
+                showConfirmButton: false,
+                timer: 1500
+            });
+        } else {
+            Swal.fire({
+                position: "center",
+                icon: "error",
+                title: data.message || "Failed to add item to cart",
+                showConfirmButton: false,
+                timer: 1500
+            });
+        }
+    } catch (error) {
+        console.error('Error adding to cart:', error);
+        Swal.fire({
+            position: "center",
+            icon: "error",
+            title: "An error occurred",
+            showConfirmButton: false,
+            timer: 1500
+        });
+    }
+}
+    </script>
 
     <%- include('../layouts/user/footer.ejs') %>

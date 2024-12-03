@@ -39,7 +39,8 @@ const addressSchema = new mongoose.Schema({
     required: true
   },
   altPhone: {
-    type: String
+    type: String,
+    required: false
   },
   addressType: {
     type: String,

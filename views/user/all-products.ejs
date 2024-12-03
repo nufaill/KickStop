@@ -23,9 +23,13 @@
                 <div>
                     <select id="cat-filter" class="sort-select" onchange="catFilter()">
                         <option value="all-categories">All Categories</option>
+                        <option value="Mens">Mens</option>
+                        <option value="Womens">Womens</option>
+                        <option value="Kids">Kids</option>
+                        <option value="new-arrivals">New Arrivals</option>
                         <% for(let i=0; i < categories.length; i++) { %>
-                            <option value="<%= categories[i]._id %>">
-                                <%= categories[i].name %>
+                            <option value="<%= category[i]._id %>">
+                                <%= category[i].name %>
                             </option>
                         <% } %>
                     </select>
@@ -50,8 +54,8 @@
                                         <a aria-label="Quick view" class="action-btn hover-up"
                                             data-bs-toggle="modal" data-bs-target="#quickViewModal"><i
                                                 class="fi-rs-eye"></i></a>
-                                        <a aria-label="Add To Wishlist" class="action-btn hover-up"
-                                            href="#"><i class="fi-rs-heart"></i></a>
+                                         <a aria-label="Add To Wishlist" class="action-btn hover-up"
+                                            onclick="addToWishlist('<%= products[i]._id %>')"><i class="fi-rs-heart"></i></a>
                                         <a aria-label="Compare" class="action-btn hover-up"
                                             href="#"><i class="fi-rs-shuffle"></i></a>
                                     </div>
@@ -154,7 +158,63 @@
 </main>
 
 <script>
-    // Function to fetch and update products based on sorting
+    async function addToWishlist(id) {
+    try {
+        const response = await fetch('/add-to-wishlist', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ productId: id })
+        });
+        const data = await response.json();
+        
+        if (data.success) {
+            Swal.fire({
+                position: "top-end", 
+                icon: "success",
+                title: "Added to Wishlist",
+                showConfirmButton: false,
+                timer: 3000, 
+                timerProgressBar: true,
+                toast: true,
+                didOpen: (toast) => {
+                    toast.addEventListener('mouseenter', Swal.stopTimer)
+                    toast.addEventListener('mouseleave', Swal.resumeTimer)
+                }
+            });
+        } else {
+            Swal.fire({
+                position: "top-end",
+                icon: "error",
+                title: data.message,
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true,
+                toast: true,
+                didOpen: (toast) => {
+                    toast.addEventListener('mouseenter', Swal.stopTimer)
+                    toast.addEventListener('mouseleave', Swal.resumeTimer)
+                }
+            });
+        }
+    } catch (error) {
+        console.error('Error adding to wishlist:', error.message);
+        Swal.fire({
+                position: "top-end", 
+                icon: "success",
+                title: "Added to Wishlist",
+                showConfirmButton: false,
+                timer: 3000, 
+                timerProgressBar: true,
+                toast: true,
+                didOpen: (toast) => {
+                    toast.addEventListener('mouseenter', Swal.stopTimer)
+                    toast.addEventListener('mouseleave', Swal.resumeTimer)
+                }
+            });
+    }
+}
 function handleSortChange() {
     const sortBy = document.getElementById('sort-by').value;
     const category = document.getElementById('cat-filter').value;
@@ -164,29 +224,61 @@ function handleSortChange() {
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ sort: sortBy, category }),
+        body: JSON.stringify({ 
+            sort: sortBy, 
+            category: category
+        }),
     })
-        .then(response => response.json())
-        .then(data => updateProductList(data.products))
-        .catch(error => console.error('Error:', error));
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Failed to fetch products');
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.products) {
+            updateProductList(data.products);
+        } else {
+            const productsContainer = document.getElementById('products-container');
+            productsContainer.innerHTML = '<p>No products found.</p>';
+            
+            Swal.fire({
+                position: "center",
+                icon: "warning",
+                title: "No products found",
+                showConfirmButton: false,
+                timer: 1500
+            });
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        
+        Swal.fire({
+            position: "center",
+            icon: "error",
+            title: "Failed to load products",
+            text: error.message,
+            showConfirmButton: false,
+            timer: 1500
+        });
+    });
 }
-
 
 function catFilter() {
     handleSortChange();
 }
 
-// Function to update the product list in the DOM
+
 function updateProductList(products) {
     const productsContainer = document.getElementById('products-container');
-    productsContainer.innerHTML = ''; // Clear previous products
+    productsContainer.innerHTML = ''; 
 
     if (products.length === 0) {
         productsContainer.innerHTML = '<p>No products found.</p>';
         return;
     }
 
-    // Render each product
     products.forEach(product => {
         const productHTML = `
             <div class="col-lg-3 col-md-4 col-12 col-sm-6">
@@ -257,5 +349,6 @@ function updateProductList(products) {
                 console.error('Error adding to cart:', error.message);
             }
         }
+        
 </script>
 <%- include('../layouts/user/footer') %>

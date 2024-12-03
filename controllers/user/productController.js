@@ -7,13 +7,11 @@ const Address = require('../../models/addressSchema');
 const Order = require('../../models/orderSchema');
 const moment = require('moment');
 
-// Utility for error handling
 const handleError = (res, error, customMessage = 'An error occurred') => {
     console.error(customMessage, error);
     res.status(500).render('error-page', { message: customMessage });
 };
 
-// Fetch product details
 const productDetails = async (req, res) => {
     try {
         const productId = req.query.productId;
@@ -26,10 +24,10 @@ const productDetails = async (req, res) => {
             return res.status(404).render('error-page', { message: 'Product not found' });
         }
 
-        const relatedProducts = await Product.find({ 
-            category: product.category, 
-            isBlocked: false, 
-            _id: { $ne: product._id } 
+        const relatedProducts = await Product.find({
+            category: product.category,
+            isBlocked: false,
+            _id: { $ne: product._id }
         });
 
         res.render('product-details', { product, relatedProducts });
@@ -48,7 +46,6 @@ const getBrands = async (req, res) => {
     }
 };
 
-// Fetch all products with pagination
 const loadallProducts = async (req, res) => {
     try {
         const limit = 16;
@@ -75,7 +72,6 @@ const loadallProducts = async (req, res) => {
     }
 };
 
-// Load checkout page
 const loadCheckout = async (req, res) => {
     try {
         const user = req.session.user;
@@ -131,19 +127,16 @@ const loadCheckout = async (req, res) => {
     }
 };
 
-// Place an order
 const placeOrderInitial = async (req, res) => {
     try {
         const { cart, singleProduct, totalPrice, addressId, payment_method } = req.body;
-        console.log(singleProduct)
-        
+
         const user = req.session.user;
 
         if (!user) {
             return res.status(401).json({ success: false, message: 'User not authenticated' });
         }
 
-        // Validate input
         if (!addressId || !payment_method || (!cart && !singleProduct)) {
             return res.status(400).json({ success: false, message: 'Invalid input' });
         }
@@ -203,7 +196,6 @@ const placeOrderInitial = async (req, res) => {
     }
 };
 
-// Order confirmation
 const getOrderConfirmation = async (req, res) => {
     try {
         const orderId = req.query.id;
@@ -252,23 +244,23 @@ const cancelOrder = async (req, res) => {
 };
 
 const getOrderHistory = async (req, res) => {
-  try {
-      const user = req.session.user;
-      if (!user) {
-          return res.redirect('/login');
-      }
+    try {
+        const user = req.session.user;
+        if (!user) {
+            return res.redirect('/login');
+        }
 
-      const orders = await Order.find({ user })
-          .populate('items.productId')
-          .sort({ createdAt: -1 });
+        const orders = await Order.find({ user })
+            .populate(['items.productId', 'shippingAddress'])
+            .sort({ createdAt: -1 });
 
-      res.render('order-details', { 
-          orders,
-          moment
-      });
-  } catch (error) {
-      handleError(res, error, 'Error fetching order history');
-  }
+        res.render('order-details', {
+            orders,
+            moment
+        });
+    } catch (error) {
+        handleError(res, error, 'Error fetching order history');
+    }
 };
 
 module.exports = {

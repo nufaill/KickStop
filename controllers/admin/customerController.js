@@ -14,7 +14,7 @@ const userInfo = async (req, res) => {
         if (req.query.page) {
             page = parseInt(req.query.page);
         }
-        const limit = 3;
+        const limit = 10;
 
         // Fetch user data based on search and pagination
         const userData = await User.find({

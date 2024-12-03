@@ -214,7 +214,6 @@ const verifyOtp = async (req,res) => {
 
             await saveUserData.save();
             
-            // Store user data in session after successful signup
             req.session.user = {
                 _id: saveUserData._id,
                 username: saveUserData.username,

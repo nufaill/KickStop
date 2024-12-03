@@ -323,9 +323,8 @@
                                                     onclick="addToCart('<%= product._id %>')">Add to
                                                     Cart</button>
                                                     <a href="/checkout?id=<%= product._id %>" class="btn action-btn standard-size"> Buy Now</a>
-
-                                                <a aria-label="Add To Wishlist" class="action-btn hover-up"
-                                                    href="shop-wishlist.html"><i class="fi-rs-heart"></i></a>
+                                                    <a aria-label="Add To Wishlist" class="action-btn hover-up"
+                                                    onclick="addToWishlist('<%= product._id %>')"><i class="fi-rs-heart"></i></a>
                                                 <a aria-label="Compare" class="action-btn hover-up"
                                                     href="shop-compare.html"><i class="fi-rs-shuffle"></i></a>
                                             </div>
@@ -370,10 +369,8 @@
                                                                 data-bs-toggle="modal"
                                                                 data-bs-target="#quickViewModal"><i
                                                                     class="fi-rs-search"></i></a>
-                                                            <a aria-label="Add To Wishlist"
-                                                                class="action-btn small hover-up"
-                                                                href="shop-wishlist.html" tabindex="0"><i
-                                                                    class="fi-rs-heart"></i></a>
+                                                                    <a aria-label="Add To Wishlist" class="action-btn hover-up"
+                                                                    onclick="addToWishlist('<%= relatedProducts[i]._id %>')"><i class="fi-rs-heart"></i></a>
                                                             <a aria-label="Compare" class="action-btn small hover-up"
                                                                 href="shop-compare.html" tabindex="0"><i
                                                                     class="fi-rs-shuffle"></i></a>
@@ -430,8 +427,6 @@
                     body: JSON.stringify({ quantity }),
                 });
                 const data = await response.json();
-                console.log("data",data);
-                console.log("response",response)
                 if (data.success) {
                     Swal.fire({
                         position: "center",
@@ -453,6 +448,64 @@
                 console.error('Error adding to cart:', error.message);
             }
         }
+
+        async function addToWishlist(id) {
+    try {
+        const response = await fetch('/add-to-wishlist', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ productId: id })
+        });
+        const data = await response.json();
+        
+        if (data.success) {
+            Swal.fire({
+                position: "top-end", 
+                icon: "success",
+                title: "Added to Wishlist",
+                showConfirmButton: false,
+                timer: 3000, 
+                timerProgressBar: true,
+                toast: true,
+                didOpen: (toast) => {
+                    toast.addEventListener('mouseenter', Swal.stopTimer)
+                    toast.addEventListener('mouseleave', Swal.resumeTimer)
+                }
+            });
+        } else {
+            Swal.fire({
+                position: "top-end",
+                icon: "error",
+                title: data.message,
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true,
+                toast: true,
+                didOpen: (toast) => {
+                    toast.addEventListener('mouseenter', Swal.stopTimer)
+                    toast.addEventListener('mouseleave', Swal.resumeTimer)
+                }
+            });
+        }
+    } catch (error) {
+        console.error('Error adding to wishlist:', error.message);
+        Swal.fire({
+                position: "top-end", 
+                icon: "success",
+                title: "Added to Wishlist",
+                showConfirmButton: false,
+                timer: 3000, 
+                timerProgressBar: true,
+                toast: true,
+                didOpen: (toast) => {
+                    toast.addEventListener('mouseenter', Swal.stopTimer)
+                    toast.addEventListener('mouseleave', Swal.resumeTimer)
+                }
+            });
+    }
+}
     </script>
 
 

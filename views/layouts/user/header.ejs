@@ -239,22 +239,37 @@
     </header>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const hamburger = document.querySelector('.hamburger');
-            const nav = document.querySelector('.main-menu nav');
+document.addEventListener('DOMContentLoaded', () => {
+    const filterForm = document.getElementById('filter-form');
+    const priceRange = document.getElementById('price-range');
+    const priceOutput = document.getElementById('price-output');
 
-            hamburger.addEventListener('click', () => {
-                nav.classList.toggle('show');
-                hamburger.classList.toggle('active');
-            });
+    // Price range dynamic output
+    priceRange.addEventListener('input', () => {
+        priceOutput.textContent = `$${priceRange.value}`;
+    });
 
-            window.addEventListener('click', (e) => {
-                if (!nav.contains(e.target) && !hamburger.contains(e.target)) {
-                    nav.classList.remove('show');
-                    hamburger.classList.remove('active');
-                }
-            });
+    // Filter form submission
+    filterForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        
+        // Collect selected categories
+        const selectedCategories = Array.from(
+            filterForm.querySelectorAll('input[name="category"]:checked')
+        ).map(cb => cb.value);
+
+        // Construct search URL
+        const searchParams = new URLSearchParams({
+            q: document.querySelector('.search-bar input[name="q"]').value || '',
+            categories: selectedCategories,
+            minPrice: 0,
+            maxPrice: priceRange.value
         });
+
+        // Redirect to search page with filters
+        window.location.href = `/search-product?${searchParams.toString()}`;
+    });
+});
     </script>
 </body>
 </html>

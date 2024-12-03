@@ -10,7 +10,7 @@ const passport = require("../config/passport");
 const {userAuth,adminAuth} = require("../middlewares/auth");
 const User = require('../models/userSchema')
 
-
+router.use(express.json()); 
 router.use(async (req, res, next) => {
     const userData = await User.findById(req.session.user);
     res.locals.user = userData || null;
@@ -77,7 +77,7 @@ router.get('/deleteAddress',userAuth, profileController.deleteAddress);
 router.get('/cart',userAuth,cartController.loadCart);
 router.post('/add-to-cart',userAuth,cartController.addcart);
 router.post('/remove-cart-item',userAuth,cartController.removeCartItems);
-router.post('/update-cart-quantity', cartController.updateCart);
+router.post('/update-cart-quantity',userAuth, cartController.updateCart);
 
 
 //order management
@@ -93,7 +93,9 @@ router.get('/all-products',productController.loadallProducts);
 router.get('/allbrands',productController.getBrands);
 
 //wishlist management
-router.get('/wishlist',userAuth,wishlistController.loadWishlist);
+router.post('/add-to-wishlist', wishlistController.loadWishlist);
+router.get('/wishlist', wishlistController.renderWishlist);
+router.post('/remove-wishlist-item', wishlistController.removeWishlistItem);
 
 //filter
 router.post('/sort-and-search',filterController.sortSearch)

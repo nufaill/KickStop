@@ -186,13 +186,12 @@
         // Parse the order data
         const order = typeof orderData === 'string' ? JSON.parse(orderData) : orderData;
         
-        // Defensive logging
-        console.log('Raw Order Data:', orderData);
-        console.log('Parsed Order Object:', JSON.stringify(order, null, 2));
+        // // Defensive logging
+        // console.log('Raw Order Data:', orderData);
+        // console.log('Parsed Order Object:', JSON.stringify(order, null, 2));
         
         const modalBody = document.getElementById('orderDetailsModalBody');
         
-        // Detailed null checks and fallbacks
         const orderDetails = {
             orderId: order.orderId || 'N/A',
             date: order.createdAt ? new Date(order.createdAt).toLocaleDateString() : 'N/A',
@@ -203,7 +202,6 @@
             items: order.items || []
         };
 
-        // Create detailed HTML with extensive fallback handling
         let detailsHTML = `
             <div class="row">
                 <div class="col-md-6">

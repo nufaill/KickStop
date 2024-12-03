@@ -22,7 +22,7 @@ const loadOrders = async(req,res)=>{
             .sort({createdAt:-1})
             .limit(limit)
             .skip((page - 1) * limit);
-            console.log('njvn', orders);
+          
             
         const totalCount = await Order.countDocuments(filter);
         res.render('orders-list', { 

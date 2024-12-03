@@ -1,174 +1,365 @@
-<%- include('../layouts/user/header') %>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #f7f7f7;
-      margin: 0;
-      padding: 0;
-    }
 
-    header {
-      background-color: #800000;
-      color: #fff;
-      padding: 15px 20px;
-      text-align: center;
-    }
-
-    .container {
-      margin: 20px auto;
-      width: 90%;
-      max-width: 800px;
-    }
-
-    .wishlist-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background-color: #fff;
-      border: 1px solid #ddd;
-      border-radius: 5px;
-      margin-bottom: 15px;
-      padding: 15px;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    }
-
-    .wishlist-item h3 {
-      margin: 0;
-      font-size: 18px;
-    }
-
-    .btn {
-      padding: 8px 15px;
-      border: none;
-      border-radius: 3px;
-      cursor: pointer;
-      font-size: 14px;
-    }
-
-    .add-btn {
-      background-color: #800000;
-      color: #fff;
-    }
-
-    .remove-btn {
-      background-color: #ddd;
-      color: #333;
-    }
-
-    .remove-all-btn {
-      background-color: #800000;
-      color: #fff;
-      margin-top: 15px;
-      width: 100%;
-    }
-
-    .add-btn:hover {
-      background-color: #a00000;
-    }
-
-    .remove-btn:hover, .remove-all-btn:hover {
-      background-color: #bbb;
-    }
-
-    .search-bar {
-      margin-bottom: 20px;
-    }
-
-    .search-input {
-      width: calc(100% - 50px);
-      padding: 8px;
-      font-size: 14px;
-      border: 1px solid #ddd;
-      border-radius: 5px;
-    }
-
-    .search-btn {
-      padding: 8px 10px;
-      border: none;
-      background-color: #800000;
-      color: white;
-      border-radius: 3px;
-      font-size: 14px;
-      margin-left: 5px;
-    }
-  </style>
-</head>
-<body>
-  <header>
-    <h1>Wishlist</h1>
-  </header>
-  <div class="container">
-    <!-- Search Bar -->
-    <div class="search-bar">
-      <input type="text" id="search" class="search-input" placeholder="Search wishlist..." onkeyup="searchWishlist()" />
-      <button class="btn search-btn">Search</button>
-    </div>
-
-    <!-- Wishlist Items -->
-    <% if (wishlist.length > 0) { %>
-      <% wishlist.forEach((item) => { %>
-        <div class="wishlist-item" data-name="<%= item.name.toLowerCase() %>">
-          <h3><%= item.name %></h3>
-          <div>
-            <button class="btn remove-btn" onclick="removeFromWishlist('<%= item.id %>')">Remove</button>
-          </div>
-        </div>
-      <% }) %>
-    <% } else { %>
-      <p>Your wishlist is empty!</p>
-    <% } %>
-
-    <!-- Add to Wishlist -->
-    <div>
-      <h2>Add to Wishlist</h2>
-      <input type="text" id="newItem" placeholder="Enter item name" />
-      <button class="btn add-btn" onclick="addToWishlist()">Add Item</button>
-    </div>
-
-    <!-- Remove All Button -->
-    <% if (wishlist.length > 0) { %>
-      <button class="btn remove-all-btn" onclick="clearWishlist()">Remove All Items</button>
-    <% } %>
-  </div>
-
-  <script>
-    function addToWishlist() {
-      const newItem = document.getElementById('newItem').value.trim();
-      if (!newItem) {
-        alert('Please enter an item name!');
-        return;
-      }
-      // Simulate backend call
-      alert(`"${newItem}" added to wishlist!`);
-      // Add actual functionality here
-    }
-
-    function removeFromWishlist(itemId) {
-      if (confirm('Are you sure you want to remove this item?')) {
-        alert(`Item with ID ${itemId} removed from wishlist!`);
-        // Add actual functionality here
-      }
-    }
-
-    function clearWishlist() {
-      if (confirm('Are you sure you want to clear the entire wishlist?')) {
-        alert('All items removed from wishlist!');
-        // Add actual functionality here
-      }
-    }
-
-    function searchWishlist() {
-      const searchValue = document.getElementById('search').value.toLowerCase();
-      const items = document.querySelectorAll('.wishlist-item');
-      items.forEach((item) => {
-        const name = item.getAttribute('data-name');
-        if (name.includes(searchValue)) {
-          item.style.display = 'flex';
-        } else {
-          item.style.display = 'none';
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        :root {
+            --primary-color: #800000;
+            --secondary-color: #400000;
+            --text-color: #ffffff;
+            --background-color: #f9f9f9;
+            --hover-bg: rgba(128, 0, 0, 0.05);
+            --card-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            --hover-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+            --transition-speed: 0.4s;
         }
-      });
-    }
-  </script>
+    
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: var(--background-color);
+            color: var(--secondary-color);
+        }
+    
+        .breadcrumb {
+            background-color: transparent;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+        }
+    
+        .breadcrumb-item a {
+            color: var(--primary-color);
+            font-weight: bold;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+    
+        .breadcrumb-item a:hover {
+            color: #ffd700;
+            text-decoration: underline;
+        }
+    
+        h1 {
+            font-size: 2.8rem;
+            font-weight: bold;
+            text-align: center;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            animation: fadeInDown 0.6s ease;
+        }
+    
+        .table-container {
+            background-color: #fff;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: var(--card-shadow);
+            overflow-x: auto;
+        }
+    
+        .table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 0;
+        }
+    
+        .table th,
+        .table td {
+            padding: 15px;
+            text-align: left;
+            color: var(--secondary-color);
+            border-bottom: 1px solid #eee;
+        }
+    
+        .table th {
+            font-size: 1rem;
+            font-weight: bold;
+            background-color: var(--hover-bg);
+            text-transform: uppercase;
+        }
+    
+        .table tbody tr {
+            transition: background-color var(--transition-speed), transform var(--transition-speed);
+        }
+    
+        .table tbody tr:hover {
+            background-color: var(--hover-bg);
+            transform: scale(1.02);
+            box-shadow: var(--hover-shadow);
+        }
+    
+        .btn {
+            border-radius: 30px;
+            padding: 10px 20px;
+            font-size: 1rem;
+            transition: transform var(--transition-speed), box-shadow var(--transition-speed);
+            font-weight: bold;
+        }
+    
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: var(--text-color);
+            border: none;
+        }
+    
+        .btn-primary:hover {
+            background-color: #a00000;
+            transform: translateY(-2px);
+            box-shadow: var(--hover-shadow);
+        }
+    
+        .product-thumbnail img {
+            border-radius: 8px;
+            transition: transform var(--transition-speed), box-shadow var(--transition-speed);
+        }
+    
+        .product-thumbnail img:hover {
+            transform: scale(1.2);
+            box-shadow: var(--hover-shadow);
+        }
+    
+        .badge {
+            border-radius: 20px;
+            padding: 5px 10px;
+            font-size: 0.9rem;
+        }
+    
+        .badge.pulse {
+            animation: pulse 2s infinite;
+        }
+    
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.1);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+    
+        .empty-wishlist {
+            text-align: center;
+            padding: 50px;
+            animation: fadeInUp 1s ease-out;
+        }
+    
+        /* Animation Keyframes */
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    
+        @keyframes bounceIn {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-20px);
+            }
+            60% {
+                transform: translateY(-10px);
+            }
+        }
+    
+        /* Button Shake Animation */
+        .btn-danger:hover {
+            animation: shake 0.5s ease-in-out;
+        }
+    
+        @keyframes shake {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            50% { transform: translateX(5px); }
+            75% { transform: translateX(-5px); }
+            100% { transform: translateX(0); }
+        }
+    </style>
+    
+    <%- include('../layouts/user/header') %>
 
-<%- include('../layouts/user/footer') %>
+    <main class="main">
+        <div class="container">
+            <div class="breadcrumb">
+                <a href="/" rel="nofollow">Home   </a>
+                   >
+                <a href="/all-products" rel="nofollow">shop   </a>
+                <span> </span>  >    Your Cart
+            </div>
+        </div>
+        <section class="mt-5 mb-5">
+            <div class="container">
+                <div class="row">
+                    <div class="col-12">
+                        <h1 class="text-center mb-4 animate-in pulse" style="color: var(--primary-color);">Your Wishlist</h1>
+                        <div class="table-container">
+                            <% if (products && products.length > 0) { %>
+                                <table class="table-table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">Product</th>
+                                            <th scope="col">Price</th>
+                                            <th scope="col">Stock Status</th>
+                                            <th scope="col">Action</th>
+                                            <th scope="col">Remove</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <% for (let i = 0; i < products.length; i++) { %>
+                                            <tr class="animate-in">
+                                                <td>
+                                                    <div class="d-flex align-items-center">
+                                                        <div class="product-thumbnail me-3">
+                                                            <img src="/uploads/re-image/<%= products[i].productId.productImage[0] %>" alt="<%= products[i].productId.productName %>">
+                                                        </div>
+                                                        <h5 class="product-name">
+                                                            <a href="/productdetails?id=<%= products[i].productId._id %>" style="color: var(--primary-color); text-decoration: none;">
+                                                                <%= products[i].productId.productName %>
+                                                            </a>
+                                                        </h5>
+                                                    </div>
+                                                </td>
+                                                <td class="price">₹<%= products[i].productId.salePrice.toLocaleString() %></td>
+                                                <td>
+                                                    <% if (products[i].productId.quantity > 0) { %>
+                                                        <span class="badge bg-success pulse">In Stock</span>
+                                                    <% } else { %>
+                                                        <span class="badge bg-danger shake">Out of Stock</span>
+                                                    <% } %>
+                                                </td>
+                                                <td>
+                                                    <% if (products[i].productId.quantity > 0) { %>
+                                                        <button type="button" class="btn btn-primary" onclick="addToCart('<%= products[i].productId._id %>')">
+                                                            <i class="fas fa-shopping-cart me-2"></i>Add to cart
+                                                        </button>
+                                                    <% } else { %>
+                                                        <a href="/contact-us" class="btn btn-info">
+                                                            <i class="fas fa-envelope me-2"></i>Contact Us
+                                                        </a>
+                                                    <% } %>
+                                                </td>
+                                                <td>
+                                                    <form id="remove-form-<%= products[i].productId._id %>" action="/remove-wishlist-item" method="POST">
+                                                        <input type="hidden" name="productId" value="<%= products[i].productId._id %>">
+                                                        <button type="button" class="btn btn-danger" onclick="confirmRemove('<%= products[i].productId._id %>')">
+                                                            <i class="fas fa-trash-alt"></i>
+                                                        </button>
+                                                    </form>
+                                                </td>
+                                            </tr>
+                                        <% } %>
+                                    </tbody>
+                                </table>
+                            <% } else { %>
+                                <div class="empty-wishlist">
+                                    <h2 class="mb-3">Your wishlist is empty</h2>
+                                    <p class="mb-4">Add items to your wishlist to keep track of products you love!</p>
+                                    <a href="/shop" class="btn btn-primary mt-3 pulse">
+                                        <i class="fas fa-shopping-bag me-2"></i>Continue Shopping
+                                    </a>
+                                </div>
+                            <% } %>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <%- include('../layouts/user/footer') %>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function confirmRemove(productId) {
+            Swal.fire({
+                title: "Are you sure?",
+                text: "Do you want to remove this item from your wishlist?",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#d33",
+                cancelButtonColor: "#3085d6",
+                confirmButtonText: "Yes, remove it!"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById(`remove-form-${productId}`).submit();
+                }
+            });
+        }
+
+        async function addToCart(productId) {
+            try {
+                const response = await fetch('/add-to-cart', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ productId: productId })
+                });
+                
+                const data = await response.json();
+                console.log('Response from server:', data);
+
+                if (data.success) {
+                    Swal.fire({
+                        position: "center",
+                        icon: "success",
+                        title: data.message,
+                        showConfirmButton: false,
+                        timer: 1500
+                    });
+                } else {
+                    Swal.fire({
+                        position: "center",
+                        icon: "error",
+                        title: data.message || "Failed to add product to cart",
+                        showConfirmButton: false,
+                        timer: 1500
+                    });
+                }
+            } catch (error) {
+                Swal.fire({
+                    position: "center",
+                    icon: "error",
+                    title: "Network error. Please try again.",
+                    showConfirmButton: false,
+                    timer: 1500
+                });
+            }
+        }
+        const animateOnScroll = (entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('animate-in');
+                    observer.unobserve(entry.target);
+                }
+            });
+        };
+
+        const observer = new IntersectionObserver(animateOnScroll, {
+            root: null,
+            threshold: 0.1
+        });
+
+        document.querySelectorAll('.animate-in').forEach(el => {
+            observer.observe(el);
+        });
+    </script>
+</body>
+</html>

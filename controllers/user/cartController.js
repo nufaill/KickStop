@@ -31,7 +31,8 @@ const loadCart = async (req, res) => {
 
 const addcart = async (req, res) => {
     try {
-        const productId = req.query.id;
+        // Try to get productId from different sources
+        const productId = req.body.productId || req.query.id;
         const userId = req.session.user;
 
         if (!userId) {
@@ -40,7 +41,7 @@ const addcart = async (req, res) => {
 
         const product = await Product.findById(productId);
         if (!product) {
-            return res.status(404).json({ success:false ,message: "Product not found" });
+            return res.status(404).json({ success: false, message: "Product not found" });
         }
 
         const quantity = parseInt(req.body.quantity, 10) || 1;
@@ -79,7 +80,7 @@ const addcart = async (req, res) => {
         return res.status(200).json({ success: true, message: 'Product added to cart' })
     } catch (error) {
         console.error("Error adding to cart", error);
-        return res.status(500).json({ success:false, message: "Something went wrong" });
+        return res.status(500).json({ success: false, message: "Something went wrong" });
     }
 };
 

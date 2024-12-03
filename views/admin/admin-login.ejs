@@ -277,46 +277,46 @@
       const toastContainer = document.getElementById("toast-container") || createToastContainer();
       const toast = document.createElement("div");
       toast.classList.add("toast", type);
-
+  
       const icon = document.createElement("span");
       icon.classList.add("icon");
       icon.innerHTML = getIcon(type);
-
+  
       const messageEl = document.createElement("span");
       messageEl.classList.add("message");
       messageEl.textContent = message;
-
+  
       const closeBtn = document.createElement("button");
       closeBtn.classList.add("close-btn");
       closeBtn.innerHTML = "&times;";
       closeBtn.onclick = () => removeToast(toast);
-
+  
       toast.appendChild(icon);
       toast.appendChild(messageEl);
       toast.appendChild(closeBtn);
       toastContainer.appendChild(toast);
-
+  
       requestAnimationFrame(() => {
         toast.classList.add("show");
       });
-
+  
       setTimeout(() => removeToast(toast), 4000);
     }
-
+  
     function createToastContainer() {
       const container = document.createElement("div");
       container.id = "toast-container";
       document.body.appendChild(container);
       return container;
     }
-
+  
     function removeToast(toast) {
       toast.classList.remove("show");
       setTimeout(() => {
         if (toast.parentNode) toast.parentNode.removeChild(toast);
       }, 400);
     }
-
+  
     function getIcon(type) {
       switch (type) {
         case "success":
@@ -330,51 +330,62 @@
           return "ℹ";
       }
     }
-
-    function validateForm() {
-      const emailInput = document.getElementById("email");
-      const passwordInput = document.getElementById("password");
-      const emailError = document.getElementById("emailError");
-      const passwordError = document.getElementById("passwordError");
-      const formError = document.getElementById("formError");
-
-      emailError.textContent = "";
-      passwordError.textContent = "";
-      formError.textContent = "";
-      emailInput.classList.remove("is-invalid");
-      passwordInput.classList.remove("is-invalid");
-
-      let valid = true;
-
-      if (!emailInput.value.trim()) {
-        emailError.textContent = "Email is required.";
-        emailInput.classList.add("is-invalid");
-        valid = false;
-      } else if (!/\S+@\S+\.\S+/.test(emailInput.value.trim())) {
-        emailError.textContent = "Please enter a valid email address.";
-        emailInput.classList.add("is-invalid");
-        valid = false;
-      }
-
-      if (!passwordInput.value.trim()) {
-        passwordError.textContent = "Password is required.";
-        passwordInput.classList.add("is-invalid");
-        valid = false;
-      } else if (passwordInput.value.trim().length < 6) {
-        passwordError.textContent = "Password must be at least 6 characters.";
-        passwordInput.classList.add("is-invalid");
-        valid = false;
-      }
-
-      if (!valid) {
-        formError.textContent = "Please fix the errors above and try again.";
-        showToast("Please correct the form errors", "error");
-      } else {
-        showToast("Form submitted successfully!", "success");
-      }
-
-      return valid;
+  
+    function validateEmail(email) {
+      return /\S+@\S+\.\S+/.test(email);
     }
+  
+    function validatePassword(password) {
+      return password.length >= 6;
+    }
+  
+    function validateForm() {
+  const emailInput = document.getElementById("email");
+  const passwordInput = document.getElementById("password");
+  const emailError = document.getElementById("emailError");
+  const passwordError = document.getElementById("passwordError");
+  const formError = document.getElementById("formError");
+
+  // Reset errors
+  emailError.textContent = "";
+  passwordError.textContent = "";
+  formError.textContent = "";
+  emailInput.classList.remove("is-invalid");
+  passwordInput.classList.remove("is-invalid");
+
+  let valid = true;
+
+  // Email validation
+  if (!emailInput.value.trim()) {
+    emailError.textContent = "Email is required.";
+    emailInput.classList.add("is-invalid");
+    valid = false;
+  } else if (!/\S+@\S+\.\S+/.test(emailInput.value.trim())) {
+    emailError.textContent = "Please enter a valid email address.";
+    emailInput.classList.add("is-invalid");
+    valid = false;
+  }
+
+  // Password validation
+  if (!passwordInput.value.trim()) {
+    passwordError.textContent = "Password is required.";
+    passwordInput.classList.add("is-invalid");
+    valid = false;
+  } else if (passwordInput.value.trim().length < 6) {
+    passwordError.textContent = "Password must be at least 6 characters.";
+    passwordInput.classList.add("is-invalid");
+    valid = false;
+  }
+
+  if (!valid) {
+    formError.textContent = "Please fix the errors above and try again.";
+    showToast("Please correct the form errors", "error");
+  } else {
+    showToast("Form submitted successfully!", "success");
+  }
+
+  return valid;
+}
 
     document.addEventListener("DOMContentLoaded", () => {
       const gradients = [
@@ -384,11 +395,16 @@
         "linear-gradient(135deg, #d4fc79 10%, #3cb371 90%)",
       ];
       let gradientIndex = 0;
+  
+      // Smooth transition for background
+      document.body.style.transition = "background 2s ease-in-out";
+  
       setInterval(() => {
         document.body.style.background = gradients[gradientIndex];
         gradientIndex = (gradientIndex + 1) % gradients.length;
       }, 4000);
     });
   </script>
+  
 </body>
 </html>

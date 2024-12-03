@@ -354,6 +354,7 @@ textarea.error:focus {
                     <div class="form-group">
                         <label for="altphone">Alternate Number (Optional)</label>
                         <input type="tel" id="altphone" name="altphone">
+                        <div class="error-message">Please enter a valid Alternate Number</div>
                     </div>
                 </div>
     
@@ -362,14 +363,14 @@ textarea.error:focus {
         </div>
     </div>
 <script>
-   document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', function () {
     const form = document.getElementById('addressForm');
     const inputs = form.querySelectorAll('input, textarea');
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const phoneRegex = /^\d{10}$/;
+    const altphoneRegex = /^\d{10}$/; 
     const pincodeRegex = /^\d{6}$/;
 
-    // Function to show error
     function showError(element, message) {
         element.classList.add('error');
         const errorMessage = element.nextElementSibling;
@@ -378,7 +379,6 @@ textarea.error:focus {
             errorMessage.classList.add('show');
         }
 
-        // Auto-remove error styles after 3 seconds
         setTimeout(() => {
             element.classList.remove('error');
             if (errorMessage) {
@@ -413,6 +413,11 @@ textarea.error:focus {
 
         if (input.name === 'phone' && !phoneRegex.test(input.value)) {
             showError(input, 'Please enter a valid 10-digit phone number');
+            return false;
+        }
+
+        if (input.name === 'altphone' && !altphoneRegex.test(input.value)) {
+            showError(input, 'Please enter a valid 10-digit alternate phone number');
             return false;
         }
 
@@ -454,6 +459,5 @@ textarea.error:focus {
         }
     });
 });
-
-    </script>
+</script>
     <%- include("../../views/layouts/user/footer") %>

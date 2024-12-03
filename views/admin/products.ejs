@@ -75,11 +75,11 @@
                             </td>
                             <td>
                                 <%if(data[i].isBlocked){%>
-                                    <button class="btn btn-success" style="width: 150px;">
+                                    <button class="btn btn" style="width: 150px; background-color: #931f1f;">
                                         <a href="/admin/unblockproduct?id=<%=data[i]._id%>" class="text-white" style="text-decoration: none;">Unblock</a>
                                     </button>
                                 <%}else{%>
-                                    <button class="btn btn-danger" style="width: 150px;">
+                                    <button class="btn btn" style="width: 150px;  background-color: #5c0202;">
                                         <a href="/admin/blockproduct?id=<%=data[i]._id%>" class="text-white" style="text-decoration: none;">Block</a>
                                     </button>
                                 <%}%>

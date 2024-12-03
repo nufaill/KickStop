@@ -211,7 +211,6 @@ const resendForgotOtp = async (req, res) => {
 const postNewPassword = async (req, res) => {
   try {
     const { newPass1, newPass2 } = req.body;
-    console.log('kkkkkkkkkkkkkkk', req.session);
     
     const email = req.session.email;
 
@@ -456,7 +455,6 @@ const changePasswordValid = async (req, res) => {
 
 const verifyChangepasswordOtp = async (req, res) => {
   try {
-    console.log('invoked');
     
     const { otp } = req.body;
 
@@ -473,7 +471,6 @@ const verifyChangepasswordOtp = async (req, res) => {
     }
 
     const isOtpValid = await bcrypt.compare(otp, req.session.userOtp);
-    console.log('isOtpValid',isOtpValid);
     
     if (isOtpValid) {
       req.session.otpVerified = true;
@@ -532,72 +529,34 @@ const postAddaddress = async (req, res) => {
     console.error('Error adding address', error)
   }
 }
-
 const editAddress = async (req, res) => {
-  try {
-    const addressId = req.query.id;
-    const user = req.session.user;
-
-    const currAddress = await Address.findOne({
-      "addresses._id": addressId,
-    });
-
-    if (!currAddress) {
-      return res.status(404).render('user/error', {
-        message: 'Address not found',
-        errorCode: 404
-      });
-    }
-
-    const addressData = currAddress.addresses.find((item) => {
-      return item._id.toString() === addressId.toString();
-    });
-
-    if (!addressData) {
-      return res.status(404).render('user/error', {
-        message: 'Specific address details not found',
-        errorCode: 404
-      });
-    }
-
-    res.render("edit-address", { address: addressData, user: user });
-
-  } catch (error) {
-    console.error("Error in edit address", error);
-    res.status(500).render('user/error', {
-      message: 'Internal server error',
-      errorCode: 500
-    });
-  }
-}
-
-const deleteAddress = async (req, res) => {
   try {
     const addressId = req.query.id;
     const userId = req.session.user;
 
-    const result = await Address.findOneAndUpdate(
-      { userId: userId },
-      { $pull: { addresses: { _id: addressId } } },
-      { new: true }
-    );
+    const address = await Address.findOne({ 
+      userId: userId, 
+      _id: addressId 
+    });
 
-    if (!result) {
-      return res.status(404).render('user/error', {
+    if (!address) {
+      return res.status(404).render('error', {
         message: 'Address not found',
         errorCode: 404
       });
     }
 
-    res.redirect('/profile?message=Address deleted successfully');
+    res.render("edit-address", { address: address, user: userId });
+
   } catch (error) {
-    console.error("Error deleting address", error);
-    res.status(500).render('user/error', {
+    console.error("Error in edit address", error);
+    res.status(500).render('error', {
       message: 'Internal server error',
       errorCode: 500
     });
   }
 }
+
 const updateAddress = async (req, res) => {
   try {
     const addressId = req.query.id;
@@ -605,13 +564,6 @@ const updateAddress = async (req, res) => {
     const { addressType, name, city, landmark, state, pincode, phone, altphone, address, email } = req.body;
 
     // Validation checks
-    if (!addressId || !userId) {
-      return res.status(400).render('user/error', {
-        message: 'Invalid address or user information',
-        errorCode: 400
-      });
-    }
-
     const validationErrors = [];
     if (!name) validationErrors.push('Name is required');
     if (!city) validationErrors.push('City is required');
@@ -627,27 +579,22 @@ const updateAddress = async (req, res) => {
       });
     }
 
-    const result = await Address.findOneAndUpdate(
-      {
-        userId: userId,
-        "addresses._id": addressId
+    const updatedAddress = await Address.findOneAndUpdate(
+      { 
+        userId: userId, 
+        _id: addressId 
       },
       {
-        $set: {
-          "addresses.$": {
-            _id: addressId,
-            addressType: addressType || 'home',
-            name,
-            city,
-            landmark: landmark || '',
-            state,
-            pincode,
-            phone,
-            altphone: altphone || '',
-            address,
-            email
-          }
-        }
+        addressType: addressType || 'home',
+        name,
+        city,
+        landmark: landmark || '',
+        state,
+        pincode,
+        phone,
+        altphone: altphone || '',
+        address,
+        email
       },
       {
         new: true,  
@@ -655,8 +602,8 @@ const updateAddress = async (req, res) => {
       }
     );
 
-    if (!result) {
-      return res.status(404).render('user/error', {
+    if (!updatedAddress) {
+      return res.status(404).render('error', {
         message: 'Address not found or could not be updated',
         errorCode: 404
       });
@@ -665,10 +612,37 @@ const updateAddress = async (req, res) => {
     res.redirect('/profile?message=Address updated successfully');
   } catch (error) {
     console.error("Detailed error updating address:", error);
-    res.status(500).render('user/error', {
+    res.status(500).render('error', {
       message: 'Internal server error',
       errorCode: 500,
       details: error.message
+    });
+  }
+}
+
+const deleteAddress = async (req, res) => {
+  try {
+    const addressId = req.query.id;
+    const userId = req.session.user;
+
+    const result = await Address.findOneAndDelete({ 
+      userId: userId, 
+      _id: addressId 
+    });
+
+    if (!result) {
+      return res.status(404).render('error', {
+        message: 'Address not found',
+        errorCode: 404
+      });
+    }
+
+    res.redirect('/profile?message=Address deleted successfully');
+  } catch (error) {
+    console.error("Error deleting address", error);
+    res.status(500).render('error', {
+      message: 'Internal server error',
+      errorCode: 500
     });
   }
 }

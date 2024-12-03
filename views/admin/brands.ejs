@@ -28,8 +28,8 @@
   }
   .action-buttons .btn {
     margin-left: 5px;
-    width: 150px; /* Set the width of both buttons */
-    text-align: center; /* Center the text inside the buttons */
+    width: 150px;
+    text-align: center; 
 }
 
 /* Block button color */
@@ -40,10 +40,10 @@
 }
 
 .action-buttons .btn-warning:hover {
-    background-color: #5a0000; /* Darker shade on hover */
+    background-color: #5a0000;
 }
 
-/* Unblock button color */
+
 .action-buttons .btn-success {
     background-color: #800000;
     color: white;
@@ -51,19 +51,14 @@
 }
 
 .action-buttons .btn-success:hover {
-    background-color: #5a0000; /* Darker shade on hover */
+    background-color: #5a0000; 
 }
 
-/* Delete button (same as before)
 .action-buttons .btn-danger {
     background-color: #dc3545;
     color: white;
     border: none;
 }
-
-.action-buttons .btn-danger:hover {
-    background-color: #c82333;
-} */
 </style>
 
 <section class="content-main">
@@ -144,7 +139,7 @@
                                    class="btn btn-warning">Block</a>
                             <% } %>
                             <a href="/admin/deletebrand?id=<%= brand._id %>" 
-                               class="btn btn-danger"
+                               class="btn btndelete" style=" background-color: #6b1111; color: white;"
                                onclick="return confirm('Are you sure you want to delete this brand?')">Delete</a>
                         </div>
                     </td>
