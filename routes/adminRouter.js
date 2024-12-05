@@ -7,6 +7,8 @@ const brandController = require("../controllers/admin/brandController");
 const productController = require("../controllers/admin/productController");
 const orderController = require("../controllers/admin/orderController");
 const stockController = require('../controllers/admin/stockController');
+const couponController = require('../controllers/admin/couponController');
+const salesController = require('../controllers/admin/salesController');
 const {userAuth,adminAuth} = require("../middlewares/auth");
 const multer = require("multer");
 const storage = require("../helpers/multer");
@@ -17,7 +19,7 @@ router.get('/pageerror',adminController.pageError)
 
 
 router.get("/login", adminController.loadLogin);
-router.post("/login", adminController.handleLogin); 
+router.post("/login",adminController.handleLogin); 
 router.get('/', adminAuth,adminController.loadDashboard);
  router.get("/logout",adminController.logout);
 
@@ -63,6 +65,14 @@ router.post('/update-order-status', adminAuth, orderController.updateOrderStatus
 //stock Controller
 router.get('/stocks',adminAuth,stockController.loadStock);
 router.post('/update-stock',adminAuth,stockController.updateStock)
+
+//coupon Controller
+router.get('/coupons',adminAuth,couponController.loadCoupon);
+router.post('/addcoupon',adminAuth,couponController.addCoupon);
+router.get('/deleteCoupon',adminAuth,couponController.deleteCoupon)
+
+//sales Controller
+router.get("/sales-report",adminAuth,salesController.loadSalesReport);
 
 
 module.exports = router;

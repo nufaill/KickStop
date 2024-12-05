@@ -23,10 +23,10 @@ const sortSearch = async (req, res) => {
                 SortingCondition = { createdAt: -1 };
                 break;
             case 'alphabetical-a-z':
-                SortingCondition = { productName: 1 };
+                SortingCondition = { productName: -1 };
                 break;
             case 'alphabetical-z-a':
-                SortingCondition = { productName: -1 };
+                SortingCondition = { productName: 1 };
                 break;
             default:
                 SortingCondition = { createdAt: -1 };

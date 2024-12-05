@@ -80,7 +80,7 @@ const loadCheckout = async (req, res) => {
         }
 
         const addressDoc = await Address.find({ userId: user });
-        const addressesList = addressDoc ? addressDoc : [];
+        const addresses = addressDoc ? addressDoc : []; // Change this line
         let totalPrice = 0;
 
         if (req.query.id) {
@@ -98,8 +98,8 @@ const loadCheckout = async (req, res) => {
             return res.render('checkout', {
                 cart: null,
                 product,
-                address: addressesList,
-                totalPrice
+                addresses, 
+                totalAmount: totalPrice
             });
         } else {
             const cartItems = await Cart.findOne({ userId: user }).populate('items.productId');
@@ -107,8 +107,8 @@ const loadCheckout = async (req, res) => {
                 return res.render('checkout', {
                     cart: null,
                     products: [],
-                    address: addressesList,
-                    totalPrice,
+                    addresses, 
+                    totalAmount: totalPrice,
                     product: null
                 });
             }
@@ -117,8 +117,8 @@ const loadCheckout = async (req, res) => {
             res.render('checkout', {
                 cart: cartItems,
                 products: cartItems.items,
-                address: addressesList,
-                totalPrice,
+                addresses, 
+                totalAmount: totalPrice,
                 product: null
             });
         }
@@ -137,7 +137,7 @@ const placeOrderInitial = async (req, res) => {
             return res.status(401).json({ success: false, message: 'User not authenticated' });
         }
 
-        if (!addressId || !payment_method || (!cart && !singleProduct)) {
+        if (!addressId || payment_method !== 'COD' || (!cart && !singleProduct)) {
             return res.status(400).json({ success: false, message: 'Invalid input' });
         }
 
@@ -179,7 +179,7 @@ const placeOrderInitial = async (req, res) => {
             finalAmount,
             status: 'Pending',
             shippingAddress: addressId,
-            paymentMethod: payment_method,
+            paymentMethod: 'COD', 
             paymentStatus: 'Pending'
         });
 
@@ -208,18 +208,15 @@ const getOrderConfirmation = async (req, res) => {
             return res.redirect('/error');
         }
 
-        const orderNumber = `ORD-${order._id.toString().slice(-8).toUpperCase()}`;
-
         res.render('order-confirmation', {
             order,
-            orderNumber,
+            orderNumber: `ORD-${order._id.toString().slice(-8).toUpperCase()}`,
             totalAmount: order.finalAmount
         });
     } catch (error) {
         handleError(res, error, 'Error fetching order confirmation');
     }
 };
-
 
 const cancelOrder = async (req, res) => {
     try {

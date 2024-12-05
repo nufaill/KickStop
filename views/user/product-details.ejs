@@ -312,22 +312,25 @@
                                         </div>
                                         <div class="bt-1 border-color-1 mt-30 mb-30"></div>
                                         <div class="detail-extralink">
-                                            <div class="detail-qty border radius">
-                                                <a href="#" class="qty-down"><i class="fi-rs-angle-small-down"></i></a>
-                                                <span class="qty-val">1</span>
-                                                <a href="#" class="qty-up"><i class="fi-rs-angle-small-up"></i></a>
-                                            </div>
-                                            <div class="product-extra-link2">
-                                                <input type="hidden" name="quantity" id="cart-quantity" value="1">
-                                                <button type="submit" class="btn action-btn standard-size"
-                                                    onclick="addToCart('<%= product._id %>')">Add to
-                                                    Cart</button>
-                                                    <a href="/checkout?id=<%= product._id %>" class="btn action-btn standard-size"> Buy Now</a>
-                                                    <a aria-label="Add To Wishlist" class="action-btn hover-up"
-                                                    onclick="addToWishlist('<%= product._id %>')"><i class="fi-rs-heart"></i></a>
-                                                <a aria-label="Compare" class="action-btn hover-up"
-                                                    href="shop-compare.html"><i class="fi-rs-shuffle"></i></a>
-                                            </div>
+                                            <% if (product.quantity > 0) { %>
+                                                <div class="detail-qty border radius">
+                                                    <a href="#" class="qty-down"><i class="fi-rs-angle-small-down"></i></a>
+                                                    <span class="qty-val">1</span>
+                                                    <a href="#" class="qty-up"><i class="fi-rs-angle-small-up"></i></a>
+                                                </div>
+                                                <div class="product-extra-link2">
+                                                    <input type="hidden" name="quantity" id="cart-quantity" value="1">
+                                                    <button type="submit" class="btn action-btn standard-size" onclick="addToCart('<%= product._id %>')">Add to Cart</button>
+                                                    <a href="/checkout?id=<%= product._id %>" class="btn action-btn standard-size">Buy Now</a>
+                                                    <a aria-label="Add To Wishlist" class="action-btn hover-up" onclick="addToWishlist('<%= product._id %>')"><i class="fi-rs-heart"></i></a>
+                                                    <a aria-label="Compare" class="action-btn hover-up" href="shop-compare.html"><i class="fi-rs-shuffle"></i></a>
+                                                </div>
+                                            <% } else { %>
+                                                <div class="product-extra-link2">
+                                                    <button onclick="handleOutOfStock()" class="btn action-btn standard-size">Out of Stock</button>
+                                                    <a aria-label="Add To Wishlist" class="action-btn hover-up" onclick="addToWishlist('<%= product._id %>')"><i class="fi-rs-heart"></i></a>
+                                                </div>
+                                            <% } %>
                                         </div>
                                         <ul class="product-meta font-xs color-grey mt-50">
                                             <li class="mb-5">SKU: <a href="#">FWM15VKT</a></li>
@@ -382,8 +385,8 @@
                                                     </div>
                                                     <div class="product-content-wrap">
                                                         <h2><a href="shop-product-right.html" tabindex="0">
-                                                                <%= relatedProducts.productName %>
-                                                            </a></h2>
+                                                            <%= relatedProducts[i].productName %>
+                                                        </a></h2>
                                                         <div class="rating-result" title="90%">
                                                             <span>
                                                             </span>
@@ -506,6 +509,19 @@
             });
     }
 }
+
+function handleOutOfStock() {
+    Swal.fire({
+        icon: 'warning',
+        title: 'Out of Stock',
+        text: 'This product is currently out of stock. You can add it to your wishlist for later.',
+        showCancelButton: true,
+    }).then((result) => {
+        if (result.isConfirmed) {
+        }
+    });
+}
+
     </script>
 
 

@@ -162,7 +162,7 @@
         <div class="page-header breadcrumb-wrap">
             <div class="container">
                 <div class="breadcrumb">
-                    <a href="index.html" rel="nofollow">Home</a>
+                    <a href="/" rel="nofollow">Home</a>
                     <span></span> Shop
                     <span></span> Checkout
                 </div>
@@ -185,49 +185,45 @@
                         </div>
                         <div class="form-group">
                             <div class="shipping-address-selection">
-                                <% addresses.forEach((address, index)=> { %>
-                                    <% address.address.forEach((addr, addrIndex)=> { %>
-                                        <div class="address-box mb-3">
-                                            <input type="radio" name="selectedAddress"
-                                                id="address-<%= index %>-<%= addrIndex %>"
-                                                value="<%= addr._id %>" class="address-radio" required>
-                                            <label class="address-label" for="address-<%= index %>-<%= addrIndex %>">
-                                                <div class="address-type-badge <%= addr.addressType.toLowerCase() %>">
-                                                    <%= addr.addressType %>
+                                <% addresses.forEach((address, index) => { %>
+                                    <div class="address-box mb-3">
+                                        <input type="radio" name="selectedAddress"
+                                            id="address-<%= index %>"
+                                            value="<%= address._id %>" class="address-radio" required>
+                                        <label class="address-label" for="address-<%= index %>">
+                                            <div class="address-type-badge <%= address.addressType.toLowerCase() %>">
+                                                <%= address.addressType %>
+                                            </div>
+                                            <div class="address-content">
+                                                <div class="name-section">
+                                                    <h6 class="mb-2">
+                                                        <%= address.name %>
+                                                    </h6>
                                                 </div>
-                                                <div class="address-content">
-                                                    <div class="name-section">
-                                                        <h6 class="mb-2">
-                                                            <%= addr.name %>
-                                                        </h6>
-                                                    </div>
-                                                    <div class="address-details">
-                                                        <% if (addr.landMark) { %>
-                                                            <p class="landmark"><i class="fi-rs-marker me-2"></i>
-                                                                <%= addr.landMark %>
-                                                            </p>
+                                                <div class="address-details">
+                                                    <% if (address.landMark) { %>
+                                                        <p class="landmark"><i class="fi-rs-marker me-2"></i>
+                                                            <%= address.landMark %>
+                                                        </p>
+                                                    <% } %>
+                                                    <p class="location">
+                                                        <%= address.city %>, <%= address.state %>
+                                                        <%= address.pincode %>
+                                                    </p>
+                                                    <div class="contact-info">
+                                                        <p class="phone">
+                                                            <i class="fi-rs-phone-call me-2"></i>
+                                                            <%= address.phone %>
+                                                            <% if (address.altPhone) { %>
+                                                                <span class="alt-phone">/ <%= address.altPhone %></span>
                                                             <% } %>
-                                                                <p class="location">
-                                                                    <%= addr.city %>, <%= addr.state %>
-                                                                            <%= addr.pincode %>
-                                                                </p>
-                                                                <div class="contact-info">
-                                                                    <p class="phone">
-                                                                        <i class="fi-rs-phone-call me-2"></i>
-                                                                        <%= addr.phone %>
-                                                                            <% if (addr.altPhone) { %>
-                                                                                <span class="alt-phone">/ <%=
-                                                                                        addr.altPhone %></span>
-                                                                                <% } %>
-                                                                    </p>
-                                                                </div>
+                                                        </p>
                                                     </div>
                                                 </div>
-                                            </label>
-                                        </div>
-                                        <% }); %>
-                                            <% }); %>
-
+                                            </div>
+                                        </label>
+                                    </div>
+                                <% }); %>
                             </div>
 
                             <div class="add-address-section mt-4">
@@ -293,8 +289,8 @@
                                                         <% if (product) { %>
                                                             <tr>
                                                                 <td class="image product-thumbnail">
-                                                                    <img src="/uploads/re-image/<%= product.productImages[0] %>"
-                                                                        alt="<%= product.productName %>">
+                                                                    <img src="/uploads/re-image/<%= product && product.productImage && product.productImage.length > 0 ? product.productImage[0] : 'default-image.jpg' %>"
+                                                                        alt="<%= product ? product.productName : 'Product' %>">
                                                                 </td>
                                                                 <td>
                                                                     <h5>
@@ -302,7 +298,13 @@
                                                                             <%= product.productName %>
                                                                         </a>
                                                                     </h5>
-                                                                    <span class="product-qty">x&nbsp;<%= qty %></span>
+                                                                    <span class="product-qty">
+                                                                        <% if (typeof qty !== 'undefined' && qty !== null) { %>
+                                                                            x&nbsp;<%= qty %>
+                                                                        <% } else { %>
+                                                                            x&nbsp;1
+                                                                        <% } %>
+                                                                    </span>
                                                                 </td>
                                                                 <td>
                                                                     ₹<%= totalAmount.toLocaleString() %>
@@ -397,50 +399,36 @@
                             </div>
                             <div class="row">
 
-                                <form id="orderForm" method="POST" action="/placeOrder"
-                                    onsubmit="return validateAddress()">
-                                    <div class="payment_option">
-                                        <h4>Select Payment Method</h4>
-                                        <div class="custome-radio">
-                                            <input class="form-check-input" required type="radio" value="COD"
-                                                name="payment_option" id="exampleRadios3" checked>
-                                            <label class="form-check-label" for="exampleRadios3">Cash on
-                                                Delivery</label>
-                                        </div>
-                                        <div class="custome-radio">
-                                            <input class="form-check-input" required type="radio" value="online"
-                                                name="payment_option" id="exampleRadios5">
-                                            <label class="form-check-label" for="exampleRadios5">Online Payment</label>
-                                        </div>
+                                <form id="orderForm" method="POST" action="/place-order-initial"
+                                onsubmit="return validateAddress()">
+                                <div class="payment_option">
+                                    <h4>Select Payment Method</h4>
+                                    <div class="custome-radio">
+                                        <input class="form-check-input" required type="radio" value="COD"
+                                            name="payment_option" id="exampleRadios3" checked>
+                                        <label class="form-check-label" for="exampleRadios3">Cash on Delivery</label>
                                     </div>
-
-                                    <input type="hidden" name="cart" value='<%= JSON.stringify(cart) %>'>
-                                    <input type="hidden" id="totalamount" name="totalPrice"
-                                        value="<%= totalAmount.toLocaleString() %>">
-                                    <input type="hidden" id="selectedAddressId" name="addressId">
-                                    <input type="hidden" id="discountInput" name="discountInput">
-                                    <input type="hidden" id="couponCodeInput" name="couponCodeInput">
-
-                                    <% if (product) { %>
-                                        <input type="hidden" name="singleProduct"
-                                            value="<%= JSON.stringify(product) %>">
-                                        <% } %>
-
-                                            <div id="paymentButtons" class="mt-4">
-                                                <button type="submit" class="btn btn-fill-out btn-block"
-                                                    id="submitButton" onclick="syncDiscount()">Place Order</button>
-                                            </div>
-                                </form>
-
-
-
+                                </div>
+                
+                                <input type="hidden" name="cart" value='<%= JSON.stringify(cart) %>'>
+                                <input type="hidden" id="totalamount" name="totalPrice"
+                                    value="<%= totalAmount.toLocaleString() %>">
+                                <input type="hidden" id="selectedAddressId" name="addressId">
+                                <input type="hidden" id="discountInput" name="discountInput">
+                                <input type="hidden" id="couponCodeInput" name="couponCodeInput">
+                
+                                <% if (product) { %>
+                                    <input type="hidden" name="singleProduct"
+                                        value="<%= JSON.stringify(product) %>">
+                                    <% } %>
+                
+                                    <div id="paymentButtons" class="mt-4">
+                                        <button type="submit" class="btn btn-fill-out btn-block"
+                                            id="submitButton" onclick="syncDiscount()">Place Order</button>
+                                    </div>
+                            </form>
                             </div>
                         </div>
-
-
-
-
-
                     </div>
                 </div>
         </section>
@@ -452,60 +440,73 @@
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
     <script>
-        if (performance.navigation.type === performance.navigation.TYPE_BACK_FORWARD) {
-            window.location.reload();
-        }
+    document.getElementById('orderForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    syncDiscount();
 
-        //Razorpay
-        function startRazorpayPayment(){
-            const finalAmount = document.getElementById("totalamount").value.replace(/,/g, '');
-            const discount = document.getElementById('discountInput').value || 0;
+    const cart = this.cart.value ? JSON.parse(this.cart.value) : null;
+    const singleProduct = this.singleProduct?.value ? JSON.parse(this.singleProduct.value) : null;
+    const totalPrice = parseFloat(this.totalPrice.value.replace(/[^\d.]/g, ''));
+    const addressId = document.getElementById('selectedAddressId').value;
+    const paymentMethod = document.querySelector('input[name="payment_option"]:checked').value;
 
-            fetch('/createPayment',{
-                method:"POST",
-                headers:{
-                    'Content-Type':'application/json',
-                },
-                body:JSON.stringify({amount:finalAmount,discount})
+    if (!addressId) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Address Required',
+            text: 'Please select a shipping address.',
+            confirmButtonColor: '#39b4ac',
+        });
+        return;
+    }
+
+    if (!cart && !singleProduct) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'No Items',
+            text: 'Your cart or product is empty.',
+            confirmButtonColor: '#39b4ac',
+        });
+        return;
+    }
+
+    try {
+        const response = await fetch('/place-order-initial', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                cart,
+                singleProduct,
+                totalPrice,
+                addressId,
+                payment_method: paymentMethod
             })
-            .then(response => response.json())
-            .then(data => {
-                if(data.success){
-                    const options = {
-                        key:"rzp_test_lK0Qx1aLqyD7Ks",
-                        amount:Number(finalAmount-discount) * 100,
-                        currency:'INR',
-                        name:"ChronoCraft",
-                        description:"Order Payment",
-                        order_id:data.order.id,
-                        method:{
-                            card:true,
-                            netbanking:true,
-                            wallet:true,
-                            upi:true,
-                        },
-                        handler: function(response){
-                            document.getElementById("orderForm").submit();
-                        },
-                        prefill:{
-                            name:"Your Name",
-                            email:"your@example.com",
-                            contact:"1234567890"
-                        },
-                        theme:{
-                            color:"#39b4ac"
-                        }
-                    };
-                    const razorpay = new Razorpay(options);
-                    razorpay.open();
-                }else{
-                    Swal.fire("Error","Order Creation failed","error");
-                }
-            })
-            .catch(error => console.error("Error initializing Razorpay payment:",error));
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            window.location.href = `/order-confirmation?id=${result.orderId}`;
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Order Placement Failed',
+                text: result.message || 'Unable to place order. Please try again.',
+                confirmButtonColor: '#39b4ac',
+            });
         }
-
-
+    } catch (error) {
+        console.error('Error:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'An unexpected error occurred. Please try again.',
+            confirmButtonColor: '#39b4ac',
+        });
+    }
+});
         function syncDiscount() {
             const discountDisplay = document.getElementById('discount');
             if (discountDisplay) {

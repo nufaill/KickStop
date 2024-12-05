@@ -196,12 +196,13 @@
     <%- include('../layouts/user/header') %>
 
     <main class="main">
-        <div class="container">
-            <div class="breadcrumb">
-                <a href="/" rel="nofollow">Home   </a>
-                   >
-                <a href="/all-products" rel="nofollow">shop   </a>
-                <span> </span>  >    Your Cart
+        <div class="page-header breadcrumb-wrap">
+            <div class="container">
+                <div class="breadcrumb">
+                    <a href="/" rel="nofollow">Home</a>
+                    <span></span> Shop
+                    <span></span> Your Wishlist
+                </div>
             </div>
         </div>
         <section class="mt-5 mb-5">
@@ -246,11 +247,11 @@
                                                 </td>
                                                 <td>
                                                     <% if (products[i].productId.quantity > 0) { %>
-                                                        <button type="button" class="btn btn-primary" onclick="addToCart('<%= products[i].productId._id %>')">
+                                                        <button type="button" class="btn btn" onclick="addToCart('<%= products[i].productId._id %>')">
                                                             <i class="fas fa-shopping-cart me-2"></i>Add to cart
                                                         </button>
                                                     <% } else { %>
-                                                        <a href="/contact-us" class="btn btn-info">
+                                                        <a href="/contact" class="btn btn-info">
                                                             <i class="fas fa-envelope me-2"></i>Contact Us
                                                         </a>
                                                     <% } %>

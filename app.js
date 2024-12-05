@@ -9,7 +9,8 @@ const userRouter = require("./routes/userRouter");
 const adminRouter = require("./routes/adminRouter");
 db();
 
-
+app.get('/contact', (req, res) => { res.render('contact', { title: 'Contact Us' });});
+app.get('/about', (req, res) => { res.render('about', { title: 'About Us' });});
 app.use(express.json());
 app.use(express.urlencoded({extended:true}));
 

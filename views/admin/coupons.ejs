@@ -1,0 +1,425 @@
+<%-include("../layouts/admin/header")%>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<section class="content-main">
+    <div class="content-header">
+        <div>
+            <h2 class="content-title card-title">Coupons</h2>
+            <p>Add, edit, or delete a coupon</p>
+        </div>
+        <div>
+            <input type="text" placeholder="Search Coupons" class="form-control bg-white">
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-3">
+                    <form action="/admin/addCoupon" method="post" onsubmit="return validateCouponForm()">
+                        <div class="mb-4">
+                            <label for="couponCode" class="form-label">Coupon Code</label>
+                            <input type="text" placeholder="Type here" class="form-control" id="couponCode"
+                                name="couponCode" />
+                            <small id="codeError" style="color: red; display: none;">Code is required</small>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label">Discount Percentage (%)</label>
+                            <input type="number" placeholder="Enter discount percentage" class="form-control"
+                                id="discountPercentage" name="discountPercentage"/>
+                            <small id="discountError" style="color: red; display: none;">Discount percentage must be
+                                between 1 and 99</small>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label">Minimum Price</label>
+                            <input type="number" placeholder="Enter minimum price" class="form-control"
+                                id="minimumPrice" name="minimumPrice" />
+                            <small id="minimumError" style="color: red; display: none;">Minimum price can't be
+                                empty</small>
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label">Maximum Price</label>
+                            <input type="number" placeholder="Enter maximum price" class="form-control"
+                                id="maximumPrice" name="maximumPrice" />
+                            <small id="maximumError" style="color: red; display: none;">Maximum price can't be
+                                empty</small>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label">Created On</label>
+                            <input type="date" class="form-control" id="createdDate" name="createdDate" />
+                            <small id="createdError" style="color: red; display: none;">Created date is
+                                required</small>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label">End Date</label>
+                            <input type="date" class="form-control" id="endDate" name="endDate" />
+                            <small id="endDateError" style="color: red; display: none;">End date is required</small>
+                        </div>
+                        <div class="d-grid">
+                            <button class="btn btn-primary" type="button" onclick="addCouponHandler()">Create Coupon</button>
+                        </div>
+                        
+                    </form>
+                </div>
+                <div class="col-md-9">
+                    <div>
+                        <%if(coupons.length>0){%>
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Coupon Code</th>
+                                        <th>Discount Percentage</th>
+                                        <th>Created On</th>
+                                        <th>End On</th>
+                                        <th>Minimum Price</th>
+                                        <th>Maximum Price</th>
+                                        <th>Status</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <%for(let i=0;i<coupons.length;i++){%>
+                                        <tr>
+                                            <td>
+                                                <%=coupons[i].code%>
+                                            </td>
+                                            <td>
+                                                <%=coupons[i].price%>%
+                                            </td>
+                                            <td>
+                                                <%=coupons[i].createdOn.toLocaleDateString()%>
+                                            </td>
+                                            <td>
+                                                <%=coupons[i].endOn.toLocaleDateString()%>
+                                            </td>
+                                            <td>
+                                                ₹<%=coupons[i].minimumAmount%>
+                                            </td>
+                                            <td>
+                                                ₹<%=coupons[i].maximumAmount%>
+                                            </td>
+                                            <%if(coupons[i].isActive){%>
+                                            
+                                        
+                                            <td>
+                                                <span class="badge rounded-pill alert-success">Active</span>
+                                            </td>
+                                            <% }else{ %>
+                                            <td>
+                                                <span class="badge rounded-pill alert-danger">Inactive</span>
+                                            </td>
+                                        <%}%> 
+                                            <td>
+                                                <button class="btn btn-danger text-white " style="background-color: #800000;"
+                                                    onclick="confirmDelete('<%= coupons[i]._id %>')">Delete</button>
+                                            </td>
+                                        </tr>
+                                    
+                                    <%}%>
+                                </tbody>
+                            </table>
+                            <%}else{%>
+                                <h3>No coupons added yet.</h3>
+                                <%}%>
+                    </div>
+                </div> 
+            </div> 
+        </div>
+    </div>
+</section>
+
+<div class="pagination-area mt-15 mb-50">
+    <nav aria-label="Page navigation example">
+        <ul class="pagination justify-content-center">
+            <% for (let i=1; i <=totalPages; i++) { %>
+                <li class="page-item <%= (i === currentPage) ? 'active' : '' %>">
+                    <a class="page-link" href="?page=<%= i %>">
+                        <%= i %>
+                    </a>
+                </li>
+                <% } %>
+        </ul>
+    </nav>
+</div>
+<br>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+function validateCouponCode() {
+    const couponCode = document.getElementById("couponCode");
+    const codeError = document.getElementById("codeError");
+    const codeRegex = /^[A-Z0-9]+$/;
+
+    if (!couponCode.value.trim() || !codeRegex.test(couponCode.value.trim())) {
+        codeError.textContent = "Coupon code must be uppercase alphanumeric without spaces.";
+        codeError.style.display = "block";
+        couponCode.classList.add("is-invalid");
+        return false;
+    }
+
+    codeError.style.display = "none";
+    couponCode.classList.remove("is-invalid");
+    return true;
+}
+
+function validateDiscountPercentage() {
+    const discountPercentage = document.getElementById("discountPercentage");
+    const discountError = document.getElementById("discountError");
+    const discount = parseFloat(discountPercentage.value.trim());
+
+    if (!discountPercentage.value.trim() || isNaN(discount) || discount < 1 || discount > 99) {
+        discountError.textContent = "Discount percentage must be between 1 and 99.";
+        discountError.style.display = "block";
+        discountPercentage.classList.add("is-invalid");
+        return false;
+    }
+
+    discountError.style.display = "none";
+    discountPercentage.classList.remove("is-invalid");
+    return true;
+}
+
+function validateMinimumPrice() {
+    const minimumPrice = document.getElementById("minimumPrice");
+    const minimumError = document.getElementById("minimumError");
+    const minPrice = parseFloat(minimumPrice.value.trim());
+
+    if (!minimumPrice.value.trim() || isNaN(minPrice) || minPrice < 0) {
+        minimumError.textContent = "Minimum price cannot be negative.";
+        minimumError.style.display = "block";
+        minimumPrice.classList.add("is-invalid");
+        return false;
+    }
+
+    minimumError.style.display = "none";
+    minimumPrice.classList.remove("is-invalid");
+    return true;
+}
+
+function validateMaximumPrice() {
+    const minimumPrice = document.getElementById("minimumPrice");
+    const maximumPrice = document.getElementById("maximumPrice");
+    const maximumError = document.getElementById("maximumError");
+    const minPrice = parseFloat(minimumPrice.value.trim());
+    const maxPrice = parseFloat(maximumPrice.value.trim());
+
+    if (!maximumPrice.value.trim() || isNaN(maxPrice) || maxPrice < 0) {
+        maximumError.textContent = "Maximum price cannot be negative.";
+        maximumError.style.display = "block";
+        maximumPrice.classList.add("is-invalid");
+        return false;
+    }
+
+    if (!isNaN(minPrice) && maxPrice <= minPrice) {
+        maximumError.textContent = "Maximum price must be greater than the minimum price.";
+        maximumError.style.display = "block";
+        maximumPrice.classList.add("is-invalid");
+        return false;
+    }
+
+    maximumError.style.display = "none";
+    maximumPrice.classList.remove("is-invalid");
+    return true;
+}
+
+function validateCreatedDate() {
+    const createdDate = document.getElementById("createdDate");
+    const createdError = document.getElementById("createdError");
+    const currentDate = new Date().toISOString().split('T')[0];
+
+    if (!createdDate.value || createdDate.value !== currentDate) {
+        createdError.textContent = "Created date must be today's date.";
+        createdError.style.display = "block";
+        createdDate.classList.add("is-invalid");
+        return false;
+    }
+
+    createdError.style.display = "none";
+    createdDate.classList.remove("is-invalid");
+    return true;
+}
+
+function validateEndDate() {
+    const endDate = document.getElementById("endDate");
+    const endDateError = document.getElementById("endDateError");
+    const currentDate = new Date().toISOString().split('T')[0];
+
+    if (!endDate.value || endDate.value <= currentDate) {
+        endDateError.textContent = "End date must be a future date.";
+        endDateError.style.display = "block";
+        endDate.classList.add("is-invalid");
+        return false;
+    }
+
+    endDateError.style.display = "none";
+    endDate.classList.remove("is-invalid");
+    return true;
+}
+
+function validateCouponForm() {
+    const isCodeValid = validateCouponCode();
+    const isDiscountValid = validateDiscountPercentage();
+    const isMinPriceValid = validateMinimumPrice();
+    const isMaxPriceValid = validateMaximumPrice();
+    const isCreatedDateValid = validateCreatedDate();
+    const isEndDateValid = validateEndDate();
+
+    return isCodeValid && isDiscountValid && isMinPriceValid && 
+           isMaxPriceValid && isCreatedDateValid && isEndDateValid;
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const couponCode = document.getElementById("couponCode");
+    const discountPercentage = document.getElementById("discountPercentage");
+    const minimumPrice = document.getElementById("minimumPrice");
+    const maximumPrice = document.getElementById("maximumPrice");
+    const createdDate = document.getElementById("createdDate");
+    const endDate = document.getElementById("endDate");
+
+    couponCode.addEventListener("input", validateCouponCode);
+    discountPercentage.addEventListener("input", validateDiscountPercentage);
+    minimumPrice.addEventListener("input", validateMinimumPrice);
+    maximumPrice.addEventListener("input", validateMaximumPrice);
+    createdDate.addEventListener("change", validateCreatedDate);
+    endDate.addEventListener("change", validateEndDate);
+});
+
+async function addCouponHandler() {
+    if (!validateCouponForm()) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Validation Error',
+            text: 'Please correct the errors in the form.',
+            toast: true,
+            position: 'top-end',
+            timer: 3000,
+            showConfirmButton: false
+        });
+        return;
+    }
+
+    try {
+        const couponCode = document.getElementById('couponCode').value.trim();
+        const discountPercentage = document.getElementById('discountPercentage').value.trim();
+        const minimumPrice = document.getElementById('minimumPrice').value.trim();
+        const maximumPrice = document.getElementById('maximumPrice').value.trim();
+        const createdDate = document.getElementById('createdDate').value.trim();
+        const endDate = document.getElementById('endDate').value.trim();
+
+        const response = await fetch('/admin/addcoupon', {
+            method: 'POST',
+            headers: { 
+                'Content-Type': 'application/json' 
+            },
+            body: JSON.stringify({
+                couponCode,
+                discountPercentage,
+                minimumPrice,
+                maximumPrice,
+                createdDate,
+                endDate
+            })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Success',
+                text: result.message || 'Coupon added successfully!',
+                toast: true,
+                position: 'top-end',
+                timer: 3000,
+                showConfirmButton: false
+            }).then(() => {
+                location.reload();
+            });
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Failed to Add Coupon',
+                text: result.message || 'An error occurred. Please try again.',
+                toast: true,
+                position: 'top-end',
+                timer: 3000,
+                showConfirmButton: false
+            });
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Unexpected Error',
+            text: 'Something went wrong. Please try again later.',
+            toast: true,
+            position: 'top-end',
+            timer: 3000,
+            showConfirmButton: false
+        });
+    }
+}
+
+function confirmDelete(couponId) {
+    Swal.fire({
+        title: 'Delete Coupon?',
+        html: `
+            <p>This action will permanently delete the coupon.</p>
+            <small>Timestamp: ${new Date().toLocaleString()}</small>
+        `,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Yes, delete it!',
+        cancelButtonText: 'Cancel',
+        footer: 'This action cannot be undone.'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            fetch(`/admin/deleteCoupon?id=${couponId}`, { method: 'GET' })
+                .then(response => {
+                    if (response.ok) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Coupon Deleted',
+                            text: 'The coupon has been successfully removed.',
+                            timer: 2000,
+                            timerProgressBar: true,
+                            showConfirmButton: false
+                        }).then(() => {
+                            location.reload();
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Deletion Failed',
+                            html: `
+                                <p>Unable to delete coupon.</p>
+                                <small>Timestamp: ${new Date().toLocaleString()}</small>
+                            `,
+                            footer: 'Please try again or contact support.'
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Deletion Error:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Network Error',
+                        html: `
+                            <p>Could not complete deletion. Check your connection.</p>
+                            <small>Timestamp: ${new Date().toLocaleString()}</small>
+                        `,
+                        footer: 'Please try again later.'
+                    });
+                });
+        }
+    });
+}
+</script>
+<%-include("../layouts/admin/footer")%>

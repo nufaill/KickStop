@@ -1,0 +1,151 @@
+<%- include("../../views/layouts/user/header") %>
+<div class="container mx-auto px-4 py-8 max-w-6xl">
+    <div class="grid md:grid-cols-2 gap-12 items-center">
+        <div>
+            <div class="mb-8">
+                <h2 class="text-5xl font-extrabold mb-4 text-maroon-900 leading-tight tracking-tight">
+                    About <span class="text-blue-600">KickStop</span>
+                </h2>
+                <div class="h-1 w-24 bg-maroon-700 mb-4"></div>
+                
+                <p class="text-xl text-gray-700 leading-relaxed mb-6 first-letter:text-5xl first-letter:font-bold first-letter:text-maroon-800 first-letter:mr-3 first-letter:float-left">
+                    Welcome to KickStop, your premier destination for the latest and greatest in footwear fashion!
+                </p>
+            </div>
+
+            <div class="space-y-6 mb-8">
+                <p class="text-base text-gray-600 leading-loose relative pl-6 before:absolute before:left-0 before:top-2 before:w-4 before:h-4 before:bg-maroon-700 before:rounded-full">
+                    At KickStop, we're passionate about shoes. Our journey began in 2023 with a simple mission: to provide shoe enthusiasts with high-quality, stylish footwear at competitive prices.
+                </p>
+                <p class="text-base text-gray-600 leading-loose relative pl-6 before:absolute before:left-0 before:top-2 before:w-4 before:h-4 before:bg-maroon-700 before:rounded-full">
+                    Since then, we've grown into a trusted name in the industry, known for our wide selection and exceptional customer service.
+                </p>
+            </div>
+
+            <div class="bg-gray-100 rounded-lg p-6 shadow-md">
+                <h3 class="text-3xl font-bold mb-6 text-maroon-900 border-b-2 border-maroon-700 pb-3">
+                    Our Promise
+                </h3>
+                <ul class="space-y-4" id="promise-list">
+                    <li class="promise-item bg-white p-4 rounded-lg shadow-sm border-l-4 border-maroon-600 hover:shadow-md transition duration-300">
+                        <strong class="text-maroon-800 block mb-2">Quality</strong>
+                        We source only the best shoes from reputable manufacturers.
+                    </li>
+                    <li class="promise-item bg-white p-4 rounded-lg shadow-sm border-l-4 border-blue-600 hover:shadow-md transition duration-300">
+                        <strong class="text-blue-800 block mb-2">Style</strong>
+                        Our collection is always up-to-date with the latest trends.
+                    </li>
+                    <li class="promise-item bg-white p-4 rounded-lg shadow-sm border-l-4 border-green-600 hover:shadow-md transition duration-300">
+                        <strong class="text-green-800 block mb-2">Service</strong>
+                        Our knowledgeable staff is here to help you find the perfect pair.
+                    </li>
+                    <li class="promise-item bg-white p-4 rounded-lg shadow-sm border-l-4 border-purple-600 hover:shadow-md transition duration-300">
+                        <strong class="text-purple-800 block mb-2">Satisfaction</strong>
+                        We're not happy unless you're happy with your purchase.
+                    </li>
+                </ul>
+            </div>
+
+            <p class="mt-8 text-base text-gray-700 italic border-l-4 border-maroon-700 pl-4">
+                Whether you're looking for athletic shoes, casual wear, or formal footwear, KickStop has got you covered. We invite you to explore our collection and experience the KickStop difference!
+            </p>
+        </div>
+        
+        <div class="relative group">
+            <img 
+                src="/api/placeholder/600/400" 
+                alt="KickStop Shoe Collection" 
+                class="rounded-lg shadow-2xl transform transition-all duration-300 group-hover:scale-105 group-hover:rotate-1"
+                id="featured-image"
+            >
+            <div class="absolute inset-0 bg-maroon-900 opacity-0 group-hover:opacity-20 transition-opacity duration-300 rounded-lg"></div>
+        </div>
+    </div>
+</div>
+
+<style>
+      @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700;900&display=swap');
+    
+    body {
+        font-family:Verdana, Geneva, Tahoma, sans-serif;
+        background-color: #f9fafb;
+        line-height: 1.6;
+    }
+    h2, h3 {
+        font-family: 'Playfair Display', serif;
+        color: #800000;
+        transition: color 0.3s ease;
+    }
+    h2:hover, h3:hover {
+        color: #600000;
+    }
+    ul {
+        padding-left: 20px;
+    }
+    .promise-item {
+        font-family: Verdana, Geneva, Tahoma, sans-serif;
+        padding: 1rem;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+    }
+    .promise-item::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 0;
+        height: 100%;
+        background-color: rgba(128, 0, 0, 0.1);
+        transition: width 0.3s ease;
+        z-index: 1;
+    }
+    .promise-item:hover::before {
+        width: 100%;
+    }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const promiseItems = document.querySelectorAll('.promise-item');
+    const featuredImage = document.getElementById('featured-image');
+
+    // Interactive promise list
+    promiseItems.forEach(item => {
+        item.addEventListener('mouseenter', () => {
+            item.classList.add('shadow-xl');
+        });
+        
+        item.addEventListener('mouseleave', () => {
+            item.classList.remove('shadow-xl');
+        });
+    });
+
+    // Image interaction
+    featuredImage.addEventListener('mousemove', (e) => {
+        const rect = featuredImage.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        
+        featuredImage.style.transform = `perspective(1000px) rotateX(${-(y - rect.height / 2) / 20}deg) rotateY(${(x - rect.width / 2) / 20}deg) scale(1.05)`;
+    });
+
+    featuredImage.addEventListener('mouseleave', () => {
+        featuredImage.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) scale(1)';
+    });
+});
+document.addEventListener('DOMContentLoaded', () => {
+    const promiseItems = document.querySelectorAll('.promise-item');
+
+    promiseItems.forEach(item => {
+        item.addEventListener('mouseenter', () => {
+            item.classList.add('transform', 'translate-x-2');
+        });
+        
+        item.addEventListener('mouseleave', () => {
+            item.classList.remove('transform', 'translate-x-2');
+        });
+    });
+});
+</script>
+
