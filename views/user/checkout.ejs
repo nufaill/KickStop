@@ -1,162 +1,241 @@
 <%- include('../layouts/user/header') %>
 
-    <style>
+<style>
+    :root {
+        --primary-color: #800000;
+        --secondary-color: #f8f8f8;
+        --text-color: #333;
+        --border-color: #e2e2e2;
+        --hover-color: #600000;
+    }
+
+    body {
+        font-family: 'Arial', sans-serif;
+        background-color: var(--secondary-color);
+        color: var(--text-color);
+    }
+
+    .main {
+        padding: 2rem 0;
+    }
+
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 1rem;
+    }
+
+    .page-header {
+        background-color: var(--primary-color);
+        color: white;
+        padding: 1rem 0;
+        margin-bottom: 2rem;
+    }
+
+    .breadcrumb {
+        display: flex;
+        list-style: none;
+        padding: 0;
+    }
+
+    .breadcrumb a {
+        color: white;
+        text-decoration: none;
+    }
+
+    .breadcrumb span {
+        margin: 0 0.5rem;
+    }
+
+    h5 {
+        color: var(--primary-color);
+        margin-bottom: 1rem;
+    }
+
+    .shipping-address-selection {
+        max-height: 400px;
+        overflow-y: auto;
+        padding-right: 1rem;
+    }
+
+    .address-box {
+        background-color: white;
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        margin-bottom: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .address-box:hover {
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .address-radio {
+        display: none;
+    }
+
+    .address-label {
+        display: block;
+        padding: 1.25rem;
+        cursor: pointer;
+    }
+
+    .address-radio:checked + .address-label {
+        background-color: #f8fff9;
+        border-color: var(--primary-color);
+    }
+
+    .address-radio:checked + .address-label::before {
+        content: '✓';
+        position: absolute;
+        right: 15px;
+        top: 15px;
+        color: var(--primary-color);
+        font-weight: bold;
+    }
+
+    .address-type-badge {
+        display: inline-block;
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        text-transform: uppercase;
+    }
+
+    .address-type-badge.home {
+        background-color: #e8f6ff;
+        color: #0084ff;
+    }
+
+    .address-type-badge.work {
+        background-color: #fff2e5;
+        color: #ff6b00;
+    }
+
+    .address-type-badge.other {
+        background-color: #f0f0f0;
+        color: #666;
+    }
+
+    .name-section h6 {
+        color: var(--primary-color);
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+
+    .address-details p {
+        margin-bottom: 0.5rem;
+        color: #555;
+    }
+
+    .contact-info {
+        margin-top: 0.5rem;
+        padding-top: 0.5rem;
+        border-top: 1px dashed #eee;
+    }
+
+    .btn-add-address {
+        background-color: var(--primary-color);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 4px;
+        text-decoration: none;
+        display: inline-block;
+        transition: background-color 0.3s ease;
+    }
+
+    .btn-add-address:hover {
+        background-color: var(--hover-color);
+    }
+
+    .order_review {
+        background-color: white;
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        padding: 1.5rem;
+    }
+
+    .table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .table th, .table td {
+        padding: 0.75rem;
+        text-align: left;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .table th {
+        background-color: #f8f8f8;
+    }
+
+    .product-thumbnail img {
+        max-width: 60px;
+        border-radius: 4px;
+    }
+
+    .toggle_info {
+        background-color: #f8f8f8;
+        padding: 1rem;
+        border-radius: 4px;
+        margin-bottom: 1rem;
+    }
+
+    .coupon_form {
+        margin-top: 1rem;
+    }
+
+    .payment_option {
+        margin-top: 2rem;
+    }
+
+    .custome-radio {
+        display: flex;
+        align-items: center;
+        margin-bottom: 0.5rem;
+    }
+
+    .custome-radio input[type="radio"] {
+        margin-right: 0.5rem;
+    }
+
+    #paymentButtons {
+        margin-top: 2rem;
+    }
+
+    .btn-fill-out {
+        background-color: var(--primary-color);
+        color: white;
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    .btn-fill-out:hover {
+        background-color: var(--hover-color);
+    }
+
+    @media (max-width: 768px) {
         .shipping-address-selection {
-
-            padding-right: 10px;
-        }
-
-        .address-box {
-            position: relative;
-            border: 1px solid #e2e2e2;
-            border-radius: 8px;
-            transition: all 0.3s ease;
-        }
-
-        .address-box:hover {
-            border-color: #800000;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-        }
-
-        .address-radio {
-            position: absolute;
-            opacity: 0;
+            max-height: none;
+            overflow-y: visible;
         }
 
         .address-label {
-            display: block;
-            padding: 1.25rem;
-            cursor: pointer;
-            margin: 0;
-            width: 100%;
-        }
-
-        .address-radio:checked+.address-label {
-            background-color: #f8fff9;
-            border-color: #800000;
-        }
-
-        .address-radio:checked+.address-label::before {
-            content: '✓';
-            position: absolute;
-            right: 15px;
-            top: 15px;
-            color: #800000;
-            font-weight: bold;
+            padding: 1rem;
         }
 
         .address-type-badge {
-            display: inline-block;
-            padding: 4px 12px;
-            border-radius: 4px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            margin-bottom: 10px;
-            text-transform: uppercase;
+            font-size: 0.7rem;
+            padding: 0.2rem 0.4rem;
         }
-
-        .address-type-badge.home {
-            background-color: #e8f6ff;
-            color: #0084ff;
-        }
-
-        .address-type-badge.work {
-            background-color: #fff2e5;
-            color: #ff6b00;
-        }
-
-        .address-type-badge.other {
-            background-color: #f0f0f0;
-            color: #666;
-        }
-
-        .address-content {
-            padding-right: 20px;
-        }
-
-        .name-section h6 {
-            color: #222;
-            font-weight: 600;
-            font-size: 1rem;
-        }
-
-        .address-details p {
-            margin-bottom: 0.5rem;
-            color: #555;
-            font-size: 0.9rem;
-        }
-
-        .address-details .landmark {
-            color: #666;
-            font-style: italic;
-        }
-
-        .contact-info {
-            margin-top: 8px;
-            padding-top: 8px;
-            border-top: 1px dashed #eee;
-        }
-
-        .contact-info .phone {
-            color: #666;
-            font-size: 0.9rem;
-        }
-
-        .contact-info .alt-phone {
-            color: #888;
-            font-size: 0.85rem;
-        }
-
-        .btn-add-address {
-            background-color: #800000;
-            color: white;
-
-            padding: 8px 20px;
-            border-radius: 6px;
-            transition: all 0.3s ease;
-        }
-
-        .btn-add-address:hover {
-            background-color: #ffffff;
-            color: black;
-            border-style: solid;
-        }
-
-        /* Custom scrollbar for address list */
-        .shipping-address-selection::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        .shipping-address-selection::-webkit-scrollbar-track {
-            background: #f1f1f1;
-            border-radius: 10px;
-        }
-
-        .shipping-address-selection::-webkit-scrollbar-thumb {
-            background: #c1c1c1;
-            border-radius: 10px;
-        }
-
-        .shipping-address-selection::-webkit-scrollbar-thumb:hover {
-            background: #999;
-        }
-
-        /* Responsive adjustments */
-        @media (max-width: 768px) {
-            .shipping-address-selection {
-                max-height: 300px;
-            }
-
-            .address-label {
-                padding: 1rem;
-            }
-
-            .address-type-badge {
-                font-size: 0.7rem;
-                padding: 3px 8px;
-            }
-        }
-    </style>
+    }
+</style>
 
     <main class="main">
         <div class="page-header breadcrumb-wrap">
@@ -254,8 +333,8 @@
                                             <% cart.items.forEach(item=> { %>
                                                 <tr>
                                                     <td class="image product-thumbnail">
-                                                        <img src="/uploads/re-image/<%= item.productId.productImages[0] %>"
-                                                            alt="#">
+                                                        <img src="/uploads/re-image/<%= item.productId.productImage[0] %>"
+                                                        alt="<%= item.productId.productName %>">
                                                     </td>
                                                     <td>
                                                         <h5><a href="shop-product-full.html">

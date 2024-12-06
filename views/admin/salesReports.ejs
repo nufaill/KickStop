@@ -129,7 +129,7 @@
                                         <% if (orders[i].items && orders[i].items.length > 0) { %>
                                             <% orders[i].items.forEach(item => { %>
                                                 <li>
-                                                    <%= item.productId ? item.productId.ProductName : 'Unknown Product' %>
+                                                    <%= item.product_id ? item.product.productName : 'Unknown Product' %>
                                                 </li>
                                             <% }); %>
                                         <% } else { %>

@@ -69,7 +69,9 @@ router.post('/update-stock',adminAuth,stockController.updateStock)
 //coupon Controller
 router.get('/coupons',adminAuth,couponController.loadCoupon);
 router.post('/addcoupon',adminAuth,couponController.addCoupon);
-router.get('/deleteCoupon',adminAuth,couponController.deleteCoupon)
+router.get('/deleteCoupon',adminAuth,couponController.deleteCoupon);
+router.get("/editCoupon",adminAuth,couponController.editCoupon);
+router.post("/editCoupon",adminAuth,couponController.posteditCoupon); 
 
 //sales Controller
 router.get("/sales-report",adminAuth,salesController.loadSalesReport);

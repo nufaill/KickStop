@@ -36,9 +36,9 @@ const couponSchema = new mongoose.Schema({
         type:mongoose.Schema.Types.ObjectId,
         ref:'User'
     }
+},{
+    strict: false
 })
 
-
-const Coupon = mongoose.model("Coupon", couponSchema);
-
+const Coupon = mongoose.model("Coupon",couponSchema);
 module.exports = Coupon;
