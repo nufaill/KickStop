@@ -44,70 +44,6 @@ const loadOrders = async(req,res)=>{
     }
 }
 
-// const loadOrders = async (req, res) => {
-//     const { status } = req.query;
-
-//     const filter = status && status !== 'All' ? { status } : {};
-
-//     try {
-//         const limit = 10;
-//         const page = Math.max(1, parseInt(req.query.page) || 1);
-
-//         // Fetch orders with user and items populated
-//         const orders = await Order.find(filter)
-//             .populate('user') // Populate user details
-//             .populate({
-//                 path: 'items.productId',
-//                 model: 'Product',
-//                 select: 'productName image',
-//                 strictPopulate: false
-//             })
-//             .sort({ createdAt: -1 })
-//             .limit(limit)
-//             .skip((page - 1) * limit);
-
-//         // Manually populate shipping addresses
-//         const populatedOrders = await Promise.all(
-//             orders.map(async (order) => {
-//                 if (order.shippingAddress) {
-//                     // Find the address document containing the required address
-//                     const addressDoc = await Address.findOne({
-//                         'addresses._id': order.shippingAddress
-//                     }, {
-//                         'addresses.$': 1 // Only include the matching address in the result
-//                     });
-//                     console.log('address', addressDoc);
-                    
-//                     // Attach the populated address to the order
-//                     if (addressDoc && addressDoc.addresses.length > 0) {
-//                         order.shippingAddress = addressDoc.addresses[0]; // Replace ObjectId with the full address
-//                     }
-//                 }
-//                 return order;
-//             })
-//         );
-
-//         // Count total documents for pagination
-//         const totalCount = await Order.countDocuments(filter);
-//         // console.log('populatedOrders', populatedOrders);
-        
-//         // Render the orders page
-//         res.render('orders-list', {
-//             orders: populatedOrders.reverse(), // Reverse for desired order
-//             currentStatus: status || 'All',
-//             totalPages: Math.ceil(totalCount / limit),
-//             currentPage: page
-//         });
-//     } catch (error) {
-//         console.error('Error fetching orders:', error);
-//         res.status(500).render('error-page', {
-//             message: 'Error retrieving orders',
-//             errorCode: 500,
-//             error: error
-//         });
-//     }
-// };
-
 
 const updateOrderStatus = async (req, res) => {
     try {
@@ -122,10 +58,96 @@ const updateOrderStatus = async (req, res) => {
             return res.status(404).json({ success: false, message: 'Order not found' });
         }
 
+        // Define valid status progression
+        const statusProgression = [
+            'Pending', 
+            'Processing', 
+            'Shipped', 
+            'Delivered', 
+            'Cancelled', 
+            'Return Request', 
+            'Returned'
+        ];
+
+        // Current status index
+        const currentStatusIndex = statusProgression.indexOf(order.status);
+        const newStatusIndex = statusProgression.indexOf(newStatus);
+
+        // Validation rules
+        if (currentStatusIndex === -1 || newStatusIndex === -1) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Invalid status' 
+            });
+        }
+
+        // Block backwards progression
+        if (newStatusIndex < currentStatusIndex) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Cannot revert to a previous status' 
+            });
+        }
+
+        // Prevent changes after certain final states
+        const finalStates = ['Delivered', 'Cancelled', 'Returned'];
+        if (finalStates.includes(order.status)) {
+            return res.status(400).json({ 
+                success: false, 
+                message: `Cannot change status from ${order.status}` 
+            });
+        }
+
+        // Additional specific rules
+        switch(order.status) {
+            case 'Delivered':
+                // Cannot change status after delivery
+                return res.status(400).json({ 
+                    success: false, 
+                    message: 'Cannot modify status after delivery' 
+                });
+            
+            case 'Cancelled':
+                // Cannot change status after cancellation
+                return res.status(400).json({ 
+                    success: false, 
+                    message: 'Cannot modify status after cancellation' 
+                });
+            
+            case 'Returned':
+                // Cannot change status after return
+                return res.status(400).json({ 
+                    success: false, 
+                    message: 'Cannot modify status after return' 
+                });
+        }
+
+        // Prevent jumping multiple stages
+        if (newStatusIndex > currentStatusIndex + 1) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Can only progress to the next immediate status' 
+            });
+        }
+
+        // Special rule: can only cancel if not shipped
+        if (newStatus === 'Cancelled' && 
+            ['Shipped', 'Delivered', 'Return Request', 'Returned'].includes(order.status)) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Order cannot be cancelled after shipping' 
+            });
+        }
+
+        // Update status
         order.status = newStatus;
         await order.save();
 
-        res.json({ success: true, message: 'Order status updated successfully' });
+        res.json({ 
+            success: true, 
+            message: 'Order status updated successfully',
+            newStatus: order.status 
+        });
     } catch (error) {
         console.error('Error updating order status:', error);
         res.status(500).json({ 
