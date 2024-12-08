@@ -274,9 +274,9 @@
                         <strong>Total: ₹<%= order.finalAmount.toFixed(2) %></strong>
                     </div>
                     <div class="order-actions">
-                        <% if  ((order.paymentMethod === 'COD' || order.paymentMethod === 'Online') && 
+                        <% if ((order.paymentMethod.toLowerCase() === 'online' || order.paymentMethod.toLowerCase() === 'cod') && 
                         order.status !== 'Cancelled' && 
-                        ['Pending', 'Paid'].includes(order.status)){ %>
+                        ['Pending', 'Paid'].includes(order.status)) { %>
                             <button class="btn-cancel" onclick="cancelOrder('<%= order._id %>', 'Processing')">Cancel Order</button>
                         <% } %>
                         <button class="btn-edit" onclick="showOrderDetails('<%= JSON.stringify( order ) %>')">View Details</button>
@@ -304,53 +304,67 @@
 </div>
 <script>
     async function cancelOrder(orderId) {
-        try {
-            const result = await Swal.fire({
-                title: 'Cancel Order',
-                text: 'Are you sure you want to cancel this order?',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#3085d6',
-                confirmButtonText: 'Yes, cancel it!'
+    try {
+        console.log('Order ID:', orderId); // Debugging: Log the orderId
+
+        const result = await Swal.fire({
+            title: 'Cancel Order',
+            text: 'Are you sure you want to cancel this order?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, cancel it!',
+        });
+
+        if (result.isConfirmed) {
+            Swal.fire({
+                title: 'Processing...',
+                text: 'Please wait while we cancel your order.',
+                allowOutsideClick: false,
+                showConfirmButton: false,
+                willOpen: () => {
+                    Swal.showLoading();
+                },
             });
 
-            if (result.isConfirmed) {
-                const response = await fetch('/cancel-order', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ orderId })
+            const response = await fetch('/cancel-order', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ orderId }),
+            });
+
+            const data = await response.json();
+            console.log('API Response:', data); // Debugging: Log the response
+            Swal.close();
+
+            if (response.ok && data.success) {
+                Swal.fire(
+                    'Cancelled!',
+                    'Your order has been cancelled successfully.',
+                    'success'
+                ).then(() => {
+                    location.reload();
                 });
-
-                const data = await response.json();
-
-                if (data.success) {
-                    Swal.fire(
-                        'Cancelled!',
-                        'Your order has been cancelled.',
-                        'success'
-                    ).then(() => {
-                        location.reload();
-                    });
-                } else {
-                    Swal.fire(
-                        'Error!',
-                        data.message || 'Failed to cancel order.',
-                        'error'
-                    );
-                }
+            } else {
+                Swal.fire(
+                    'Error!',
+                    data.message || 'Failed to cancel order. Please try again.',
+                    'error'
+                );
             }
-        } catch (error) {
-            console.error('Cancel order error:', error);
-            Swal.fire(
-                'Error!',
-                'Something went wrong. Please try again.',
-                'error'
-            );
         }
-    };
+    } catch (error) {
+        console.error('Cancel order error:', error);
+        Swal.fire(
+            'Error!',
+            'Something went wrong. Please try again later.',
+            'error'
+        );
+    }
+}
 
     function showOrderDetails(orderData) {
     try {

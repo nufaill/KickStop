@@ -15,7 +15,6 @@ const razorpay = new Razorpay({
 const loadRazorpay = async (req, res) => {
     try {
         // const { amount } = req.body;
-        // console.log('jjjjjj', req.body);
 
         const userId = req.session.user
         const cart = await Cart.findOne({ userId: userId });
@@ -107,7 +106,7 @@ const verifyPayment = async (req, res) => {
 
                 for (const item of cart.items) {
                     const product = await Product.findById(item.productId);
-                    console.log('product ===>', product);
+                    // console.log('product ===>', product);
                     
                     if (!product) {
                         return res.status(404).json({

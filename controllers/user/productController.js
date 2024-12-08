@@ -225,6 +225,7 @@ const getOrderConfirmation = async (req, res) => {
 const cancelOrder = async (req, res) => {
     try {
         const { orderId } = req.body;
+
         if (!mongoose.Types.ObjectId.isValid(orderId)) {
             return res.status(400).json({ success: false, message: 'Invalid order ID' });
         }
@@ -234,15 +235,54 @@ const cancelOrder = async (req, res) => {
             return res.status(404).json({ success: false, message: 'Order not found' });
         }
 
+        if (order.paymentMethod.toLowerCase() !== 'online') {
+            return res.status(403).json({ success: false, message: 'Cannot cancel this order' });
+        }
+
+        const userId = req.session?.user;
+
+        if (!userId) {
+            return res.status(400).json({ success: false, message: 'User not authenticated' });
+        }
+
+        const amount = order.finalAmount;
+        let wallet = await Wallet.findOne({ userId });
+        // console.log('Wallet Before Update:', wallet);
+
+        if (!wallet) {
+            wallet = new Wallet({
+                userId,
+                balance: amount,
+                transactions: [{
+                    type: 'refund',
+                    amount,
+                    orderId,
+                    description: 'Order refund',
+                }],
+            });
+        } else {
+            wallet.balance += amount;
+            wallet.transactions.push({
+                type: 'Refund',
+                amount,
+                orderId,
+                description: 'Order refund',
+            });
+        }
+
+        await wallet.save();
+        // console.log('Wallet After Update:', wallet);
+
         order.status = 'Cancelled';
         await order.save();
 
-        res.json({ success: true, message: 'Order cancelled successfully' });
+        return res.json({ success: true, message: 'Order cancelled and refund processed successfully' });
     } catch (error) {
-        handleError(res, error, 'Error cancelling order');
-        res.status(500).json({ success: false, message: 'Failed to cancel order' });
+        console.error('Error cancelling order:', error);
+        return res.status(500).json({ success: false, message: 'Failed to cancel order' });
     }
 };
+
 
 const getOrderHistory = async (req, res) => {
     try {

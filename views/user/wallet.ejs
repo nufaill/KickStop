@@ -1,122 +1,245 @@
-<%- include('../layouts/user/header') %>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<main class="main">
-    <div class="page-header breadcrumb-wrap">
-        <div class="container">
-            <div class="breadcrumb">
-                <a href="/" rel="nofollow">Home</a>
-                <span><a href="/profile">Profile</a></span> 
-                <span></span> Wallet
-            </div>
+<%- include("../../views/layouts/user/header") %>
+
+  
+<style>
+    :root {
+      --primary-color: #800000;
+      --secondary-color: #B22222;
+      --light-color: #FFE4E1;
+      --text-color: #333333;
+      --muted-color: #8B4513;
+    }
+  
+    body {
+      color: var(--text-color);
+    }
+  
+    .wallet-card {
+      background: var(--light-color);
+      color: var(--primary-color);
+      border-radius: 15px;
+    }
+  
+    .credit {
+      color: #006400;
+    }
+  
+    .debit {
+      color: #8B0000;
+    }
+  
+    .referral-code {
+      background: var(--light-color);
+      padding: 15px;
+      border-radius: 10px;
+      border: 2px dashed var(--secondary-color);
+    }
+  
+    .add-funds-card {
+      border: none;
+      box-shadow: 0 0 15px rgba(128, 0, 0, 0.1);
+    }
+  
+    .transaction-table th {
+      background-color: var(--light-color);
+      color: var(--primary-color);
+      border-bottom: 2px solid var(--secondary-color);
+    }
+  
+    .transaction-table td {
+      color: var(--text-color);
+      border-bottom: 1px solid var(--light-color);
+    }
+  
+    .transaction-table tr:hover {
+      background-color: var(--light-color);
+    }
+  
+    .btn-primary {
+      background-color: var(--primary-color);
+      border-color: var(--primary-color);
+    }
+  
+    .btn-primary:hover {
+      background-color: var(--secondary-color);
+      border-color: var(--secondary-color);
+    }
+  
+    .btn-outline-primary {
+      color: var(--primary-color);
+      border-color: var(--primary-color);
+    }
+  
+    .btn-outline-primary:hover {
+      background-color: var(--primary-color);
+      border-color: var(--primary-color);
+      color: var(--light-color);
+    }
+  
+    .btn-light {
+      background-color: var(--light-color);
+      border-color: var(--secondary-color);
+      color: var(--primary-color);
+    }
+  
+    .btn-light:hover {
+      background-color: var(--secondary-color);
+      border-color: var(--primary-color);
+      color: var(--light-color);
+    }
+  
+    .btn-outline-secondary {
+      color: var(--secondary-color);
+      border-color: var(--secondary-color);
+    }
+  
+    .btn-outline-secondary:hover {
+      background-color: var(--secondary-color);
+      border-color: var(--secondary-color);
+      color: var(--light-color);
+    }
+  
+    .card {
+      border-color: var(--secondary-color);
+    }
+  
+    .card-header {
+      color: var(--primary-color);
+    }
+  
+    .text-muted {
+      color: var(--muted-color) !important;
+    }
+  
+    .input-group-text {
+      background-color: var(--light-color);
+      border-color: var(--secondary-color);
+      color: var(--primary-color);
+    }
+  
+    .form-control,
+    .form-select {
+      border-color: var(--secondary-color);
+      color: var(--text-color);
+    }
+  
+    .form-control:focus,
+    .form-select:focus {
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 0.25rem rgba(128, 0, 0, 0.25);
+    }
+  </style>
+
+  <div class="container py-5">
+    
+    <div class="wallet-card p-4 mb-4">
+      <div class="row">
+        <div class="col-md-6">
+          <h2 style="color: #424874" class="text-left mb-4">Your Wallet</h2>
+          <h5 class="mb-1" style="color: #424874">Balance</h5>
+          <h2 class="mb-0" style="color: #424874">₹<%= wallet.balance.toFixed(2)%>
+          </h2>
         </div>
+        <div class="col-md-6 text-md-end">
+          <button class="btn btn-light" data-bs-toggle="modal" data-bs-target="#addFundsModal">
+            <i class="fas fa-plus-circle me-2"></i>Add Funds
+          </button>
+        </div>
+      </div>
     </div>
-    <section class="mt-50 mb-50">
-        <div class="container">
-            <div class="row">
-                <div class="col-12">
-                    <div class="table-responsive">
-                        <table class="table shopping-summery text-center">
-                            <thead>
-                                <tr class="main-heading">
-                                    <th scope="col">Wallet Balance</th>
-                                    <!-- <th scope="col">Add Money</th>
-                                    <th scope="col">Withdraw</th> -->
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <% if (wallet && wallet.balance) { %>
-                                        <td class="wallet-balance" data-title="Balance">
-                                            <strong style="font-size: 40px;">₹<%=wallet.balance.toLocaleString()%></strong>
-                                        </td>
-                                    <% } else { %>
-                                        <td class="wallet-balance" data-title="Balance">
-                                            <strong style="font-size: 40px;">₹0</strong>
-                                        </td>
-                                    <% } %>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
 
-                    <div class="table-responsive mt-4">
-                        <table class="table shopping-summery text-center">
-                            <thead>
-                                <tr class="main-heading">
-                                    <th scope="col">Date</th>
-                                    <th scope="col">Transaction Type</th>
-                                    <th scope="col">Amount</th>
-                                    <th scope="col">Status</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <% if (wallet.transactions && wallet.transactions.length > 0) { %>
-                                    <% wallet.transactions.reverse().forEach(transaction => { %>
-                                        <tr>
-                                            <td data-title="Date"><%= transaction.date.toLocaleDateString() %></td>
-                                            <td data-title="Transaction Type"><%= transaction.type %></td>
-                                            <td data-title="Amount">
-                                                <% if (transaction.type === 'Purchase' || transaction.type === 'Debit') { %>
-                                                    <b class="text-danger" style="font-size: 25px;">-</b>&nbsp;
-                                                    <strong class="text-danger">₹<%= transaction.amount.toLocaleString() %></strong>
-                                                <% } else { %>
-                                                    <b class="text-success" style="font-size: 20px;">+</b>&nbsp;
-                                                    <strong class="text-success">₹<%= transaction.amount.toLocaleString() %></strong>
-                                                <% } %>
-                                            </td>
-                                            <td data-title="Status">
-                                                <span class="<%= transaction.status === 'Completed' ? 'text-success' : 'text-warning' %> font-weight-bold">
-                                                    <%= transaction.status %>
-                                                </span>
-                                            </td>
-                                            <td data-title="Description"><%= transaction.description %></td>
-                                        </tr>
-                                    <% }); %>
-                                <% } else { %>
-                                    <tr>
-                                        <td colspan="5">No transactions available</td>
-                                    </tr>
-                                <% } %>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+    <div class="row">
+      <div class="col-md-12 mb-4">
+        <div class="card">
+          <div class="card-header bg-white">
+            <h5 class="mb-0">Transaction History</h5>
+          </div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table transaction-table w-100">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Order ID</th>
+                    <th>Type</th>
+                    <th>Amount</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% if(wallet.transactions && wallet.transactions.length> 0) {%>
+                    <% wallet.transactions.forEach(transaction=> { %>
+                      <tr>
+                        <td>
+                          <%= new Date(transaction.date).toLocaleDateString() %>
+                        </td>
+                        <td>
+                          <%= transaction.orderId && transaction.orderId.orderId ? transaction.orderId.orderId :
+                            transaction.orderId || 'N/A' %>
+                        </td>
+                        <td class="<%= transaction.type%>">
+                          <%= transaction.type%>
+                        </td>
+                        <td class="font-weight-bold">₹<%= transaction.amount.toFixed(2) %>
+                        </td>
+                        <td>
+                          <%= transaction.description || 'No description' %>
+                        </td>
+                      </tr>
+                      <% }) %>
+
+                        <% }else{ %>
+                          <tr>
+                            <td colspan="5" class="text-muted">No transactions available</td>
+                          </tr>
+                          <% } %>
+                </tbody>
+              </table>
             </div>
+          </div>
         </div>
-    </section>
-</main>
-<%- include('../layouts/user/footer') %>
+      </div>
 
-<script>
-    function confirmAddMoney() {
-        Swal.fire({
-            title: "Add Money",
-            text: "Do you want to add money to your wallet?",
-            icon: "info",
-            showCancelButton: true,
-            confirmButtonColor: "#3085d6",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "Yes, add money!"
-        }).then((result) => {
-            if (result.isConfirmed) {
-                window.location.href = "/wallet/add-money";
-            }
-        });
-    }
+      
 
-    function confirmWithdraw() {
-        Swal.fire({
-            title: "Withdraw Money",
-            text: "Do you want to withdraw money from your wallet?",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#d33",
-            cancelButtonColor: "#3085d6",
-            confirmButtonText: "Yes, withdraw!"
-        }).then((result) => {
-            if (result.isConfirmed) {
-                window.location.href = "/wallet/withdraw";
-            }
-        });
-    }
-</script>
+      
+    </div>
+  </div>
+
+  
+  <div class="modal fade" id="addFundsModal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Add Funds to Wallet</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="add-funds-card">
+            <div class="mb-3">
+              <label class="form-label">Amount</label>
+              <div class="input-group">
+                <span class="input-group-text">$</span>
+                <input type="number" class="form-control" placeholder="Enter amount" />
+              </div>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Payment Method</label>
+              <select class="form-select">
+                <option>Credit Card</option>
+                <option>Debit Card</option>
+                <option>PayPal</option>
+                <option>Bank Transfer</option>
+              </select>
+            </div>
+            <button class="btn btn-primary w-100">Add Funds</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+
+
+  <%- include("../../views/layouts/user/footer") %>

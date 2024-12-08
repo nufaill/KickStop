@@ -1,28 +1,23 @@
 const Wallet = require('../../models/walletSchema');
 
-const loadWallet = async (req, res) => {
+const loadWallet = async (req,res) => {
     try {
-        const userId = req.session.user;
-        if (!userId) {
-            return res.redirect('/login');
+        if(!req.session.user || !req.session.user._id){
+            return res.redirect("/login");
         }
+        const userId = req.session.user._id;
+        const wallet = await Wallet.findOne({userId}).populate("transactions.orderId");
 
-        let wallet = await Wallet.findOne({ userId: userId });
+        if(!wallet){
+            return res.render("wallet", {wallet:{balance:0, transactions:[]}});
+        }
         
-        if (!wallet) {
-            wallet = new Wallet({
-                userId: userId,
-                balance: 0,
-                transactions: []
-            });
-            await wallet.save();
-        }
+        wallet.transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
 
-        res.render('wallet', { wallet });
-
+        res.render("wallet", {wallet});
     } catch (error) {
-        console.error("Error loading wallet", error);
-        res.redirect('admin/pageerror');
+        console.error("Error loading wallet page",error);
+        res.redirect("/pageNotFound");
     }
 }
 

@@ -10,7 +10,9 @@ const walletController = require("../controllers/user/walletController");
 const paymentController = require("../controllers/user/paymentController");
 const passport = require("../config/passport"); 
 const {userAuth,adminAuth} = require("../middlewares/auth");
-const User = require('../models/userSchema')
+const User = require('../models/userSchema');
+const Cart = require("../models/cartSchema");
+const Wishlist = require("../models/wishlistSchema");
 
 router.use(express.json()); 
 router.use(async (req, res, next) => {

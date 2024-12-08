@@ -15,12 +15,12 @@ const walletSchema = new Schema({
         amount: { 
             type: Number, 
             required: true 
-        },
+        },        
         type: { 
             type: String, 
             enum: ['Credit', 'Debit', 'Refund', 'Purchase'], 
             required: true 
-        },
+        },        
         description: { 
             type: String 
         },
