@@ -7,12 +7,9 @@ const categoryInfo = async (req, res) => {
         const page = parseInt(req.query.page) || 1;
         const limit = 4;
         const skip = (page - 1) * limit;
-
-        // Get the total count of categories
-        const totalCategories = await Category.countDocuments();  // Use countDocuments()
+        const totalCategories = await Category.countDocuments(); 
         const totalPages = Math.ceil(totalCategories / limit);
 
-        // Get category data with pagination
         const categoryData = await Category.find().skip(skip).limit(limit);
 
         res.render('category', {

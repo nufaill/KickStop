@@ -5,6 +5,15 @@ const sortSearch = async (req, res) => {
     try {
         const { search = '', category = 'all-categories', sort = 'default' } = req.body;
         let SortingCondition;
+        let query = {};
+
+
+        if (search) {
+            query.$or = [
+                { productName: { $regex: search, $options: 'i' } }, 
+                { description: { $regex: search, $options: 'i' } }  
+            ];
+        }
 
         switch (sort) {
             case 'popularity':
@@ -32,23 +41,20 @@ const sortSearch = async (req, res) => {
                 SortingCondition = { createdAt: -1 };
         }
 
-        const query = {
-            productName: { $regex: search, $options: 'i' }, 
-        };
+        // const query = {
+        //     productName: { $regex: search, $options: 'i' }, 
+        // };
 
-        // Handle category filtering
+        
         if (category !== 'all-categories') {
-            // For standard categories (Mens, Womens, Kids)
             if (['Mens', 'Womens', 'Kids'].includes(category)) {
                 query.category = category;
             } else {
-                // For other custom categories (using _id)
                 query.category = category;
             }
         }
 
         const products = await Product.find(query).sort(SortingCondition);
-        console.log('product kkkkkkkkkkkkkkkkkkkkk', products);
         
         res.status(200).json({ products });
     } catch (error) {

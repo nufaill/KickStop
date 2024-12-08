@@ -50,22 +50,33 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <%for(let i=wallet.transactions.length-1;i>=0;i--){%>
+                                <% if (wallet.transactions && wallet.transactions.length > 0) { %>
+                                    <% wallet.transactions.reverse().forEach(transaction => { %>
+                                        <tr>
+                                            <td data-title="Date"><%= transaction.date.toLocaleDateString() %></td>
+                                            <td data-title="Transaction Type"><%= transaction.type %></td>
+                                            <td data-title="Amount">
+                                                <% if (transaction.type === 'Purchase' || transaction.type === 'Debit') { %>
+                                                    <b class="text-danger" style="font-size: 25px;">-</b>&nbsp;
+                                                    <strong class="text-danger">₹<%= transaction.amount.toLocaleString() %></strong>
+                                                <% } else { %>
+                                                    <b class="text-success" style="font-size: 20px;">+</b>&nbsp;
+                                                    <strong class="text-success">₹<%= transaction.amount.toLocaleString() %></strong>
+                                                <% } %>
+                                            </td>
+                                            <td data-title="Status">
+                                                <span class="<%= transaction.status === 'Completed' ? 'text-success' : 'text-warning' %> font-weight-bold">
+                                                    <%= transaction.status %>
+                                                </span>
+                                            </td>
+                                            <td data-title="Description"><%= transaction.description %></td>
+                                        </tr>
+                                    <% }); %>
+                                <% } else { %>
                                     <tr>
-                                        <td data-title="Date"><%=wallet.transactions[i].date.toLocaleDateString()%></td>
-                                        <td data-title="Transaction Type"><%=wallet.transactions[i].type%></td>
-                                        <%if(wallet.transactions[i].type === "Purchase"){%>
-                                            <td data-title="Amount"><b class="text-danger" style="font-size: 25px;">-</b>&nbsp;<strong class="text-danger">₹<%=wallet.transactions[i].amount.toLocaleString()%></strong></td>
-                                        <%}else{%>
-                                            <td data-title="Amount"><b class="text-success" style="font-size: 20px;">+</b>&nbsp;<strong class="text-success">₹<%=wallet.transactions[i].amount.toLocaleString()%></strong></td>
-                                        <%}%>
-                                        <td data-title="Status">
-                                            <span class="text-success font-weight-bold"><%=wallet.transactions[i].status%></span>
-                                        </td>
+                                        <td colspan="5">No transactions available</td>
                                     </tr>
-                                <%}%>
-                                    <td colspan="4">No more transactions available</td>
-                                </tr>
+                                <% } %>
                             </tbody>
                         </table>
                     </div>

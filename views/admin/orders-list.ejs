@@ -113,7 +113,17 @@
             </div>
         </div>
     </div>
-    <!-- Pagination code remains the same -->
+    <div class="pagination-area mt-30 mb-50">
+        <nav aria-label="Page navigation example justify-content-center">
+            <ul class="pagination justify-content-center">
+                <%for(let i=1;i<=totalPages;i++){%>
+                    <li class="page-item">
+                        <a class="page-link <%= (i===currentPage) ? 'active' : '' %>" href="?page=<%=i%>"><%=i%></a>
+                    </li>
+                <%}%>
+            </ul>
+        </nav>
+    </div>
 </section>
 
 <!-- Order Details Modal -->

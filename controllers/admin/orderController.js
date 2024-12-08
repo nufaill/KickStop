@@ -1,14 +1,17 @@
 const Order = require('../../models/orderSchema');
 const User = require('../../models/userSchema');
 const mongoose = require('mongoose');
-const Address = require('../../models/addressSchema')
+const Address = require('../../models/addressSchema');
+
+
 const loadOrders = async(req,res)=>{
+
     const { status } = req.query;
 
     const filter = status && status !== 'All' ? { status } : {};
 
     try {
-        const limit = 10;
+        const limit = 7;
         const page = Math.max(1, parseInt(req.query.page) || 1);
         const orders = await Order.find(filter)
             .populate('user')

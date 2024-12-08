@@ -20,7 +20,7 @@ const loadRazorpay = async (req, res) => {
         const userId = req.session.user
         const cart = await Cart.findOne({ userId: userId });
         const totalPrice = cart.items.reduce((acc, curr) =>{
-            console.log('currrr', curr);
+            // console.log('currrr', curr);
             
             return acc + curr.totalPrice
         },0)
@@ -59,7 +59,7 @@ const loadRazorpay = async (req, res) => {
 const verifyPayment = async (req, res) => {
     try {
         const { payment_id, order_id, signature, singleProduct, totalPrice, addressId } = req.body;
-        console.log('uuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuu', req.body);
+        
         
         const userId = req.session.user;
         const cart = await Cart.findOne({ userId: userId });
@@ -129,7 +129,7 @@ const verifyPayment = async (req, res) => {
                 });
             }
         }
-        console.log('oooooo', orderItems);
+  
         
         const newOrder = new Order({
             user: req.session.user,

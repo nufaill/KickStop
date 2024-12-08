@@ -646,7 +646,7 @@
                 });
 
                 const { success, order } = await response.json();
-                console.log('Created order ', order);
+                // console.log('Created order ', order);
                 if (!success) throw new Error('Failed to create Razorpay order');
 
                 const options = {
