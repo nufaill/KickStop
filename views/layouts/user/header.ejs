@@ -198,10 +198,10 @@
                 <a href="/"><h1>𝑲𝒊𝒄𝒌𝑺𝒕𝒐𝒑</h1></a>
             </div>
             <div class="search-bar">
-                <form action="/search-product" method="GET">
+                <!-- <form action="/search-product" method="GET">
                     <input type="text" name="q" placeholder="Search for items...">
                     <button type="submit">🔍</button>
-                </form>
+                </form> -->
             </div>
             <div class="user-menu">
                 <% if (typeof user !== 'undefined' && user) { %>
@@ -238,38 +238,38 @@
         </div>
     </header>
 
-    <script>
+    <!-- <script>
 document.addEventListener('DOMContentLoaded', () => {
     const filterForm = document.getElementById('filter-form');
     const priceRange = document.getElementById('price-range');
     const priceOutput = document.getElementById('price-output');
 
     // Price range dynamic output
-    priceRange.addEventListener('input', () => {
-        priceOutput.textContent = `$${priceRange.value}`;
-    });
+    // priceRange.addEventListener('input', () => {
+    //     priceOutput.textContent = `$${priceRange.value}`;
+    // });
 
     // Filter form submission
-    filterForm.addEventListener('submit', (e) => {
-        e.preventDefault();
+    // filterForm.addEventListener('submit', (e) => {
+    //     e.preventDefault();
         
-        // Collect selected categories
-        const selectedCategories = Array.from(
-            filterForm.querySelectorAll('input[name="category"]:checked')
-        ).map(cb => cb.value);
+    //     // Collect selected categories
+    //     const selectedCategories = Array.from(
+    //         filterForm.querySelectorAll('input[name="category"]:checked')
+    //     ).map(cb => cb.value);
 
-        // Construct search URL
-        const searchParams = new URLSearchParams({
-            q: document.querySelector('.search-bar input[name="q"]').value || '',
-            categories: selectedCategories,
-            minPrice: 0,
-            maxPrice: priceRange.value
-        });
+    //     // Construct search URL
+    //     const searchParams = new URLSearchParams({
+    //         q: document.querySelector('.search-bar input[name="q"]').value || '',
+    //         categories: selectedCategories,
+    //         minPrice: 0,
+    //         maxPrice: priceRange.value
+    //     });
 
-        // Redirect to search page with filters
-        window.location.href = `/search-product?${searchParams.toString()}`;
-    });
+    //     // Redirect to search page with filters
+    //     window.location.href = `/search-product?${searchParams.toString()}`;
+    // });
 });
-    </script>
+    </script> -->
 </body>
 </html>

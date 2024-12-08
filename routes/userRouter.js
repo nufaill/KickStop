@@ -6,6 +6,8 @@ const profileController = require("../controllers/user/profileController");
 const cartController = require("../controllers/user/cartController");
 const wishlistController = require("../controllers/user/wishlistController");
 const filterController = require("../controllers/user/filterController");
+const walletController = require("../controllers/user/walletController");
+const paymentController = require("../controllers/user/paymentController");
 const passport = require("../config/passport"); 
 const {userAuth,adminAuth} = require("../middlewares/auth");
 const User = require('../models/userSchema')
@@ -92,13 +94,28 @@ router.get('/product-details',productController.productDetails);
 router.get('/all-products',productController.loadallProducts);
 router.get('/allbrands',productController.getBrands);
 
-//wishlist management
-router.post('/add-to-wishlist', wishlistController.loadWishlist);
-router.get('/wishlist', wishlistController.renderWishlist);
-router.post('/remove-wishlist-item', wishlistController.removeWishlistItem);
+//coupon management
+router.get('/couponList',userAuth,productController.loadCoupon);
+router.post('/applyCoupon',userAuth,productController.postCoupon);
+router.post('/remove-coupon',userAuth, productController.removeCoupon);
 
-//filter
-router.post('/sort-and-search',filterController.sortSearch)
+
+
+
+
+//wishlist management
+router.post('/add-to-wishlist', userAuth,wishlistController.loadWishlist);
+router.get('/wishlist', userAuth,wishlistController.renderWishlist);
+router.post('/remove-wishlist-item',userAuth, wishlistController.removeWishlistItem);
+//filter management
+router.post('/sort-and-search',filterController.sortSearch);
+//wallet management
+router.get('/wallet',userAuth,walletController.loadWallet)
+//payment management
+router.post("/payment/initiate",userAuth,paymentController.loadRazorpay);
+router.post("/payment/verify",userAuth,paymentController.verifyPayment);
+
 
 router.use(userController.pageNotFound);
+
 module.exports = router;

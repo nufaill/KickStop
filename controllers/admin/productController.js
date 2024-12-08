@@ -25,27 +25,19 @@ const getProductAddPage = async (req, res) => {
 const addProducts = async (req, res) => {
     try {
         const products = req.body;
-
-        // Validate required fields
         if (!products.productName || !products.category || !products.brand) {
             console.error("Missing required fields:", products);
             return res.status(400).json("Please provide all required fields.");
         }
-
-        // Check for duplicate product
         const productExists = await Product.findOne({ productName: products.productName });
         if (productExists) {
             console.warn("Product already exists:", products.productName);
             return res.status(400).json("Product already exists, please try with another name.");
         }
-
-        // Ensure the image upload directory exists
         const uploadDir = path.join("public", "uploads", "product-images");
         if (!fs.existsSync(uploadDir)) {
             fs.mkdirSync(uploadDir, { recursive: true });
         }
-
-        // Handle image uploads
         const images = [];
         if (req.files && req.files.length > 0) {
             for (let i = 0; i < req.files.length; i++) {
@@ -64,15 +56,12 @@ const addProducts = async (req, res) => {
                 }
             }
         }
-
-        // Validate category
         const categoryId = await Category.findOne({ name: products.category });
         if (!categoryId) {
             console.error(`Invalid category: ${products.category}`);
             return res.status(400).json("Invalid category name.");
         }
 
-        // Save new product
         const newProduct = new Product({
             productName: products.productName,
             description: products.description,

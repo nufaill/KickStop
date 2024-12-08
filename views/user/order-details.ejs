@@ -274,7 +274,7 @@
                         <strong>Total: ₹<%= order.finalAmount.toFixed(2) %></strong>
                     </div>
                     <div class="order-actions">
-                        <% if (order.status === 'Pending' ) { %>
+                        <% if (order.status === 'Pending' || order.status === 'paid' ) { %>
                             <button class="btn-cancel" onclick="cancelOrder('<%= order._id %>', 'Processing')">Cancel Order</button>
                         <% } %>
                         <button class="btn-edit" onclick="showOrderDetails('<%= JSON.stringify( order ) %>')">View Details</button>

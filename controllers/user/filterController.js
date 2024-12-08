@@ -48,6 +48,8 @@ const sortSearch = async (req, res) => {
         }
 
         const products = await Product.find(query).sort(SortingCondition);
+        console.log('product kkkkkkkkkkkkkkkkkkkkk', products);
+        
         res.status(200).json({ products });
     } catch (error) {
         console.error("Error in sort and search:", error);

@@ -5,64 +5,65 @@ const orderSchema = new Schema({
     user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
-        required: true
+        required: true,
     },
     items: [{
         productId: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Product',
-            required: true
+            required: true,
         },
         quantity: {
             type: Number,
             required: true,
-            min: 1
+            min: 1,
         },
         price: {
             type: Number,
-            required: true
+            required: true,
         }
     }],
     totalPrice: {
         type: Number,
-        required: true
+        required: true,
     },
     finalAmount: {
         type: Number,
-        required: true
+        required: true,
     },
     status: {
         type: String,
-        enum: ['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled'],
+        enum: ['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled', 'Paid'], // Added 'Paid'
         default: 'Pending',
-        required: true
+        required: true,
     },
     shippingAddress: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Address',
-        required: true
+        required: true,
     },
     paymentMethod: {
         type: String,
-        required: true
+        required: true,
     },
     paymentStatus: {
         type: String,
-        enum: ['Pending', 'Paid', 'Failed'],
-        default: 'Pending'
+        enum: ['Pending', 'Paid', 'Failed', 'Completed'],
+        default: 'Pending',
     },
     orderId: {
         type: String,
         unique: true,
         default: function() {
             return `ORD-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
-        }
+        },
     },
     createdAt: {
         type: Date,
-        default: Date.now
-    }
+        default: Date.now,
+    },
 }, { timestamps: true });
 
 const Order = mongoose.model("Order", orderSchema);
+
 module.exports = Order;

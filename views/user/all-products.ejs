@@ -23,13 +23,9 @@
                 <div>
                     <select id="cat-filter" class="sort-select" onchange="catFilter()">
                         <option value="all-categories">All Categories</option>
-                        <option value="Mens">Mens</option>
-                        <option value="Womens">Womens</option>
-                        <option value="Kids">Kids</option>
-                        <option value="new-arrivals">New Arrivals</option>
                         <% for(let i=0; i < categories.length; i++) { %>
-                            <option value="<%= category[i]._id %>">
-                                <%= category[i].name %>
+                            <option value="<%= categories[i]._id %>">
+                                <%= categories[i].name %>
                             </option>
                         <% } %>
                     </select>
