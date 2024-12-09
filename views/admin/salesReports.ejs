@@ -187,6 +187,10 @@
     <br>
     <br>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.13/jspdf.plugin.autotable.min.js"></script>
+
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
 
 
@@ -284,54 +288,51 @@
         }
 
         function exportToPDF() {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF('p', 'pt', 'a4');
-            const logoURL = '/Images/ChronoCraft/logo-transparent-png.png';
-            doc.addImage(logoURL, 'PNG', 15, 10, 40, 40);
-            doc.setFontSize(16);
-            doc.text('Sales Report', 70, 30);
-            doc.setFontSize(10);
-            doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 70, 45);
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({
+        orientation: 'landscape',
+        unit: 'mm',
+        format: 'a4'
+    });
 
-            const rupeeSymbol = '₹';
-            doc.setFont('CustomFont', 'normal');
+    
+    try {
+        doc.addImage('/path/to/your/logo.png', 'PNG', 10, 10, 40, 40);
+    } catch (error) {
+        console.warn('Logo could not be added to PDF');
+    }
 
-            doc.autoTable({
-                html: '#salesTable',
-                startY: 60,
-                theme: 'grid',
-                headStyles: { fillColor: [41, 128, 185], textColor: [255, 255, 255], fontSize: 8 },
-                bodyStyles: { fontSize: 6, cellPadding: 3, minCellWidth: 50 },
-                styles: { overflow: 'linebreak', valign: 'middle', halign: 'center' },
-                columnStyles: {
-                    0: { cellWidth: 30, halign: 'center' },
-                    1: { cellWidth: 50, halign: 'left' },
-                    2: { cellWidth: 40, halign: 'left' },
-                    3: { cellWidth: 40, halign: 'center' },
-                    4: { cellWidth: 40, halign: 'center' },
-                    5: { cellWidth: 40, halign: 'right' },
-                    6: { cellWidth: 40, halign: 'center' },
-                    7: { cellWidth: 40, halign: 'center' },
-                    8: { cellWidth: 40, halign: 'center' },
-                    9: { cellWidth: 40, halign: 'center' },
-                    10: { cellWidth: 40, halign: 'center' },
-                    11: { cellWidth: 40, halign: 'center' }
-                },
-                didParseCell: function (data) {
-                    if (data.cell.text === undefined || data.cell.text === null) {
-                        data.cell.text = '';
-                    }
+    doc.setFontSize(16);
+    doc.text('Sales Report', 60, 20);
+    doc.setFontSize(10);
+    doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 60, 30);
 
-                },
-                willDrawCell: function (data) {
-                    if (data.cell.text.length > 20) {
-                        data.cell.styles.fontSize = 5;
-                    }
-                }
-            });
-
-            doc.save('sales-report.pdf');
+    doc.autoTable({
+        html: '#salesTable',
+        startY: 50,
+        theme: 'grid',
+        headStyles: { 
+            fillColor: [41, 128, 185], 
+            textColor: [255, 255, 255], 
+            fontSize: 8 
+        },
+        bodyStyles: { 
+            fontSize: 8, 
+            cellPadding: 3 
+        },
+        columnStyles: {
+            0: { cellWidth: 15 }, 
+            1: { cellWidth: 30 },
+            2: { cellWidth: 40 },
         }
+    });
+
+    doc.save('sales-report.pdf');
+}
+
+function downloadPDF() {
+    exportToPDF(); 
+}
 
         function exportToExcel() {
             const table = document.getElementById('salesTable');
