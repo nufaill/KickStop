@@ -33,19 +33,35 @@ const addCategory = async (req, res) => {
     }
 
     try {
+        const existingCategory = await Category.findOne({ 
+            name: { $regex: `^${name}$`, $options: 'i' } 
+        });
+
+        if (existingCategory) {
+            return res.status(409).json({ 
+                error: 'Category already exists', 
+                status: false 
+            });
+        }
+
         const newCategory = new Category({
             name,
             description
         });
     
         await newCategory.save();
-        return res.status(200).json({ message: "Category added successfully" });
+        return res.status(200).json({ 
+            message: "Category added successfully", 
+            status: true 
+        });
     } catch (err) {
         console.error("Database save error:", err);
-        return res.status(500).json({ error: "Failed to save category" });
+        return res.status(500).json({ 
+            error: "Failed to save category", 
+            status: false 
+        });
     }
 };
-
 const addCategoryOffer = async (req, res) => {
     try {
       const percentage = parseInt(req.body.percentage, 10);

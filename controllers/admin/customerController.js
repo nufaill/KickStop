@@ -37,7 +37,6 @@ const userInfo = async (req, res) => {
             ],
         }).countDocuments();
 
-        // Render the customers view and pass required data
         res.render("customers", {
             data: userData,
             currentPage: page, 

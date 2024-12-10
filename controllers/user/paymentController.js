@@ -2,7 +2,7 @@ const Razorpay = require("razorpay");
 require("dotenv").config();
 const crypto = require("crypto");
 const mongoose = require("mongoose");
-const Order = require("../../models/orderSchema"); 
+const Order = require("../../models/orderSchema");
 const Product = require("../../models/productSchema");
 const Cart = require("../../models/cartSchema");
 
@@ -14,26 +14,23 @@ const razorpay = new Razorpay({
 
 const loadRazorpay = async (req, res) => {
     try {
-        // const { amount } = req.body;
-
+        const discountAmount = req.body.discount.split('.')[0]
         const userId = req.session.user
         const cart = await Cart.findOne({ userId: userId });
-        const totalPrice = cart.items.reduce((acc, curr) =>{
-            // console.log('currrr', curr);
-            
+        let totalPrice = cart.items.reduce((acc, curr) => {
             return acc + curr.totalPrice
-        },0)
-        console.log('amount to pay', totalPrice);
-        
+        }, 0)
+
         if (!totalPrice || isNaN(totalPrice)) {
             return res.status(400).json({
                 success: false,
                 message: "Invalid or missing amount.",
             });
         }
-
+        const amountToPay = totalPrice -Number(discountAmount)
+        
         const options = {
-            amount: totalPrice * 100, // Amount must be in paise
+            amount: amountToPay * 100, 
             currency: "INR",
             receipt: `receipt_${Date.now()}`,
         };
@@ -57,9 +54,11 @@ const loadRazorpay = async (req, res) => {
 
 const verifyPayment = async (req, res) => {
     try {
-        const { payment_id, order_id, signature, singleProduct, totalPrice, addressId } = req.body;
-        
-        
+        let { payment_id, order_id, signature, singleProduct, totalPrice, addressId, discount } = req.body;
+        // console.log('body-------------------', req.body);
+        // console.log('dicount-------------------', discount);
+
+        console.log('typr of discount', typeof discount);
         const userId = req.session.user;
         const cart = await Cart.findOne({ userId: userId });
         const expectedSignature = crypto
@@ -92,14 +91,14 @@ const verifyPayment = async (req, res) => {
                 quantity: 1,
                 price: product.salePrice,
             });
-        } 
+        }
         // Handle Cart Payments
         else if (cart) {
             // let parsedCart;
             try {
                 // parsedCart = cart
                 // Array.isArray(cart) ? cart : JSON.parse(cart);
-                
+
                 // if (!Array.isArray(parsedCart)) {
                 //     throw new Error("Cart parsing failed.");
                 // }
@@ -107,7 +106,7 @@ const verifyPayment = async (req, res) => {
                 for (const item of cart.items) {
                     const product = await Product.findById(item.productId);
                     // console.log('product ===>', product);
-                    
+
                     if (!product) {
                         return res.status(404).json({
                             success: false,
@@ -128,19 +127,20 @@ const verifyPayment = async (req, res) => {
                 });
             }
         }
-  
-        
+
+
         const newOrder = new Order({
             user: req.session.user,
             items: orderItems,
             totalPrice,
-            finalAmount: totalPrice,
+            finalAmount: totalPrice += Number(discount),
             status: "Paid",
             shippingAddress: addressId,
             paymentMethod: "Online",
             paymentStatus: "Paid",
             razorpayOrderId: order_id,
             razorpayPaymentId: payment_id,
+            discount
         });
 
         await newOrder.save();

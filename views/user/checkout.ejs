@@ -420,13 +420,15 @@
                                                 <% }); %>
                                                     <tr>
                                                         <th>SubTotal</th>
-                                                        <td class="product-subtotal" colspan="2">₹<%=
-                                                                totalAmount.toLocaleString() %>
+                                                        <td class="product-subtotal" colspan="2">₹
+                                                            <span id="SubTotal">
+                                                                <%= totalAmount %>
+                                                            </span>
                                                         </td>
                                                     </tr>
                                                     <tr>
                                                         <th>Coupon Discount</th>
-                                                        <td colspan="2" id="discount"><em>₹ 0</em></td>
+                                                        <td colspan="2">₹<em id="discount"> 0</em></td>
 
                                                     </tr>
                                                     <tr>
@@ -454,7 +456,7 @@
                                                                             { %>
                                                                             x&nbsp;<%= qty %>
                                                                                 <% } else { %>
-                                                                                       x&nbsp;1
+                                                                                    x&nbsp;1
                                                                                     <% } %>
                                                                     </span>
                                                                 </td>
@@ -464,13 +466,16 @@
                                                             </tr>
                                                             <tr>
                                                                 <th>SubTotal</th>
-                                                                <td class="product-subtotal" colspan="2">₹<%=
-                                                                        totalAmount.toLocaleString() %>
+                                                                <td class="product-subtotal" colspan="2">₹
+                                                                    <span id="SubTotal">
+                                                                        <%= totalAmount %>
+                                                                    </span>
                                                                 </td>
                                                             </tr>
                                                             <tr>
                                                                 <th>Coupon Discount</th>
-                                                                <td colspan="2" id="discount"><em>₹ 0</em></td>
+                                                                <td colspan="2">₹<em id="discount"> 0</em></td>
+
 
                                                             </tr>
                                                             <tr>
@@ -525,7 +530,6 @@
                                             </form>
                                         </div>
                                     </div>
-
                                     <br>
                                     <div>
                                         <a href="/couponList" class="btn btn-success">Show
@@ -573,7 +577,7 @@
 
                                             <div id="paymentButtons" class="mt-4">
                                                 <button type="submit" class="btn btn-fill-out btn-block"
-                                                    id="submitButton" >Place Order</button>
+                                                    id="submitButton">Place Order</button>
                                             </div>
                                 </form>
                             </div>
@@ -589,7 +593,7 @@
 
 
     <script>
-        
+
         document.getElementById('orderForm').addEventListener('submit', async function (e) {
             e.preventDefault(); // Prevent default form submission
             syncDiscount();
@@ -599,6 +603,7 @@
             const totalPrice = parseFloat(this.totalPrice.value.replace(/[^\d.]/g, ''));
             const addressId = document.getElementById('selectedAddressId').value;
             const paymentMethod = document.querySelector('input[name="payment_option"]:checked').value;
+            const discountInput = document.getElementById('discountInput').value
             if (!addressId) {
                 Swal.fire({ icon: 'warning', title: 'Address Required', text: 'Please select a shipping address.' });
                 return;
@@ -611,7 +616,7 @@
 
             if (paymentMethod === 'COD') {
                 console.log('COD Order Data:', { cart, singleProduct, totalPrice, addressId, paymentMethod });
-                await placeOrder({ cart, singleProduct, totalPrice, addressId, paymentMethod });
+                await placeOrder({ cart, singleProduct, totalPrice, addressId, paymentMethod, discountInput });
             } else if (paymentMethod === 'online') {
                 startRazorpayPayment(cart, singleProduct, totalPrice, addressId);
             }
@@ -639,14 +644,14 @@
         }
         async function startRazorpayPayment(cart, singleProduct, totalPrice, addressId) {
             try {
+                const discount = document.getElementById('discount').textContent
                 const response = await fetch('/payment/initiate', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ amount: totalPrice }),
+                    body: JSON.stringify({ discount: discount }),
                 });
 
                 const { success, order } = await response.json();
-                // console.log('Created order ', order);
                 if (!success) throw new Error('Failed to create Razorpay order');
 
                 const options = {
@@ -674,6 +679,12 @@
 
         async function verifyRazorpayPayment(paymentResponse, cart, singleProduct, totalPrice, addressId) {
             try {
+                const subtotal = document.getElementById('SubTotal').textContent
+                console.log(subtotal)
+                console.log(totalPrice)
+                console.log('ghbildsgndubstbg', Number(subtotal) - totalPrice                )
+                console.log(typeof subtotal)
+                alert()
                 const response = await fetch('/payment/verify', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -686,6 +697,7 @@
                         singleProduct,
                         totalPrice,
                         addressId,
+                        discount: Number(subtotal) - totalPrice
                     }),
 
 
@@ -703,7 +715,7 @@
             }
         }
         function syncDiscount() {
-          
+
             const discountDisplay = document.getElementById('discount');
             if (discountDisplay) {
                 const discountText = discountDisplay.innerText.replace('₹', '').replace(/,/g, '');
@@ -798,8 +810,8 @@
                 console.log('Response:', result);
 
                 if (result.success) {
-                    document.getElementById('discount').textContent = formatPrice(result.discountAmount);
-                    document.getElementById('finalAmount').textContent = formatPrice(result.discountedTotal);
+                    document.getElementById('discount').textContent = result.discountAmount;
+                    document.getElementById('finalAmount').textContent = result.discountedTotal;
 
                     Swal.fire({
                         icon: 'success',
@@ -807,7 +819,8 @@
                         text: result.message,
                         confirmButtonColor: '#39b4ac',
                     });
-
+                    document.getElementById('totalamount').value = result.discountedTotal
+                    document.getElementById('discountInput').value = result.discountAmount
                     toggleCouponButtons(true);
                 } else {
                     Swal.fire({

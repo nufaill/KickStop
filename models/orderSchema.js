@@ -27,13 +27,18 @@ const orderSchema = new Schema({
         type: Number,
         required: true,
     },
+
+    discount: {
+        type: Number,
+        default: 0,
+    },
     finalAmount: {
         type: Number,
         required: true,
     },
     status: {
         type: String,
-        enum: ['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled', 'Paid'], // Added 'Paid'
+        enum: ['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled', 'Paid'], 
         default: 'Pending',
         required: true,
     },

@@ -297,11 +297,11 @@ body {
                             <td>
                                 <% if (!data[i].isBlocked) { %>
                                     <button class="btn btn-danger">
-                                        <a href="/admin/blockcustomer?id=<%= data[i]._id %>" class="text-white">Block</a>
+                                        <a href="#" onclick="confirmUserAction('block', '<%= data[i].username %>', '<%= data[i]._id %>')" class="text-white">Block</a>
                                     </button>
                                 <% } else { %>
                                     <button class="btn btn-success">
-                                        <a href="/admin/unblockcustomer?id=<%= data[i]._id %>" class="text-white">Unblock</a>
+                                        <a href="#" onclick="confirmUserAction('unblock', '<%= data[i].username %>', '<%= data[i]._id %>')" class="text-white">Unblock</a>
                                     </button>
                                 <% } %>
                             </td>
@@ -331,6 +331,9 @@ body {
         </ul>
     </nav>
 </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const usersearchoption = document.getElementById('usersearchoption');
@@ -372,6 +375,35 @@ body {
         performSearch();
     });
     });
+
+
+    function confirmUserAction(action, username, userId) {
+    const actionText = action === 'block' ? 'Block' : 'Unblock';
+    const actionVerb = action === 'block' ? 'blocking' : 'unblocking';
+    
+    Swal.fire({
+        title: 'Are you sure?',
+        text: `Do you want to ${actionVerb} user: ${username}?`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#800000',
+        cancelButtonColor: '#d33',
+        confirmButtonText: `Yes, ${actionText} it!`,
+        cancelButtonText: 'Cancel',
+    }).then((result) => {
+        if (result.isConfirmed) {
+            window.location.href = action === 'block' 
+                ? `/admin/blockcustomer?id=${userId}` 
+                : `/admin/unblockcustomer?id=${userId}`;
+            
+            Swal.fire(
+                `${actionText}ed!`,
+                `User ${username} has been ${actionVerb}d successfully.`,
+                'success'
+            );
+        }
+    });
+}
     </script>
 
 <%- include('../layouts/admin/footer') %>

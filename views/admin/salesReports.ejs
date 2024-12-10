@@ -102,9 +102,8 @@
                         <th>Products</th>
                         <th>Quantity</th>
                         <th>Date</th>
-                        <th>Total Price</th>
-                        <th>Coupon Code</th>
-                        <th>Coupon Amount</th>
+                        <th>product Price</th>
+                        <th>Coupon Discount</th>
                         <th>Final Amount</th>
                         <th>Payment Method</th>
                         <th>Status</th>
@@ -129,7 +128,7 @@
                                         <% if (orders[i].items && orders[i].items.length > 0) { %>
                                             <% orders[i].items.forEach(item => { %>
                                                 <li>
-                                                    <%= item.product_id ? item.product.productName : 'Unknown Product' %>
+                                                    <%= item.productId ? item.productId.productName : 'Unknown Product' %>
                                                 </li>
                                             <% }); %>
                                         <% } else { %>
@@ -151,10 +150,7 @@
                                 </td>
                                 <td>₹<%= orders[i].totalPrice.toLocaleString() %>
                                 </td>
-                                <td>
-                                    <%= orders[i].couponCode %>
-                                </td>
-                                <td>₹<%= orders[i].totalPrice.toLocaleString() %></td>
+                                <td>₹<%= Math.abs(orders[i].totalPrice - orders[i].finalAmount) %></td>
                                 <td>₹<%= orders[i].finalAmount.toLocaleString() %></td>
                                 <td>
                                     <%= orders[i].paymentMethod %>
@@ -171,15 +167,39 @@
     </div>
     
     <div class="pagination-area mt-15 mb-50">
-        <nav aria-label="Page navigation example">
+        <nav aria-label="Page navigation">
             <ul class="pagination justify-content-center">
-                <% for (let i=1; i <=totalPages; i++) { %>
-                    <li class="page-item <%= (i === currentPage) ? 'active' : '' %>">
-                        <a class="page-link" href="?page=<%= i %>">
-                            <%= i %>
+                <% if (currentPage > 1) { %>
+                    <li class="page-item">
+                        <a class="page-link" href="?page=<%= currentPage - 1 %>" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
                         </a>
                     </li>
+                <% } %>
+    
+                <% for (let i = 1; i <= totalPages; i++) { %>
+                    <% if (i === currentPage) { %>
+                        <li class="page-item active">
+                            <span class="page-link"><%= i %></span>
+                        </li>
+                    <% } else if (i <= 3 || i > totalPages - 2 || (i >= currentPage - 1 && i <= currentPage + 1)) { %>
+                        <li class="page-item">
+                            <a class="page-link" href="?page=<%= i %>"><%= i %></a>
+                        </li>
+                    <% } else if (i === 4 && currentPage > 4) { %>
+                        <li class="page-item disabled">
+                            <span class="page-link">...</span>
+                        </li>
                     <% } %>
+                <% } %>
+    
+                <% if (currentPage < totalPages) { %>
+                    <li class="page-item">
+                        <a class="page-link" href="?page=<%= currentPage + 1 %>" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                <% } %>
             </ul>
         </nav>
     </div>
@@ -394,8 +414,8 @@ function downloadPDF() {
                         visibleRows++;
 
                         
-                        const finalAmount = parseFloat(row.cells[9].textContent.replace(/[₹,]/g, '')) || 0;
-                        const discount = parseFloat(row.cells[8].textContent.replace(/[₹,]/g, '')) || 0;
+                        const finalAmount = parseFloat(row.cells[8].textContent.replace(/[₹,]/g, '')) || 0;
+                        const discount = parseFloat(row.cells[7].textContent.replace(/[₹,]/g, '')) || 0;
 
                         totalSales += finalAmount;
                         totalDiscount += discount;

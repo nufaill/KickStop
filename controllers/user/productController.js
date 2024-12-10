@@ -52,7 +52,7 @@ const getBrands = async (req, res) => {
 
 const loadallProducts = async (req, res) => {
     try {
-        const limit = 16;
+        const limit = 8;
         const page = Math.max(1, parseInt(req.query.page) || 1);
 
         const [products, count, categories] = await Promise.all([
@@ -135,7 +135,8 @@ const loadCheckout = async (req, res) => {
 
 const placeOrderInitial = async (req, res) => {
     try {
-        const { singleProduct, totalPrice, addressId, paymentMethod } = req.body;
+        const { singleProduct, totalPrice, addressId, paymentMethod,discountInput } = req.body;
+
         const user = req.session.user;
         const cart = await Cart.findOne({ userId: user })
 
@@ -173,12 +174,16 @@ const placeOrderInitial = async (req, res) => {
                     });
                 }
             }
+            console.log(discountInput)
+            let total = Number(discountInput) + Number(totalPrice);
+            console.log(total)
 
             const newOrder = new Order({
                 user,
                 items: orderItems,
-                totalPrice,
-                finalAmount: totalPrice,
+                totalPrice:total,
+                discount:discountInput,
+                finalAmount:totalPrice,
                 status: "Pending",
                 shippingAddress: addressId,
                 paymentMethod: "COD",
@@ -386,7 +391,7 @@ const loadCoupon = async (req,res) => {
             discountAmount
         });
     } catch (error) {
-        console.error('Error applying coupon:', error);
+        console.error('invalid  coupon:', error);
         return res.status(500).json({
             success: false,
             message: 'Failed to apply coupon'

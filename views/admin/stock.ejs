@@ -107,7 +107,6 @@
                             <th>ID</th>
                             <th>Product</th>
                             <th>Category</th>
-                            <th>Current Stock</th>
                             <th>Update Stock</th>
                         </tr>
                     </thead>
@@ -117,7 +116,6 @@
                                 <td><%= products[i]._id %></td>
                                 <td><%= products[i].productName %></td>
                                 <td><%= products[i].category.name %></td>
-                                <td><%= products[i].quantity %></td>
                                 <td>
                                     <input type="number" min="0" value="<%= products[i].quantity %>"
                                         id="stock-<%= products[i]._id %>" class="form-control d-inline-block"
