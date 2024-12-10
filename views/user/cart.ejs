@@ -5,7 +5,7 @@
     :root {
         --primary-color: #800000;
         --secondary-color: #400000;
-        --accent-color: #FFD700;
+        --accent-color: #400000;
         --text-color: #333;
         --background-color: #F5F5F5;
     }
@@ -254,7 +254,7 @@
                                 <% if(cart) { %>
                                     <a href="/checkout" class="btn btn-success"> <i class="fi-rs-box-alt mr-10"></i> Proceed To CheckOut</a>
                                 <% } else { %>
-                                    <a href="#" class="btn btn-success disabled"> <i class="fi-rs-box-alt mr-10"></i> Proceed To CheckOut</a>
+                                    <a href="#" class="btn btn-success disabled" style="background-color: #800000;"> <i class="fi-rs-box-alt mr-10"></i> Proceed To CheckOut</a>
                                 <% } %>
                             </div>
                         </div>
@@ -266,7 +266,7 @@
 </main>
 
 <script>
-    function confirmRemove(productId) {
+     function confirmRemove(productId) {
         Swal.fire({
             title: "Are you sure?",
             text: "Do you want to remove this item from the cart?",
@@ -300,6 +300,7 @@
             Swal.fire({
                 icon: "warning",
                 title: "Maximum Quantity Reached",
+                text: `You can only order up to ${maxQuantity} items.`,
                 confirmButtonColor: "#800000",
             });
             return;
@@ -315,9 +316,7 @@
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                quantityElement.textContent = data.newQuantity;
-                document.getElementById(`subtotal-${productId}`).textContent = `₹ ${data.newSubtotal.toLocaleString()}`;
-                document.getElementById("total-price").textContent = `₹ ${data.totalPrice.toLocaleString()}`;
+                window.location.reload();
             } else {
                 Swal.fire({
                     icon: "error",
@@ -329,6 +328,12 @@
         })
         .catch(error => {
             console.error("Error:", error);
+            Swal.fire({
+                icon: "error",
+                title: "Error",
+                text: "An unexpected error occurred.",
+                confirmButtonColor: "#800000",
+            });
         });
     }
 </script>

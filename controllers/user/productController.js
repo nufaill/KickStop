@@ -174,9 +174,9 @@ const placeOrderInitial = async (req, res) => {
                     });
                 }
             }
-            console.log(discountInput)
+            // console.log(discountInput)
             let total = Number(discountInput) + Number(totalPrice);
-            console.log(total)
+            // console.log(total)
 
             const newOrder = new Order({
                 user,
@@ -192,6 +192,10 @@ const placeOrderInitial = async (req, res) => {
 
             await newOrder.save();
 
+            if (cart) {
+                await Cart.findOneAndDelete({ userId: user });
+            }
+            
             return res.json({
                 success: true,
                 orderId: newOrder._id,
@@ -296,13 +300,24 @@ const getOrderHistory = async (req, res) => {
             return res.redirect('/login');
         }
 
+        const page = parseInt(req.query.page) || 1;
+        const limit = 3; 
+        const skip = (page - 1) * limit;
+        const totalOrders = await Order.countDocuments({ user });
+        const totalPages = Math.ceil(totalOrders / limit);
         const orders = await Order.find({ user })
             .populate(['items.productId', 'shippingAddress'])
-            .sort({ createdAt: -1 });
+            .sort({ createdAt: -1 })
+            .limit(limit)
+            .skip(skip);
 
         res.render('order-details', {
             orders,
-            moment
+            moment,
+            currentPage: page,
+            totalPages,
+            hasNextPage: page < totalPages,
+            hasPrevPage: page > 1
         });
     } catch (error) {
         handleError(res, error, 'Error fetching order history');

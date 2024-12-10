@@ -285,6 +285,41 @@
   background: #2196f3;
   color: #fff;
 }
+/* Button Styling */
+.google-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #ffffff;
+    border: 2px solid #db4437;
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-size: 16px;
+    font-weight: bold;
+    color: #555555;
+    text-decoration: none;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.google-btn svg {
+    margin-right: 10px;
+    height: 20px;
+    width: 20px;
+}
+
+.google-btn:hover {
+    background-color: #fbe9e7;
+    border-color: #c62828;
+    color: #222222;
+    box-shadow: 0px 6px 10px rgba(0, 0, 0, 0.2);
+}
+
+.google-btn:focus {
+    outline: none;
+    border-color: #c62828;
+    box-shadow: 0px 0px 0px 4px rgba(198, 40, 40, 0.2);
+}
 
   </style>
 </head>
@@ -316,6 +351,25 @@
         </div>
         <button type="submit" class="login-btn">Login</button>
         <p id="formError" class="error-message"></p> 
+        <div class="social-btns">
+          <a href="/auth/google" class="google-btn">
+              <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="20px" height="20px" viewBox="-0.5 0 48 48" version="1.1" aria-hidden="true" focusable="false">
+                  <title>Google Logo</title>
+                  <g stroke="none" fill="none" fill-rule="evenodd">
+                      <g transform="translate(-401.000000, -860.000000)">
+                          <g transform="translate(401.000000, 860.000000)">
+                              <path d="M9.82727273,24 C9.82727273,22.4757333 10.0804318,21.0144 10.5322727,19.6437333 L2.62345455,13.6042667 C1.08206818,16.7338667 0.213636364,20.2602667 0.213636364,24 C0.213636364,27.7365333 1.081,31.2608 2.62025,34.3882667 L10.5247955,28.3370667 C10.0772273,26.9728 9.82727273,25.5168 9.82727273,24" fill="#FBBC05"></path>
+                              <path d="M23.7136364,10.1333333 C27.025,10.1333333 30.0159091,11.3066667 32.3659091,13.2266667 L39.2022727,6.4 C35.0363636,2.77333333 29.6954545,0.533333333 23.7136364,0.533333333 C14.4268636,0.533333333 6.44540909,5.84426667 2.62345455,13.6042667 L10.5322727,19.6437333 C12.3545909,14.112 17.5491591,10.1333333 23.7136364,10.1333333" fill="#EB4335"></path>
+                              <path d="M23.7136364,37.8666667 C17.5491591,37.8666667 12.3545909,33.888 10.5322727,28.3562667 L2.62345455,34.3946667 C6.44540909,42.1557333 14.4268636,47.4666667 23.7136364,47.4666667 C29.4455,47.4666667 34.9177955,45.4314667 39.0249545,41.6181333 L31.5177727,35.8144 C29.3995682,37.1488 26.7323182,37.8666667 23.7136364,37.8666667" fill="#34A853"></path>
+                              <path d="M46.1454545,24 C46.1454545,22.6133333 45.9318182,21.12 45.6113636,19.7333333 L23.7136364,19.7333333 L23.7136364,28.8 L36.3181818,28.8 C35.6879545,31.8912 33.9724545,34.2677333 31.5177727,35.8144 L39.0249545,41.6181333 C43.3393409,37.6138667 46.1454545,31.6490667 46.1454545,24" fill="#4285F4"></path>
+                          </g>
+                      </g>
+                  </g>
+              </svg>
+              <span>Continue with Google</span>
+          </a>
+      </div>
+      
         <p>Don't have an account? <a href="/signup" class="signup-link">Sign up</a></p>
         <p><a href="/forgot-password" class="forgot-password-link">Forgot password?</a></p>
         <p>Only admin access <a href="/admin" class="admin-link">Admin</a></p>
@@ -428,11 +482,18 @@
 
     document.addEventListener("DOMContentLoaded", () => {
       const gradients = [
-        "linear-gradient(135deg, #498560 10%, #96e6a1 90%)",
-        "linear-gradient(135deg, #d4fc79 20%, #498560 80%)",
-        "linear-gradient(135deg, #96e6a1 15%, #7dcb59 85%)",
-        "linear-gradient(135deg, #d4fc79 10%, #3cb371 90%)",
-      ];
+    "linear-gradient(135deg, #ffffff 10%, #f7f7f7 90%)",     
+    "linear-gradient(135deg, #ffffff 20%, #eaeaea 80%)",      
+    "linear-gradient(135deg, #ffffff 15%, #f4f4f4 85%)",      
+    "linear-gradient(135deg, #ffffff 10%, #ededed 90%)",      
+    "linear-gradient(135deg, #ffffff 25%, #f9f9f9 75%)",      
+    "linear-gradient(135deg, #ffffff 20%, #f0f0f0 80%)",      
+    "linear-gradient(135deg, #ffffff 10%, #fcfcfc 50%, #f7f7f7 90%)", 
+    "linear-gradient(135deg, #ffffff 20%, #f2f2f2 80%)",      
+    "linear-gradient(135deg, #ffffff 15%, #ebebeb 85%)",      
+    "linear-gradient(135deg, #ffffff 10%, #e5e5e5 90%)"      
+];
+
       let gradientIndex = 0;
       setInterval(() => {
         document.body.style.background = gradients[gradientIndex];

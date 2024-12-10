@@ -227,7 +227,37 @@
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
         }
     }
+    .pagination .page-link {
+    color: #6c757d;
+    background-color: #fff;
+    border: 1px solid #dee2e6;
+    padding: 0.5rem 0.75rem;
+    margin: 0 0.25rem;
+    border-radius: 0.25rem;
+    transition: all 0.3s ease;
+}
 
+.pagination .page-link:hover {
+    background-color: #f8f9fa;
+    color: #495057;
+}
+
+.pagination .page-item.active .page-link {
+    background-color: #800000;
+    color: white;
+    border-color: #800000;
+}
+
+@media (max-width: 576px) {
+    .pagination {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    
+    .pagination .page-item {
+        margin: 0.25rem;
+    }
+}
 </style>
 
 <div class="container order-container">
@@ -302,11 +332,37 @@
         </div>
     </div>
 </div>
+<% if (totalPages > 1) { %>
+    <nav aria-label="Order history pagination" class="d-flex justify-content-center mb-4">
+        <ul class="pagination">
+            <% if (hasPrevPage) { %>
+                <li class="page-item">
+                    <a class="page-link" href="?page=<%= currentPage - 1 %>" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+            <% } %>
+
+            <% for(let i = 1; i <= totalPages; i++) { %>
+                <li class="page-item <%= currentPage === i ? 'active' : '' %>">
+                    <a class="page-link" href="?page=<%= i %>"><%= i %></a>
+                </li>
+            <% } %>
+
+            <% if (hasNextPage) { %>
+                <li class="page-item">
+                    <a class="page-link" href="?page=<%= currentPage + 1 %>" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+            <% } %>
+        </ul>
+    </nav>
+<% } %>
+
 <script>
     async function cancelOrder(orderId) {
     try {
-        console.log('Order ID:', orderId); // Debugging: Log the orderId
-
         const result = await Swal.fire({
             title: 'Cancel Order',
             text: 'Are you sure you want to cancel this order?',

@@ -3,20 +3,17 @@ const User = require("../../models/userSchema");
 
 const userInfo = async (req, res) => {
     try {
-        // Handle search query
         let search = "";
         if (req.query.search) {
             search = req.query.search;
         }
 
-        // Handle pagination
         let page = 1;
         if (req.query.page) {
             page = parseInt(req.query.page);
         }
         const limit = 10;
 
-        // Fetch user data based on search and pagination
         const userData = await User.find({
             isAdmin: false,
             $or: [
@@ -28,7 +25,6 @@ const userInfo = async (req, res) => {
             .skip((page - 1) * limit)
             .exec();
 
-        // Count total documents for pagination
         const count = await User.find({
             isAdmin: false,
             $or: [

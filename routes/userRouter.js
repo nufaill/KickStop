@@ -1,5 +1,6 @@
 const express=require("express");
 const  router = express.Router();
+const checkUserBlocked = require('../middlewares/checkUserBlocked');
 const userController = require("../controllers/user/userController");
 const productController = require('../controllers/user/productController')
 const profileController = require("../controllers/user/profileController");
@@ -14,27 +15,12 @@ const User = require('../models/userSchema');
 const Cart = require("../models/cartSchema");
 const Wishlist = require("../models/wishlistSchema");
 
+router.use(checkUserBlocked); 
+
 router.use(express.json()); 
 router.use(async (req, res, next) => {
     const userData = await User.findById(req.session.user);
     res.locals.user = userData || null;
-    next();
-});
-
-router.use(async (req, res, next) => {
-    if (req.path === "/login") {
-        return next();
-    }
-
-    if (req.session.user) {
-        const user = await User.findById(req.session.user);
-        if (user && user.isBlocked) {
-            return res.redirect("/login");
-        } else if (user) {
-
-            return next();
-        }
-    }
     next();
 });
 

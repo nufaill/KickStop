@@ -3,9 +3,16 @@ const Product = require("../../models/productSchema");
 
 const sortSearch = async (req, res) => {
     try {
-        const { search = '', category = 'all-categories', sort = 'default' } = req.body;
+        const { 
+            search = '', 
+            category = 'all-categories', 
+            sort = 'default', 
+            page = 1, 
+            limit = 8 
+        } = req.body;
+
         let SortingCondition;
-        let query = {};
+        let query = { isBlocked: false };
 
 
         if (search) {
@@ -54,9 +61,23 @@ const sortSearch = async (req, res) => {
             }
         }
 
-        const products = await Product.find(query).sort(SortingCondition);
-        
-        res.status(200).json({ products });
+        const skip = (page - 1) * limit;
+
+        const [products, totalCount] = await Promise.all([
+            Product.find(query)
+                .sort(SortingCondition)
+                .skip(skip)
+                .limit(limit),
+            Product.countDocuments(query)
+        ]);
+
+        const totalPages = Math.ceil(totalCount / limit);
+
+        res.status(200).json({ 
+            products, 
+            totalPages, 
+            currentPage: page 
+        });
     } catch (error) {
         console.error("Error in sort and search:", error);
         res.status(500).json({ error: "Internal server error" });

@@ -23,6 +23,10 @@ const loadHomepage = async (req, res) => {
         
         if (userId) {
             const userData = await User.findById(userId);
+            if (!userData || userData.isBlocked) {
+                req.session.destroy();
+                return res.redirect('/login');
+            }
             if (userData) {
                 return res.render("home", { 
                     user: {
