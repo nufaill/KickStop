@@ -30,4 +30,6 @@ const loadSalesReport = async (req, res) => {
     }
 }
 
-module.exports = { loadSalesReport };
+module.exports = {
+    loadSalesReport 
+};

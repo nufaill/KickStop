@@ -593,9 +593,23 @@
 
 
     <script>
-
+                    function validateCODOrderTotal(totalPrice) {
+                const COD_LIMIT = 1000;
+                if (totalPrice > COD_LIMIT) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'COD Limit Exceeded',
+                        text: `Cash on Delivery is only available for orders up to ₹${COD_LIMIT}. Please choose online payment for orders above this amount.`,
+                        confirmButtonColor: '#800000'
+                    });
+                    document.getElementById('exampleRadios3').checked = false;
+                    document.getElementById('onlinePayment').checked = true;
+                    return false;
+                }
+                return true;
+            }
         document.getElementById('orderForm').addEventListener('submit', async function (e) {
-            e.preventDefault(); // Prevent default form submission
+            e.preventDefault(); 
             syncDiscount();
 
             const cart = this.cart.value ? JSON.parse(this.cart.value) : null;
@@ -604,6 +618,11 @@
             const addressId = document.getElementById('selectedAddressId').value;
             const paymentMethod = document.querySelector('input[name="payment_option"]:checked').value;
             const discountInput = document.getElementById('discountInput').value
+
+            if (paymentMethod === 'COD' && !validateCODOrderTotal(totalPrice)) {
+                    return;
+                }
+
             if (!addressId) {
                 Swal.fire({ icon: 'warning', title: 'Address Required', text: 'Please select a shipping address.' });
                 return;

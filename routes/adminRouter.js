@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const adminController = require("../controllers/admin/adminController");
+const dashboardController =require("../controllers/admin/dashboardController");
 const customerController = require("../controllers/admin/customerController");
 const categoryController = require("../controllers/admin/categoryController");
 const brandController = require("../controllers/admin/brandController");
@@ -20,7 +21,7 @@ router.get('/pageerror',adminController.pageError)
 
 router.get("/login", adminController.loadLogin);
 router.post("/login",adminController.handleLogin); 
-router.get('/', adminAuth,adminController.loadDashboard);
+router.get('/', adminAuth,dashboardController.getDashboard);
  router.get("/logout",adminController.logout);
 
 //customer Controller

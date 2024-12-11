@@ -20,7 +20,6 @@ const checkUserBlocked = async (req, res, next) => {
             const userId = req.session.user._id || req.session.user;
             const user = await User.findById(userId);
             
-            // If user is blocked, destroy the session and redirect to login
             if (user && user.isBlocked) {
                 req.session.destroy((err) => {
                     if (err) {

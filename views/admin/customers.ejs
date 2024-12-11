@@ -222,6 +222,23 @@ body {
     background-color: rgba(128, 0, 0, 0.1);
     color: #660000;
 }
+.pagination {
+    display: flex;
+    justify-content: center;
+    gap: 5px;
+    margin-top: 20px;
+}
+.btn {
+    padding: 5px 10px;
+    text-decoration: none;
+    
+}
+.btn.active {
+    font-weight: bold;
+    pointer-events: none;
+    background-color: #660000;
+}
+
 
 @media (max-width: 768px) {
     .card-body {
@@ -318,19 +335,23 @@ body {
 </div>
 
 <!-- Pagination -->
-<div class="pagination-area mt-15 mb-50">
+<div class="pagination-area mt-30 mb-50">
     <nav aria-label="Page navigation example">
-        <ul class="pagination justify-content-start">
+        <ul class="pagination justify-content-center">
             <% for (let i = 1; i <= totalPages; i++) { %>
                 <li class="page-item <%= (i === currentPage) ? 'active' : '' %>">
-                    <a class="page-link" href="?page=<%= i %>">
-                        <%= i %>
+                    <a class="page-link" href="?page=<%= i %>&search=<%= search %>" 
+                       <%= (i === currentPage) ? 'aria-current="page"' : '' %>>
+                       <%= i %>
                     </a>
                 </li>
             <% } %>
         </ul>
     </nav>
 </div>
+<br>
+
+  
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 

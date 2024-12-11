@@ -3,47 +3,43 @@ const User = require("../../models/userSchema");
 
 const userInfo = async (req, res) => {
     try {
-        let search = "";
-        if (req.query.search) {
-            search = req.query.search;
-        }
+        const search = req.query.search || ""; // Get search term from query
+        const page = parseInt(req.query.page) || 1; // Default to page 1
+        const limit = 4; // Number of users per page
+        const skip = (page - 1) * limit;
 
-        let page = 1;
-        if (req.query.page) {
-            page = parseInt(req.query.page);
-        }
-        const limit = 10;
-
-        const userData = await User.find({
+        // Construct the query with search filter
+        const query = {
             isAdmin: false,
-            $or: [
-                { username: { $regex: ".*" + search + ".*", $options: "i" } },
-                { email: { $regex: ".*" + search + ".*", $options: "i" } },
-            ],
-        })
-            .limit(limit)
-            .skip((page - 1) * limit)
-            .exec();
+            ...(search && { 
+                $or: [
+                    { username: { $regex: ".*" + search + ".*", $options: "i" } },
+                    { email: { $regex: ".*" + search + ".*", $options: "i" } },
+                ],
+            }),
+        };
 
-        const count = await User.find({
-            isAdmin: false,
-            $or: [
-                { username: { $regex: ".*" + search + ".*", $options: "i" } },
-                { email: { $regex: ".*" + search + ".*", $options: "i" } },
-            ],
-        }).countDocuments();
+        // Get filtered user data with pagination
+        const userData = await User.find(query).skip(skip).limit(limit);
 
+        // Get total count of users matching the query
+        const totalCategories = await User.countDocuments(query);
+        const totalPages = Math.ceil(totalCategories / limit);
+
+        // Render the view with pagination and data
         res.render("customers", {
             data: userData,
-            currentPage: page, 
-            totalPages: Math.ceil(count / limit),
-            search,
+            currentPage: page,
+            totalPages: totalPages,
+            search, // Pass the search term back to the view
         });
     } catch (error) {
-        console.error("Error fetching users:", error);
+        console.error("Error in userInfo controller:", error);
         res.status(500).send("Internal Server Error");
     }
 };
+
+
 
 const customerBlocked = async (req,res)=>{
     try {
