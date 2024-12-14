@@ -1,5 +1,6 @@
 <%- include('../layouts/admin/header') %>
 
+
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
@@ -227,62 +228,108 @@
     </div>
 </div>
     </section>
-
-    <!-- Add this before closing body tag -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+       document.addEventListener('DOMContentLoaded', function () {
+            const productsData = JSON.parse('<%- JSON.stringify(products) %>');
+            const categoriesData = JSON.parse('<%- JSON.stringify(categories) %>');
+            const brandsData = JSON.parse('<%- JSON.stringify(brands) %>');
+            const salesData = JSON.parse('<%-JSON.stringify(salesData)%>');
 
-
-        const productsData = JSON.parse('<%- JSON.stringify(products) %>');
-        const categoriesData = JSON.parse('<%- JSON.stringify(categories) %>');
-        const brandsData = JSON.parse('<%- JSON.stringify(brands) %>');
-        const salesData = JSON.parse('<%-JSON.stringify(salesData)%>')
-        console.log(salesData);
-
-
-        document.addEventListener('DOMContentLoaded', function () {
-    const productsData = JSON.parse('<%- JSON.stringify(products) %>');
-    const categoriesData = JSON.parse('<%- JSON.stringify(categories) %>');
-    const brandsData = JSON.parse('<%- JSON.stringify(brands) %>');
-    const salesData = JSON.parse('<%-JSON.stringify(salesData)%>');
-
-    // Main Sales Chart
-    const mainChartCtx = document.getElementById('mainChart');
-    if (mainChartCtx) {
-        const mainChart = new Chart(mainChartCtx, {
-            type: 'line',
-            data: {
-                labels: salesData.monthly.labels,
-                datasets: [{
-                    label: 'Monthly Sales',
-                    data: salesData.monthly.data,
-                    borderColor: 'rgba(128, 0, 0, 1)',
-                    backgroundColor: 'rgba(128, 0, 0, 0.2)', 
-                    tension: 0.4,
-                    fill: true
-                }]
-            },
-            options: {
-                responsive: true,
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: {
-                            callback: (value) => `₹${value.toLocaleString()}`
+           
+            const mainChartCtx = document.getElementById('mainChart');
+        if (mainChartCtx) {
+            const mainChart = new Chart(mainChartCtx, {
+                type: 'line',
+                data: {
+                    labels: salesData.monthly.labels,
+                    datasets: [
+                        {
+                            label: 'Monthly Sales',
+                            data: salesData.monthly.data,
+                            borderColor: 'rgba(128, 0, 0, 1)', 
+                            backgroundColor: 'rgba(128, 0, 0, 0.2)', 
+                            tension: 0.4,
+                            fill: true
+                        },
+                        {
+                            label: 'Weekly Sales',
+                            data: salesData.weekly.data,
+                            borderColor: 'rgba(220, 20, 60, 1)', 
+                            backgroundColor: 'rgba(220, 20, 60, 0.2)',
+                            tension: 0.4,
+                            fill: true,
+                            hidden: true
+                        },
+                        {
+                            label: 'Yearly Sales',
+                            data: salesData.yearly.data,
+                            borderColor: 'rgba(255, 140, 0, 1)', 
+                            backgroundColor: 'rgba(255, 140, 0, 0.2)',
+                            tension: 0.4,
+                            fill: true,
+                            hidden: true
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true, 
+                    layout: {
+                        padding: {
+                            top: 10,
+                            bottom: 10
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            min: 0,
+                            max: 30000,
+                            ticks: {
+                                stepSize: 3000,
+                                callback: (value) => `₹${value.toLocaleString()}`
+                            }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `${context.dataset.label}: ₹${context.parsed.y.toLocaleString()}`;
+                                }
+                            }
                         }
                     }
                 }
-            }
-        });
+            });
 
-        document.getElementById('timeFilter').addEventListener('change', function (e) {
-            const timeFrame = e.target.value;
-            mainChart.data.labels = salesData[timeFrame].labels;
-            mainChart.data.datasets[0].data = salesData[timeFrame].data;
-            mainChart.update();
-        });
-    }
+                document.getElementById('timeFilter').addEventListener('change', function (e) {
+                const timeFrame = e.target.value;
+                
+                mainChart.data.datasets.forEach((dataset, index) => {
+                    mainChart.data.datasets[index].hidden = true;
+                });
+
+                switch(timeFrame) {
+                    case 'weekly':
+                        mainChart.data.labels = salesData.weekly.labels;
+                        mainChart.data.datasets[1].hidden = false;
+                        break;
+                    case 'monthly':
+                        mainChart.data.labels = salesData.monthly.labels;
+                        mainChart.data.datasets[0].hidden = false;
+                        break;
+                    case 'yearly':
+                        mainChart.data.labels = salesData.yearly.labels;
+                        mainChart.data.datasets[2].hidden = false;
+                        break;
+                }
+                
+                mainChart.update();
+            });
+        }
 
     // Products Chart
     const productsChartCtx = document.getElementById("productsChart");

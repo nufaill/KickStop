@@ -38,8 +38,6 @@ const loadOrders = async(req,res)=>{
         console.error('Error fetching orders:', error);
         res.status(500).render('error-page', { 
             message: 'Error retrieving orders', 
-            errorCode: 500,
-            error: error 
         });
     }
 }
@@ -58,7 +56,6 @@ const updateOrderStatus = async (req, res) => {
             return res.status(404).json({ success: false, message: 'Order not found' });
         }
 
-        // Define valid status progression
         const statusProgression = [
             'Pending', 
             'Processing', 
@@ -89,7 +86,6 @@ const updateOrderStatus = async (req, res) => {
             });
         }
 
-        // Prevent changes after certain final states
         const finalStates = ['Delivered', 'Cancelled', 'Returned'];
         if (finalStates.includes(order.status)) {
             return res.status(400).json({ 
@@ -97,40 +93,44 @@ const updateOrderStatus = async (req, res) => {
                 message: `Cannot change status from ${order.status}` 
             });
         }
-
-        // Additional specific rules
+        
+        if (order.paymentMethod === 'online') {
+            if (order.status === 'Pending' && newStatus !== 'Processing') {
+                return res.status(400).json({ 
+                    success: false, 
+                    message: 'Online orders must be processed sequentially starting from "Processing"' 
+                });
+            }
+        }
+        
         switch(order.status) {
             case 'Delivered':
-                // Cannot change status after delivery
                 return res.status(400).json({ 
                     success: false, 
                     message: 'Cannot modify status after delivery' 
                 });
             
             case 'Cancelled':
-                // Cannot change status after cancellation
                 return res.status(400).json({ 
                     success: false, 
                     message: 'Cannot modify status after cancellation' 
                 });
             
             case 'Returned':
-                // Cannot change status after return
                 return res.status(400).json({ 
                     success: false, 
                     message: 'Cannot modify status after return' 
                 });
         }
 
-        // Prevent jumping multiple stages
         if (newStatusIndex > currentStatusIndex + 1) {
             return res.status(400).json({ 
                 success: false, 
                 message: 'Can only progress to the next immediate status' 
             });
         }
+        
 
-        // Special rule: can only cancel if not shipped
         if (newStatus === 'Cancelled' && 
             ['Shipped', 'Delivered', 'Return Request', 'Returned'].includes(order.status)) {
             return res.status(400).json({ 
@@ -139,7 +139,6 @@ const updateOrderStatus = async (req, res) => {
             });
         }
 
-        // Update status
         order.status = newStatus;
         await order.save();
 

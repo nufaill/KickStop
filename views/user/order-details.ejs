@@ -1,4 +1,5 @@
 <%- include('../layouts/user/header.ejs') %>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 <style>
     body {
         font-family: 'Poppins', sans-serif;
@@ -309,7 +310,7 @@
                         ['Pending', 'Paid'].includes(order.status)) { %>
                             <button class="btn-cancel" onclick="cancelOrder('<%= order._id %>', 'Processing')">Cancel Order</button>
                         <% } %>
-                        <button class="btn-edit" onclick="showOrderDetails('<%= JSON.stringify( order ) %>')">View Details</button>
+                       <button class="btn-edit" onclick="showOrderDetails('<%= JSON.stringify( order ) %>')">View Details</button>
                     </div>
                 </div>
             </div>
@@ -435,7 +436,8 @@ function showOrderDetails(orderData) {
             status: order.status || 'N/A',
             shippingAddress: order.shippingAddress || null,
             items: order.items || [],
-            coupon: order.coupon || null  // Added this line to explicitly capture coupon
+            couponCode: order.couponCode || 'No Coupon Applied',
+            couponAmount: order.couponAmount || 0
         };
 
         let detailsHTML = `
@@ -467,15 +469,8 @@ function showOrderDetails(orderData) {
     <div class="row">
         <div class="col-md-12">
             <h6><strong>Coupon Details</strong></h6>
-            ${orderDetails.coupon ? `
-                <p><strong>Coupon Code:</strong> ${orderDetails.coupon.code || 'N/A'}</p>
-                <p><strong>Price:</strong> ₹${orderDetails.coupon.price ? orderDetails.coupon.price.toLocaleString() : 'N/A'}</p>
-                <p><strong>Minimum Amount:</strong> ₹${orderDetails.coupon.minimumAmount ? orderDetails.coupon.minimumAmount.toLocaleString() : 'N/A'}</p>
-                <p><strong>Maximum Amount:</strong> ₹${orderDetails.coupon.maximumAmount ? orderDetails.coupon.maximumAmount.toLocaleString() : 'N/A'}</p>
-                <p><strong>Created On:</strong> ${orderDetails.coupon.createdOn ? new Date(orderDetails.coupon.createdOn).toLocaleDateString() : 'N/A'}</p>
-                <p><strong>End On:</strong> ${orderDetails.coupon.endOn ? new Date(orderDetails.coupon.endOn).toLocaleDateString() : 'N/A'}</p>
-                <p><strong>Active:</strong> ${orderDetails.coupon.isActive !== undefined ? (orderDetails.coupon.isActive ? 'Yes' : 'No') : 'N/A'}</p>
-            ` : '<p>No coupon applied to this order.</p>'}
+            <p><strong>Coupon Code:</strong> ${orderDetails.couponCode}</p>
+            <p><strong>Discount Amount:</strong> ${orderDetails.couponAmount}%</p>
         </div>
     </div>
     <hr>
@@ -499,6 +494,11 @@ function showOrderDetails(orderData) {
                         <p>Price: ₹${(item.price ? item.price.toLocaleString() : 'N/A')}</p>
                     </div>
                 </div>
+                   <div class="order-actions mt-3 text-center">
+                <a href="/download-invoice/${order._id}" class="btn btn" style="backgroun-color:#800000">
+                    <i class="fas fa-file-invoice"></i> Download Invoice
+                </a>
+            </div>
             `).join('<hr>') : 
             '<p>No items found in this order.</p>'
         }
@@ -515,10 +515,7 @@ function showOrderDetails(orderData) {
         alert('Failed to load order details. Please check the console for more information.');
     }
 }
-    // function viewOrderDetails(orderId) {
-    //     // Implement order details view if needed
-    //     window.location.href = `/order-details/${orderId}`;
-    // };
+
 
     document.addEventListener('DOMContentLoaded', () => {
         window.scrollTo({

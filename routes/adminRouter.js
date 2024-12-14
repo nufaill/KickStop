@@ -76,6 +76,7 @@ router.post("/editCoupon",adminAuth,couponController.posteditCoupon);
 
 //sales Controller
 router.get("/sales-report",adminAuth,salesController.loadSalesReport);
-
+router.get('/sales-report/pdf',adminAuth, salesController.exportSalesToPDF);
+router.get('/sales-report/excel',adminAuth, salesController.exportSalesToExcel);
 
 module.exports = router;

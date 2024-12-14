@@ -486,16 +486,11 @@
                                                                             totalAmount.toLocaleString() %></span>
                                                                 </td>
                                                             </tr>
-                                                            <% } %>
-
-                                                                <% } %>
-
+                                                 <% } %>
+                                             <% } %>
                                     </tbody>
                                 </table>
                             </div>
-
-
-
                             <div class="row">
                                 <div class="col-12">
                                     <div class="divider mt-50 mb-50"></div>
@@ -593,21 +588,21 @@
 
 
     <script>
-                    function validateCODOrderTotal(totalPrice) {
-                const COD_LIMIT = 1000;
-                if (totalPrice > COD_LIMIT) {
-                    Swal.fire({
-                        icon: 'warning',
-                        title: 'COD Limit Exceeded',
-                        text: `Cash on Delivery is only available for orders up to ₹${COD_LIMIT}. Please choose online payment for orders above this amount.`,
-                        confirmButtonColor: '#800000'
-                    });
-                    document.getElementById('exampleRadios3').checked = false;
-                    document.getElementById('onlinePayment').checked = true;
-                    return false;
-                }
-                return true;
-            }
+        function validateCODOrderTotal(totalPrice) {
+        const COD_LIMIT = 1000;
+        if (totalPrice > COD_LIMIT) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'COD Limit Exceeded',
+                text: `Cash on Delivery is only available for orders up to ₹${COD_LIMIT}. Please choose online payment for orders above this amount.`,
+                confirmButtonColor: '#800000'
+            });
+            document.getElementById('exampleRadios3').checked = false;
+            document.getElementById('onlinePayment').checked = true;
+            return false;
+        }
+        return true;
+    }
         document.getElementById('orderForm').addEventListener('submit', async function (e) {
             e.preventDefault(); 
             syncDiscount();
@@ -618,6 +613,7 @@
             const addressId = document.getElementById('selectedAddressId').value;
             const paymentMethod = document.querySelector('input[name="payment_option"]:checked').value;
             const discountInput = document.getElementById('discountInput').value
+            const couponCodeInput = document.getElementById('couponCodeInput').value
 
             if (paymentMethod === 'COD' && !validateCODOrderTotal(totalPrice)) {
                     return;
@@ -635,7 +631,7 @@
 
             if (paymentMethod === 'COD') {
                 console.log('COD Order Data:', { cart, singleProduct, totalPrice, addressId, paymentMethod });
-                await placeOrder({ cart, singleProduct, totalPrice, addressId, paymentMethod, discountInput });
+                await placeOrder({ cart, singleProduct, totalPrice, addressId, paymentMethod, discountInput,couponCodeInput });
             } else if (paymentMethod === 'online') {
                 startRazorpayPayment(cart, singleProduct, totalPrice, addressId);
             }
@@ -699,11 +695,6 @@
         async function verifyRazorpayPayment(paymentResponse, cart, singleProduct, totalPrice, addressId) {
             try {
                 const subtotal = document.getElementById('SubTotal').textContent
-                console.log(subtotal)
-                console.log(totalPrice)
-                console.log('ghbildsgndubstbg', Number(subtotal) - totalPrice                )
-                console.log(typeof subtotal)
-                alert()
                 const response = await fetch('/payment/verify', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -741,6 +732,7 @@
                 const discountValue = parseInt(discountText, 10) || 0;
                 document.getElementById('discountInput').value = discountValue || 0;
                 const coupon = document.getElementById('couponCode').value;
+                console.log(coupon)
                 document.getElementById('couponCodeInput').value = coupon;
             }
         }

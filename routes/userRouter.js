@@ -9,6 +9,8 @@ const wishlistController = require("../controllers/user/wishlistController");
 const filterController = require("../controllers/user/filterController");
 const walletController = require("../controllers/user/walletController");
 const paymentController = require("../controllers/user/paymentController");
+const couponController = require("../controllers/user/couponController");
+const orderController = require("../controllers/user/orderController");
 const passport = require("../config/passport"); 
 const {userAuth,adminAuth} = require("../middlewares/auth");
 const User = require('../models/userSchema');
@@ -71,34 +73,34 @@ router.post('/update-cart-quantity',userAuth, cartController.updateCart);
 
 
 //order management
-router.get('/checkout',userAuth,productController.loadCheckout);
-router.post('/place-order-initial',userAuth, productController.placeOrderInitial);
-router.get('/order-confirmation',userAuth, productController.getOrderConfirmation);
-router.post('/cancel-order', userAuth,productController.cancelOrder);
-router.get('/order-history', userAuth, productController.getOrderHistory);
+router.post('/place-order-initial',userAuth, orderController.placeOrderInitial);
+router.get('/order-confirmation',userAuth, orderController.getOrderConfirmation);
+router.post('/cancel-order', userAuth,orderController.cancelOrder);
+router.get('/order-history', userAuth, orderController.getOrderHistory);
+router.get('/download-invoice/:orderId',userAuth,orderController.generateInvoice);
 
 // products management
+router.get('/checkout',userAuth,productController.loadCheckout);
 router.get('/product-details',productController.productDetails);
 router.get('/all-products',productController.loadallProducts);
 router.get('/allbrands',productController.getBrands);
 
 //coupon management
-router.get('/couponList',userAuth,productController.loadCoupon);
-router.post('/applyCoupon',userAuth,productController.postCoupon);
-router.post('/remove-coupon',userAuth, productController.removeCoupon);
-
-
-
-
+router.get('/couponList',userAuth,couponController.loadCoupon);
+router.post('/applyCoupon',userAuth,couponController.postCoupon);
+router.post('/remove-coupon',userAuth, couponController.removeCoupon);
 
 //wishlist management
 router.post('/add-to-wishlist', userAuth,wishlistController.loadWishlist);
 router.get('/wishlist', userAuth,wishlistController.renderWishlist);
 router.post('/remove-wishlist-item',userAuth, wishlistController.removeWishlistItem);
+
 //filter management
 router.post('/sort-and-search',filterController.sortSearch);
+
 //wallet management
-router.get('/wallet',userAuth,walletController.loadWallet)
+router.get('/wallet',userAuth,walletController.loadWallet);
+
 //payment management
 router.post("/payment/initiate",userAuth,paymentController.loadRazorpay);
 router.post("/payment/verify",userAuth,paymentController.verifyPayment);

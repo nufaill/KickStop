@@ -283,59 +283,64 @@
     }
 
     function updateQuantity(productId, change, availableQuantity) {
-        const quantityElement = document.getElementById(`quantity-${productId}`);
-        const currentQuantity = parseInt(quantityElement.textContent);
+    const quantityElement = document.getElementById(`quantity-${productId}`);
+    const currentQuantity = parseInt(quantityElement.textContent);
+    const maxQuantity = Math.min(availableQuantity, 5);
 
-        const maxQuantity = Math.min(availableQuantity, 5);
+    if (currentQuantity + change < 1) {
+        Swal.fire({
+            icon: "warning",
+            title: "Minimum Quantity Reached",
+            text: "The minimum quantity is 1.",
+            confirmButtonColor: "#800000",
+        });
+        return;
+    } else if (currentQuantity + change > maxQuantity) {
+        Swal.fire({
+            icon: "warning",
+            title: "Maximum Quantity Reached",
+            text: `You can only order up to ${maxQuantity} items.`,
+            confirmButtonColor: "#800000",
+        });
+        return;
+    }
 
-        if (currentQuantity + change < 1) {
-            Swal.fire({
-                icon: "warning",
-                title: "Minimum Quantity Reached",
-                text: "The minimum quantity is 1.",
-                confirmButtonColor: "#800000",
-            });
-            return;
-        } else if (currentQuantity + change > maxQuantity) {
-            Swal.fire({
-                icon: "warning",
-                title: "Maximum Quantity Reached",
-                text: `You can only order up to ${maxQuantity} items.`,
-                confirmButtonColor: "#800000",
-            });
-            return;
-        }
+    fetch(`/update-cart-quantity`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ productId, change })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            quantityElement.textContent = data.newQuantity;
 
-        fetch(`/update-cart-quantity`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ productId, change }),
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                window.location.reload();
-            } else {
-                Swal.fire({
-                    icon: "error",
-                    title: "Error",
-                    text: data.message,
-                    confirmButtonColor: "#800000",
-                });
-            }
-        })
-        .catch(error => {
-            console.error("Error:", error);
+            const subtotalElement = document.getElementById(`subtotal-${productId}`);
+            subtotalElement.textContent = `₹ ${data.newSubtotal.toLocaleString()}`;
+
+            const cartSubtotalElement = document.querySelector('.cart_total_amount span');
+            cartSubtotalElement.textContent = `₹ ${data.totalPrice.toLocaleString()}`;
+        } else {
             Swal.fire({
                 icon: "error",
                 title: "Error",
-                text: "An unexpected error occurred.",
+                text: data.message,
                 confirmButtonColor: "#800000",
             });
+        }
+    })
+    .catch(error => {
+        console.error("Error:", error);
+        Swal.fire({
+            icon: "error",
+            title: "Error",
+            text: "An unexpected error occurred.",
+            confirmButtonColor: "#800000",
         });
-    }
+    });
+}
 </script>
 
 <%- include('../layouts/user/footer') %>

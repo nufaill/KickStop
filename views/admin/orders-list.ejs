@@ -204,12 +204,7 @@
 
     function showOrderDetails(orderData) {
     try {
-        // Parse the order data
         const order = typeof orderData === 'string' ? JSON.parse(orderData) : orderData;
-        
-        // // Defensive logging
-        // console.log('Raw Order Data:', orderData);
-        // console.log('Parsed Order Object:', JSON.stringify(order, null, 2));
         
         const modalBody = document.getElementById('orderDetailsModalBody');
         
@@ -220,7 +215,9 @@
             finalAmount: order.finalAmount || 0,
             status: order.status || 'N/A',
             shippingAddress: order.shippingAddress || null,
-            items: order.items || []
+            items: order.items || [],
+            couponCode: order.couponCode || 'No Coupon Applied',
+            couponAmount: order.couponAmount || 0
         };
 
         let detailsHTML = `
@@ -249,6 +246,14 @@
                 </div>
             </div>
             <hr>
+             <div class="row">
+                    <div class="col-md-12">
+                        <h6><strong>Coupon Details</strong></h6>
+                        <p><strong>Coupon Code:</strong> ${orderDetails.couponCode}</p>
+                        <p><strong>Discount Amount:</strong> ${orderDetails.couponAmount}%</p>
+                    </div>
+                </div>
+                <hr>
             <h6><strong>Ordered Items</strong></h6>
             <div class="row">
                 ${orderDetails.items.length > 0 ? 

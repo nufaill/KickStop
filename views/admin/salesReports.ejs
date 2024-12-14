@@ -59,7 +59,7 @@
                 <div class="card shadow-sm text-center">
                     <div class="card-body">
                         <h6 class="text-muted">Total Sales</h6>
-                        <h3 class="text-primary">₹45,000</h3>
+                        <h3 class="text-primary">₹<%= totalSales %></h3>
                     </div>
                 </div>
             </div>
@@ -77,7 +77,7 @@
                 <div class="card shadow-sm text-center">
                     <div class="card-body">
                         <h6 class="text-muted">Total Discount</h6>
-                        <h3 class="text-warning">₹5,000</h3>
+                        <h3 class="text-warning">₹<%=totalDiscount %></h3>
                     </div>
                 </div>
             </div>
@@ -85,7 +85,7 @@
                 <div class="card shadow-sm text-center">
                     <div class="card-body">
                         <h6 class="text-muted">Total Customers</h6>
-                        <h3 class="text-info">85</h3>
+                        <h3 class="text-info"><%= totalUsers %></h3>
                     </div>
                 </div>
             </div>
@@ -148,10 +148,9 @@
                                 <td>
                                     <%= orders[i].createdAt.toLocaleDateString() %>
                                 </td>
-                                <td>₹<%= orders[i].totalPrice.toLocaleString() %>
-                                </td>
-                                <td>₹<%= Math.abs(orders[i].totalPrice - orders[i].finalAmount) %></td>
-                                <td>₹<%= orders[i].finalAmount.toLocaleString() %></td>
+                                <td>₹<%= Math.round(orders[i].totalPrice).toLocaleString() %></td>
+                                <td>₹<%= Math.floor(orders[i].totalPrice - orders[i].finalAmount) %></td>
+                                <td>₹<%= Math.round(orders[i].finalAmount).toLocaleString() %></td>
                                 <td>
                                     <%= orders[i].paymentMethod %>
                                 </td>
@@ -207,13 +206,8 @@
     <br>
     <br>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.13/jspdf.plugin.autotable.min.js"></script>
-
-
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
-
-
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.13/jspdf.plugin.autotable.min.js"></script>
 
@@ -224,286 +218,27 @@
     document.getElementById('endDate').setAttribute('max', today);
 </script>
 
-    <script>
-        async function previewPDF() {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF('p', 'pt', 'a4');
-
-            const logoURL = '/Images/ChronoCraft/logo-transparent-png.png';
-            doc.addImage(logoURL, 'PNG', 15, 10, 40, 40);
-            doc.setFontSize(16);
-            doc.text('Sales Report', 70, 30);
-            doc.setFontSize(10);
-            doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 70, 45);
-
-            doc.autoTable({
-                html: '#salesTable',
-                startY: 60,
-                theme: 'grid',
-                headStyles: { fillColor: [41, 128, 185], textColor: [255, 255, 255], fontSize: 8 },
-                bodyStyles: { fontSize: 8, cellPadding: 3, minCellWidth: 45 },
-                styles: { overflow: 'linebreak', valign: 'middle', halign: 'center' },
-                columnStyles: {
-                    0: { cellWidth: 30, halign: 'center' },
-                    1: { cellWidth: 50, halign: 'left' },
-                    2: { cellWidth: 40, halign: 'left' },
-                    3: { cellWidth: 40, halign: 'center' },
-                    4: { cellWidth: 40, halign: 'center' },
-                    5: { cellWidth: 40, halign: 'right' },
-                    6: { cellWidth: 40, halign: 'center' },
-                    7: { cellWidth: 40, halign: 'center' },
-                    8: { cellWidth: 40, halign: 'center' },
-                    9: { cellWidth: 40, halign: 'center' },
-                    10: { cellWidth: 40, halign: 'center' },
-                    11: { cellWidth: 40, halign: 'center' }
-                },
-                didParseCell: function (data) {
-                    if (!data.cell.text || data.cell.text.length === 0) {
-                        data.cell.text = '-';
-                        return;
-                    }
-                 
-                },
-
-                willDrawCell: function (data) {
-                    if (data.cell.text.length > 20) {
-                        data.cell.styles.fontSize = 4;
-                    }
-                }
-            });
-
-            const pdfBlob = doc.output('blob');
-            showPDFPreview(pdfBlob);
-        }
-        async function showPDFPreview(pdfBlob) {
-            try {
-                const pdfCanvas = document.getElementById('pdfCanvas');
-                const pdfCtx = pdfCanvas.getContext('2d');
-
-                const pdfData = await pdfBlob.arrayBuffer();
-                const pdfDocument = await pdfjsLib.getDocument({ data: pdfData }).promise;
-                const page = await pdfDocument.getPage(1);
-
-                const viewport = page.getViewport({ scale: 1.3 });
-                pdfCanvas.width = viewport.width;
-                pdfCanvas.height = viewport.height;
-
-                await page.render({
-                    canvasContext: pdfCtx,
-                    viewport: viewport,
-                }).promise;
-
-                $('#pdfPreviewModal').modal('show');
-            } catch (error) {
-                console.error('Error showing PDF preview:', error);
-                alert('Failed to load PDF preview. Please try again.');
-            }
-        }
-
-
-        function downloadPDF() {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF('p', 'pt', 'a4');
-            doc.save('sales-report.pdf');
-        }
-
-        function exportToPDF() {
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF({
-        orientation: 'landscape',
-        unit: 'mm',
-        format: 'a4'
-    });
-
-    
-    try {
-        doc.addImage('/path/to/your/logo.png', 'PNG', 10, 10, 40, 40);
-    } catch (error) {
-        console.warn('Logo could not be added to PDF');
+<script>
+    function exportToPDF() {
+    window.location.href = '/admin/sales-report/pdf';
+}
+    function exportToExcel() {
+        window.location.href = '/admin/sales-report/excel';
     }
 
-    doc.setFontSize(16);
-    doc.text('Sales Report', 60, 20);
-    doc.setFontSize(10);
-    doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 60, 30);
+    
+    function initializeDateFilter() {
+        const startDateInput = document.getElementById('startDate');
+        const endDateInput = document.getElementById('endDate');
+        const table = document.getElementById('salesTable');
+        const tbody = table.getElementsByTagName('tbody')[0];
+        const rows = tbody.getElementsByTagName('tr');
+        const dateRangeSelect = document.getElementById('dateRangeSelect');
 
-    doc.autoTable({
-        html: '#salesTable',
-        startY: 50,
-        theme: 'grid',
-        headStyles: { 
-            fillColor: [41, 128, 185], 
-            textColor: [255, 255, 255], 
-            fontSize: 8 
-        },
-        bodyStyles: { 
-            fontSize: 8, 
-            cellPadding: 3 
-        },
-        columnStyles: {
-            0: { cellWidth: 15 }, 
-            1: { cellWidth: 30 },
-            2: { cellWidth: 40 },
-        }
-    });
+    }
 
-    doc.save('sales-report.pdf');
-}
-
-function downloadPDF() {
-    exportToPDF(); 
-}
-
-        function exportToExcel() {
-            const table = document.getElementById('salesTable');
-            const wb = XLSX.utils.table_to_book(table, { sheet: "Sales Report" });
-            XLSX.writeFile(wb, 'sales-report.xlsx');
-        }
-
-        function initializeDateFilter() {
-            const startDateInput = document.getElementById('startDate');
-            const endDateInput = document.getElementById('endDate');
-            const table = document.getElementById('salesTable');
-            const tbody = table.getElementsByTagName('tbody')[0];
-            const rows = tbody.getElementsByTagName('tr');
-            const dateRangeSelect = document.getElementById('dateRangeSelect');
-
-            function parseDate(dateStr) {
-                const [day,month,year] = dateStr.split('/').map(Number);
-                return new Date(year, month - 1, day);
-            }
-
-            function formatCurrency(amount) {
-                return amount.toLocaleString('en-IN', {
-                    style: 'currency',
-                    currency: 'INR',
-                    minimumFractionDigits: 0,
-                    maximumFractionDigits: 0
-                }).replace('₹', 'INR');
-            }
-
-            function filterTable() {
-                const startDate = startDateInput.value ? new Date(startDateInput.value) : null;
-                const endDate = endDateInput.value ? new Date(endDateInput.value) : null;
-
-                if (startDate) startDate.setHours(0, 0, 0, 0);
-                if (endDate) endDate.setHours(23, 59, 59, 999);
-
-                let visibleRows = 0;
-                let totalSales = 0;
-                let totalDiscount = 0;
-                const uniqueCustomers = new Set();
-
-                
-                for (const row of rows) {
-                    const dateCell = row.cells[5].textContent.trim();
-                    const rowDate = parseDate(dateCell);
-
-                    
-                    if (!rowDate) continue;
-
-                    let showRow = true;
-                    if (startDate && rowDate < startDate) showRow = false;
-                    if (endDate && rowDate > endDate) showRow = false;
-
-                    
-                    row.style.display = showRow ? '' : 'none';
-
-                   
-                    if (showRow) {
-                        visibleRows++;
-
-                        
-                        const finalAmount = parseFloat(row.cells[8].textContent.replace(/[₹,]/g, '')) || 0;
-                        const discount = parseFloat(row.cells[7].textContent.replace(/[₹,]/g, '')) || 0;
-
-                        totalSales += finalAmount;
-                        totalDiscount += discount;
-
-                       
-                        const customerId = row.cells[1].getAttribute('data-customer-id');
-                        if (customerId) uniqueCustomers.add(customerId);
-                    }
-                }
-
-                
-                const formatCurrency = (amount) => {
-                    return amount.toLocaleString('en-IN', {
-                        style: 'currency',
-                        currency: 'INR',
-                        minimumFractionDigits: 0,
-                        maximumFractionDigits: 0
-                    }).replace('INR', '₹');
-                };
-
-                const summaryCards = document.querySelectorAll('.card .card-body');
-                summaryCards.forEach(card => {
-                    const title = card.querySelector('h6').textContent.trim();
-                    const valueSpan = card.querySelector('h3');
-
-                    switch (title) {
-                        case 'Total Sales':
-                            valueSpan.textContent = formatCurrency(totalSales);
-                            break;
-                        case 'Total Orders':
-                            valueSpan.textContent = visibleRows;
-                            break;
-                        case 'Total Discount':
-                            valueSpan.textContent = formatCurrency(totalDiscount);
-                            break;
-                        case 'Total Customers':
-                            valueSpan.textContent = uniqueCustomers.size;
-                            break;
-                    }
-                });
-            }
-
-
-            function handleDateRangeSelection(e) {
-                e.preventDefault();
-
-                const today = new Date();
-
-
-                const startDate = new Date(today);
-
-                switch (this.value) {
-                    case 'today':
-                        startDateInput.value = today.toISOString().split('T')[0];
-                        endDateInput.value = today.toISOString().split('T')[0];
-                        break;
-                    case 'week':
-                        startDate.setDate(today.getDate() - 7);
-                        startDateInput.value = startDate.toISOString().split('T')[0];
-                        endDateInput.value = today.toISOString().split('T')[0];
-                        break;
-                    case 'month':
-                        startDate.setMonth(today.getMonth() - 1);
-                        startDateInput.value = startDate.toISOString().split('T')[0];
-                        endDateInput.value = today.toISOString().split('T')[0];
-                        break;
-                    case 'year':
-                        startDate.setFullYear(today.getFullYear() - 1);
-                        startDateInput.value = startDate.toISOString().split('T')[0];
-                        endDateInput.value = today.toISOString().split('T')[0];
-                        break;
-                    default:
-                        startDateInput.value = '';
-                        endDateInput.value = '';
-                        break;
-                }
-                filterTable();
-            }
-
-            dateRangeSelect.addEventListener('change', handleDateRangeSelection);
-            startDateInput.addEventListener('change', filterTable);
-            endDateInput.addEventListener('change', filterTable);
-
-            filterTable();
-        }
-
-        document.addEventListener('DOMContentLoaded', initializeDateFilter);
-    </script>
+    document.addEventListener('DOMContentLoaded', initializeDateFilter);
+</script>
 
 
     <%- include('../layouts/admin/footer') %>

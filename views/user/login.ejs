@@ -322,6 +322,8 @@
 }
 
   </style>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+  
 </head>
 <body>
   <div class="container">
@@ -376,35 +378,55 @@
       </form>
     </div>
   </div>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
   <script>
     function showToast(message, type = "info") {
-      const toastContainer = document.getElementById("toast-container") || createToastContainer();
-      const toast = document.createElement("div");
-      toast.classList.add("toast", type);
+      if (type === "success" || type === "error") {
+        Swal.fire({
+            position: "top-end", 
+            icon: type,
+            title: type === "success" ? "Success" : "Error",
+            showConfirmButton: false,
+            timer: 3000, 
+            timerProgressBar: true,
+            toast: true,
+            didOpen: (toast) => {
+                toast.addEventListener('mouseenter', Swal.stopTimer);
+                toast.addEventListener('mouseleave', Swal.resumeTimer);
+            },
+            onOpen: () => {
+                Swal.getPopup().querySelector(".swal2-title").textContent = message;
+            }
+        });
+      } else {
+        const toastContainer = document.getElementById("toast-container") || createToastContainer();
+        const toast = document.createElement("div");
+        toast.classList.add("toast", type);
 
-      const icon = document.createElement("span");
-      icon.classList.add("icon");
-      icon.innerHTML = getIcon(type);
+        const icon = document.createElement("span");
+        icon.classList.add("icon");
+        icon.innerHTML = getIcon(type);
 
-      const messageEl = document.createElement("span");
-      messageEl.classList.add("message");
-      messageEl.textContent = message;
+        const messageEl = document.createElement("span");
+        messageEl.classList.add("message");
+        messageEl.textContent = message;
 
-      const closeBtn = document.createElement("button");
-      closeBtn.classList.add("close-btn");
-      closeBtn.innerHTML = "&times;";
-      closeBtn.onclick = () => removeToast(toast);
+        const closeBtn = document.createElement("button");
+        closeBtn.classList.add("close-btn");
+        closeBtn.innerHTML = "&times;";
+        closeBtn.onclick = () => removeToast(toast);
 
-      toast.appendChild(icon);
-      toast.appendChild(messageEl);
-      toast.appendChild(closeBtn);
-      toastContainer.appendChild(toast);
+        toast.appendChild(icon);
+        toast.appendChild(messageEl);
+        toast.appendChild(closeBtn);
+        toastContainer.appendChild(toast);
 
-      requestAnimationFrame(() => {
-        toast.classList.add("show");
-      });
+        requestAnimationFrame(() => {
+          toast.classList.add("show");
+        });
 
-      setTimeout(() => removeToast(toast), 4000);
+        setTimeout(() => removeToast(toast), 4000);
+      }
     }
 
     function createToastContainer() {
@@ -482,17 +504,17 @@
 
     document.addEventListener("DOMContentLoaded", () => {
       const gradients = [
-    "linear-gradient(135deg, #ffffff 10%, #f7f7f7 90%)",     
-    "linear-gradient(135deg, #ffffff 20%, #eaeaea 80%)",      
-    "linear-gradient(135deg, #ffffff 15%, #f4f4f4 85%)",      
-    "linear-gradient(135deg, #ffffff 10%, #ededed 90%)",      
-    "linear-gradient(135deg, #ffffff 25%, #f9f9f9 75%)",      
-    "linear-gradient(135deg, #ffffff 20%, #f0f0f0 80%)",      
-    "linear-gradient(135deg, #ffffff 10%, #fcfcfc 50%, #f7f7f7 90%)", 
-    "linear-gradient(135deg, #ffffff 20%, #f2f2f2 80%)",      
-    "linear-gradient(135deg, #ffffff 15%, #ebebeb 85%)",      
-    "linear-gradient(135deg, #ffffff 10%, #e5e5e5 90%)"      
-];
+        "linear-gradient(135deg, #ffffff 10%, #f7f7f7 90%)",     
+        "linear-gradient(135deg, #ffffff 20%, #eaeaea 80%)",      
+        "linear-gradient(135deg, #ffffff 15%, #f4f4f4 85%)",      
+        "linear-gradient(135deg, #ffffff 10%, #ededed 90%)",      
+        "linear-gradient(135deg, #ffffff 25%, #f9f9f9 75%)",      
+        "linear-gradient(135deg, #ffffff 20%, #f0f0f0 80%)",      
+        "linear-gradient(135deg, #ffffff 10%, #fcfcfc 50%, #f7f7f7 90%)", 
+        "linear-gradient(135deg, #ffffff 20%, #f2f2f2 80%)",      
+        "linear-gradient(135deg, #ffffff 15%, #ebebeb 85%)",      
+        "linear-gradient(135deg, #ffffff 10%, #e5e5e5 90%)"      
+      ];
 
       let gradientIndex = 0;
       setInterval(() => {
@@ -500,6 +522,7 @@
         gradientIndex = (gradientIndex + 1) % gradients.length;
       }, 4000);
     });
-  </script>
+</script>
+
 </body>
 </html>

@@ -31,10 +31,8 @@ const loadCart = async (req, res) => {
 
 const addcart = async (req, res) => {
     try {
-        // Try to get productId from different sources
         const productId = req.body.productId || req.query.id;
         const userId = req.session.user;
-
         if (!userId) {
             return res.redirect('/login');
         }
