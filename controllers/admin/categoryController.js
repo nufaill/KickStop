@@ -67,16 +67,14 @@ const addCategoryOffer = async (req, res) => {
       const percentage = parseInt(req.body.percentage, 10);
       const categoryId = req.body.categoryId;
   
-      // Check if category exists
+   
       const category = await Category.findById(categoryId);
       if (!category) {
         return res.status(404).json({ status: false, message: "Category not found" });
       }
   
-      // Update the category offer
       await Category.updateOne({ _id: categoryId }, { $set: { categoryOffer: percentage } });
   
-      // Update sale prices for products based on the higher of product or category offers
       const products = await Product.find({ category: category._id });
       for (const product of products) {
         const effectiveOffer = Math.max(percentage, product.productOffer);

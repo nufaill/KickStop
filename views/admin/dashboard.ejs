@@ -275,7 +275,7 @@
                 },
                 options: {
                     responsive: true,
-                    maintainAspectRatio: true, 
+                    maintainAspectRatio: false, 
                     layout: {
                         padding: {
                             top: 10,
@@ -286,7 +286,7 @@
                         y: {
                             beginAtZero: true,
                             min: 0,
-                            max: 30000,
+                            max: 60000,
                             ticks: {
                                 stepSize: 3000,
                                 callback: (value) => `₹${value.toLocaleString()}`

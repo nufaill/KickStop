@@ -40,26 +40,26 @@ const addBrand = async (req,res)=>{
     }
 }
 
-const blockBrand = async (req,res)=>{
+const blockBrand = async (req, res) => {
     try {
         const id = req.query.id;
-        await Brand.updateOne({_id:id},{$set:{isBlocked:true}});
+        await Brand.updateOne({ _id: id }, { $set: { isBlocked: true } });
         res.redirect("/admin/brands");
-
     } catch (error) {
-        res.redirect("/pageerror")
+        res.redirect("/pageerror");
     }
-}
+};
 
-const unBlockBrand = async(req,res)=>{
+const unBlockBrand = async (req, res) => {
     try {
         const id = req.query.id;
-        await Brand.updateOne({_id:id},{$set:{isBlocked:false}});
+        await Brand.updateOne({ _id: id }, { $set: { isBlocked: false } });
         res.redirect("/admin/brands");
     } catch (error) {
-        res.redirect("/pageerror")
+        res.redirect("/pageerror");
     }
-}
+};
+
 
 
 const deleteBrand = async(req,res)=>{

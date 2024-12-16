@@ -571,6 +571,20 @@ async function addToCart(id) {
                     toast.addEventListener('mouseleave', Swal.resumeTimer)
                 }
             });
+        } else if (data.alreadyInCart) {
+            Swal.fire({
+                position: "top-end", 
+                icon: "info",
+                title: "Product Already in Cart",
+                showConfirmButton: false,
+                timer: 3000, 
+                timerProgressBar: true,
+                toast: true,
+                didOpen: (toast) => {
+                    toast.addEventListener('mouseenter', Swal.stopTimer)
+                    toast.addEventListener('mouseleave', Swal.resumeTimer)
+                }
+            });
         } else {
             Swal.fire({
                 position: "top-end",

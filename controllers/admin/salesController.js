@@ -1,5 +1,6 @@
 const Order = require("../../models/orderSchema");
 const User = require("../../models/userSchema");
+const moment = require('moment');
 const PDFDocument = require('pdfkit');
 const ExcelJS = require('exceljs');
 
@@ -9,10 +10,56 @@ const loadSalesReport = async (req, res) => {
         const limit = 10;
         const skip = (page - 1) * limit;
 
-        const totalOrders = await Order.countDocuments();
+        // Destructure with default empty strings
+        const { 
+            startDate = '', 
+            endDate = '', 
+            dateRange = '' 
+        } = req.query;
+
+        let filter = {};
+
+        if (startDate && endDate) {
+            filter.createdAt = {
+                $gte: moment(startDate).startOf('day').toDate(),
+                $lte: moment(endDate).endOf('day').toDate()
+            };
+        } 
+        else if (dateRange) {
+            const today = moment();
+
+            switch (dateRange) {
+                case 'today':
+                    filter.createdAt = {
+                        $gte: today.startOf('day').toDate(),
+                        $lte: today.endOf('day').toDate()
+                    };
+                    break;
+                case 'week':
+                    filter.createdAt = {
+                        $gte: today.startOf('week').toDate(),
+                        $lte: today.endOf('week').toDate()
+                    };
+                    break;
+                case 'month':
+                    filter.createdAt = {
+                        $gte: today.startOf('month').toDate(),
+                        $lte: today.endOf('month').toDate()
+                    };
+                    break;
+                case 'year':
+                    filter.createdAt = {
+                        $gte: today.startOf('year').toDate(),
+                        $lte: today.endOf('year').toDate()
+                    };
+                    break;
+            }
+        }
+
+        const totalOrders = await Order.countDocuments(filter);
         const totalPages = Math.ceil(totalOrders / limit);
 
-        const orderData = await Order.find()
+        const orderData = await Order.find(filter)
             .populate("user")
             .populate("items.productId")
             .sort({ createdAt: -1 })
@@ -20,18 +67,20 @@ const loadSalesReport = async (req, res) => {
             .limit(limit);
 
         const totalDiscount = await Order.aggregate([
+            { $match: filter },
             { $group: { _id: null, totalDiscount: { $sum: "$discount" } } }
         ]);
         const totalDiscountValue = totalDiscount.length > 0 ? totalDiscount[0].totalDiscount : 0;
         const roundedDiscount = Math.round(totalDiscountValue);
 
-        const uniqueUserIds = await Order.distinct("user");
+        const uniqueUserIds = await Order.distinct("user", filter);
         const uniqueUsersCount = uniqueUserIds.length;
 
         const totalSales = await Order.aggregate([
-            {$group: {_id:null, totalSales: { $sum: "$finalAmount"}}}
+            { $match: filter },
+            { $group: { _id: null, totalSales: { $sum: "$finalAmount" } } }
         ]);
-        const totalSalesValue = totalSales.length >0? totalSales[0].totalSales :0;
+        const totalSalesValue = totalSales.length > 0 ? totalSales[0].totalSales : 0;
         const roundedSales = Math.round(totalSalesValue);
 
         res.render("salesReports", {
@@ -41,12 +90,15 @@ const loadSalesReport = async (req, res) => {
             currentPage: page,
             totalDiscount: roundedDiscount,
             totalUsers: uniqueUsersCount,
-            totalSales:roundedSales
+            totalSales: roundedSales,
+            startDate: startDate || '',
+            endDate: endDate || '',
+            dateRange: dateRange || ''
         });
 
     } catch (error) {
         console.error("Error loading sales report:", error);
-        res.redirect("/admin/pageerror");
+        res.status(500).render("admin/pageerror", { error: error.message });
     }
 };
 

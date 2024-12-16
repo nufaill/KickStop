@@ -4,6 +4,7 @@ const crypto = require("crypto");
 const Order = require("../../models/orderSchema");
 const Product = require("../../models/productSchema");
 const Cart = require("../../models/cartSchema");
+const Coupon = require("../../models/couponSchema")
 
 const razorpay = new Razorpay({
     key_id: process.env.RAZOR_KEY_ID,
@@ -59,20 +60,23 @@ const verifyPayment = async (req, res) => {
             singleProduct, 
             totalPrice, 
             addressId, 
-            discount 
+            discount ,
+            couponCodeInput,
+            discountInput
         } = req.body;
-
-        const userId = req.session.user;
-        const cart = await Cart.findOne({ userId: userId });
-
-        // if (!addressId) {
-        //     return res.status(400).json({
-        //         success: false,
-        //         status: 'missing_address',
-        //         message: "Shipping address is required",
-        //         redirectUrl: `/payment-failure?reason=missing_address`
-        //     });
-        // }
+        console.log("yyyyyyyyy",couponCodeInput)
+        console.log("yyyyyyyyy",discountInput)
+        
+        if (!addressId) {
+            return res.status(400).json({
+                success: false,
+                status: 'missing_address',
+                message: "Shipping address is required",
+                redirectUrl: `/payment-failure?reason=missing_address`
+            });
+        }
+                const userId = req.session.user;
+                const cart = await Cart.findOne({ userId: userId });
 
         const expectedSignature = crypto
             .createHmac("sha256", process.env.RAZOR_KEY_SECRET)
@@ -134,19 +138,25 @@ const verifyPayment = async (req, res) => {
 
         const safeTotal = Number(totalPrice) || 0;
         const safeDiscount = Number(discount) || 0;
-
+        let couponAmount = 0;
+            const coupon = await Coupon.findOne({ code: couponCodeInput });
+            if (coupon) {
+                couponAmount = coupon.price;
+            }
         const newOrder = new Order({
             user: userId,
             items: orderItems,
             totalPrice: safeTotal + safeDiscount, 
             finalAmount: safeTotal,
             status: "Pending",
-            shippingAddress: addressId,
+            shippingAddress: addressId, 
             paymentMethod: "Online",
             paymentStatus: "Pending",
             razorpayOrderId: order_id,
             razorpayPaymentId: payment_id,
-            discount: safeDiscount
+            discount: safeDiscount,
+            couponCode:couponCodeInput || null,
+            couponAmount:couponAmount
         });
 
         await newOrder.save();

@@ -453,22 +453,37 @@
     cartQuantityInput.value = newQuantity;
 }
 
-    async function addToCart(id) {
-        try {
-            const quantity = document.getElementById('cart-quantity').value
-            const response = await fetch(`/add-to-cart/?id=${id}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ quantity }),
-            });
-            const data = await response.json();
-                if (data.success) {
+async function addToCart(id) {
+    try {
+        const quantity = document.getElementById('cart-quantity').value
+        const response = await fetch(`/add-to-cart/?id=${id}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ quantity }),
+        });
+        const data = await response.json();
+
+        if (data.success) {
             Swal.fire({
                 position: "top-end", 
                 icon: "success",
                 title: "Added to Cart",
+                showConfirmButton: false,
+                timer: 3000, 
+                timerProgressBar: true,
+                toast: true,
+                didOpen: (toast) => {
+                    toast.addEventListener('mouseenter', Swal.stopTimer)
+                    toast.addEventListener('mouseleave', Swal.resumeTimer)
+                }
+            });
+        } else if (data.alreadyInCart) {
+            Swal.fire({
+                position: "top-end", 
+                icon: "info",
+                title: "Product Already in Cart",
                 showConfirmButton: false,
                 timer: 3000, 
                 timerProgressBar: true,
@@ -493,10 +508,10 @@
                 }
             });
         }
-        } catch (error) {
-            console.error('Error adding to cart:', error.message);
-        }
+    } catch (error) {
+        console.error('Error adding to cart:', error.message);
     }
+}
 
         async function addToWishlist(id) {
     try {

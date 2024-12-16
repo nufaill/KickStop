@@ -1,68 +1,136 @@
 <%- include('../layouts/admin/header') %>
+<style>
+        .filter-container {
+        background: linear-gradient(to right, #f8f9fa, #e9ecef);
+        border: 1px solid #dee2e6;
+        transition: all 0.3s ease;
+    }
 
-    <div class="container my-4">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h2 class="text-primary">Sales Report</h2>
-            <div class="export-buttons">
-                <button class="btn btn-primary me-2" onclick="previewPDF()">
-                    <i class="material-icons md-file_download"></i> Preview PDF
-                </button>
+    .filter-container:hover {
+        box-shadow: 0 0 15px rgba(0,0,0,0.1) !important;
+    }
 
-                <button class="btn btn-primary me-2" onclick="exportToPDF()">
-                    <i class="material-icons md-file_download"></i> Export PDF
-                </button>
-                <button class="btn btn-success" style="background-color: #800000; color: antiquewhite; border: #800000;" onclick="exportToExcel()">
-                    <i class="material-icons md-file_download"></i> Export Excel
-                </button>
-            </div>
+    .form-group label {
+        font-weight: 500;
+        color: #495057;
+        display: flex;
+        align-items: center;
+    }
+
+    .input-group-text {
+        background-color: #e9ecef;
+        color: #495057;
+    }
+
+    .material-icons {
+        font-size: 18px;
+        margin-right: 4px;
+    }
+
+    @media (max-width: 768px) {
+        .filter-container {
+            padding: 1rem !important;
+        }
+    }
+</style>
+<div class="container my-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="text-primary">Sales Report</h2>
+        <div class="export-buttons">
+            <button class="btn btn-primary me-2" onclick="exportToPDF()">
+                <i class="material-icons md-file_download"></i> Export PDF
+            </button>
+            <button class="btn btn-success" style="background-color: #800000; color: antiquewhite; border: #800000;" onclick="exportToExcel()">
+                <i class="material-icons md-file_download"></i> Export Excel
+            </button>
         </div>
+    </div>
 
-        <div id="pdfPreviewModal" class="modal" tabindex="-1" role="dialog">
-            <div class="modal-dialog modal-lg" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">PDF Preview</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
+    <div class="filter-container bg-light rounded-3 p-4 shadow-sm mb-4">
+        <form id="filterForm" method="get" action="/admin/sales-report">
+            <div class="row g-3">
+                <div class="col-12">
+                    <h5 class="text-primary mb-3">
+                        <i class="material-icons align-middle me-2"></i>
+                        Filter Options
+                    </h5>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="dateRangeSelect" class="form-label">
+                            <i class="material-icons me-1 text-muted"></i>
+                            Predefined Range
+                        </label>
+                        <select class="form-select" name="dateRange" id="dateRangeSelect">
+                            <option value="">Select Range</option>
+                            <option value="today" <%= dateRange === 'today' ? 'selected' : '' %>>
+                                Today
+                            </option>
+                            <option value="week" <%= dateRange === 'week' ? 'selected' : '' %>>
+                                This Week
+                            </option>
+                            <option value="month" <%= dateRange === 'month' ? 'selected' : '' %>>
+                                This Month
+                            </option>
+                            <option value="year" <%= dateRange === 'year' ? 'selected' : '' %>>
+                                This Year
+                            </option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="startDate" class="form-label">
+                            <i class="material-icons me-1 text-muted"></i>
+                            Start Date
+                        </label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="material-icons"></i></span>
+                            <input type="date" class="form-control" id="startDate" name="startDate" value="<%= startDate %>">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="endDate" class="form-label">
+                            <i class="material-icons me-1 text-muted"></i>
+                            End Date
+                        </label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="material-icons"></i></span>
+                            <input type="date" class="form-control" id="endDate" name="endDate" value="<%= endDate %>">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12 mt-3">
+                    <div class="d-flex justify-content-end gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="material-icons me-1"></i>
+                            Apply Filter
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary" onclick="resetFilter()">
+                            <i class="material-icons me-1"></i>
+                            Reset
                         </button>
                     </div>
-                    <div class="modal-body">
-                        <canvas id="pdfCanvas"></canvas>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-primary" onclick="downloadPDF()">Download PDF</button>
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-lg-3 col-md-6">
+            <div class="card shadow-sm text-center">
+                <div class="card-body">
+                    <h6 class="text-muted">Total Sales</h6>
+                    <h3 class="text-primary">₹<%= totalSales %></h3>
                 </div>
             </div>
         </div>
-
-        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
-            <select class="form-select w-auto" name="dateRange" id="dateRangeSelect" aria-label="Select Date Range">
-                <option value="">Select Date Range</option>
-                <option value="today">Today</option>
-                <option value="week">This Week</option>
-                <option value="month">This Month</option>
-                <option value="year">This Year</option>
-            </select>
-        
-            <form class="d-flex align-items-center gap-2">
-                <label for="startDate" class="form-label me-2">Start Date:</label>
-                <input type="date" id="startDate" name="startDate" class="form-control w-auto">
-                <label for="endDate" class="form-label me-2">End Date:</label>
-                <input type="date" id="endDate" name="endDate" class="form-control w-auto">
-            </form>
-        </div>
-
-        <div class="row mb-4">
-            <div class="col-lg-3 col-md-6">
-                <div class="card shadow-sm text-center">
-                    <div class="card-body">
-                        <h6 class="text-muted">Total Sales</h6>
-                        <h3 class="text-primary">₹<%= totalSales %></h3>
-                    </div>
-                </div>
-            </div>
             <div class="col-lg-3 col-md-6">
                 <div class="card shadow-sm text-center">
                     <div class="card-body">
@@ -211,34 +279,69 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.13/jspdf.plugin.autotable.min.js"></script>
 
-<script>
-    const today = new Date().toISOString().split('T')[0];
-
-    document.getElementById('startDate').setAttribute('max', today);
-    document.getElementById('endDate').setAttribute('max', today);
-</script>
-
-<script>
-    function exportToPDF() {
-    window.location.href = '/admin/sales-report/pdf';
-}
-    function exportToExcel() {
-        window.location.href = '/admin/sales-report/excel';
-    }
-
+    <script>
+     function exportToPDF() {
+    const form = document.getElementById('filterForm');
+    const url = new URL('/admin/sales-report/pdf', window.location.origin);
     
-    function initializeDateFilter() {
-        const startDateInput = document.getElementById('startDate');
-        const endDateInput = document.getElementById('endDate');
-        const table = document.getElementById('salesTable');
-        const tbody = table.getElementsByTagName('tbody')[0];
-        const rows = tbody.getElementsByTagName('tr');
-        const dateRangeSelect = document.getElementById('dateRangeSelect');
+    // Manually collect form data to ensure all parameters are captured
+    const dateRange = document.getElementById('dateRangeSelect').value;
+    const startDate = document.getElementById('startDate').value;
+    const endDate = document.getElementById('endDate').value;
 
+    if (dateRange) url.searchParams.append('dateRange', dateRange);
+    if (startDate) url.searchParams.append('startDate', startDate);
+    if (endDate) url.searchParams.append('endDate', endDate);
+
+    window.location.href = url.toString();
+}
+
+function exportToExcel() {
+    const form = document.getElementById('filterForm');
+    const url = new URL('/admin/sales-report/excel', window.location.origin);
+    
+    const dateRange = document.getElementById('dateRangeSelect').value;
+    const startDate = document.getElementById('startDate').value;
+    const endDate = document.getElementById('endDate').value;
+
+    if (dateRange) url.searchParams.append('dateRange', dateRange);
+    if (startDate) url.searchParams.append('startDate', startDate);
+    if (endDate) url.searchParams.append('endDate', endDate);
+
+    window.location.href = url.toString();
+}
+    
+        function resetFilter() {
+            document.getElementById('dateRangeSelect').selectedIndex = 0;
+            document.getElementById('startDate').value = '';
+            document.getElementById('endDate').value = '';
+            window.location.href = '/admin/sales-report';
+        }
+    
+        // Date restrictions
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('startDate').setAttribute('max', today);
+        document.getElementById('endDate').setAttribute('max', today);
+    
+        document.getElementById('startDate').addEventListener('change', function() {
+    const startDate = this.value;
+    const endDateInput = document.getElementById('endDate');
+    endDateInput.setAttribute('min', startDate);
+});
+
+document.getElementById('endDate').addEventListener('change', function() {
+    const endDate = this.value;
+    const startDateInput = document.getElementById('startDate');
+    
+    if (startDateInput.value) {
+        const startDate = startDateInput.value;
+        if (new Date(endDate) < new Date(startDate)) {
+            this.value = '';
+            alert('End date cannot be before start date');
+        }
     }
-
-    document.addEventListener('DOMContentLoaded', initializeDateFilter);
-</script>
+});
+    </script>
 
 
     <%- include('../layouts/admin/footer') %>

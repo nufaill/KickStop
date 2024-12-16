@@ -10,7 +10,7 @@ const PDFDocument = require('pdfkit');
 
 const placeOrderInitial = async (req, res) => {
     try {
-        const { singleProduct, totalPrice, addressId, paymentMethod,discountInput,couponCodeInput } = req.body;
+        const { singleProduct, totalPrice, addressId, paymentMethod, discountInput, couponCodeInput } = req.body;
 
         const user = req.session.user;
         const cart = await Cart.findOne({ userId: user })
@@ -50,9 +50,11 @@ const placeOrderInitial = async (req, res) => {
             }
             let total = Number(discountInput) + Number(totalPrice);
 
+            let couponAmount = 0;
             const coupon = await Coupon.findOne({ code: couponCodeInput });
-            console.log(coupon);
-            
+            if (coupon) {
+                couponAmount = coupon.price;
+            }
 
             const newOrder = new Order({
                 user,
@@ -64,8 +66,8 @@ const placeOrderInitial = async (req, res) => {
                 shippingAddress: addressId,
                 paymentMethod: "COD",
                 paymentStatus: "Pending",
-                couponCode:couponCodeInput,
-                couponAmount:coupon.price
+                couponCode:couponCodeInput || null,
+                couponAmount:couponAmount
 
             });
 

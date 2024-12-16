@@ -51,8 +51,11 @@ const addcart = async (req, res) => {
             const existingItemIndex = cartDoc.items.findIndex(item => item.productId.toString() === productId);
 
             if (existingItemIndex >= 0) {
-                cartDoc.items[existingItemIndex].quantity += quantity;
-                cartDoc.items[existingItemIndex].totalPrice += totalPrice;
+                return res.status(200).json({ 
+                    success: false, 
+                    alreadyInCart: true, 
+                    message: 'Product already in cart' 
+                });
             } else {
                 cartDoc.items.push({
                     productId,
@@ -60,9 +63,9 @@ const addcart = async (req, res) => {
                     price: product.salePrice,
                     totalPrice
                 });
-            }
 
-            await cartDoc.save();
+                await cartDoc.save();
+            }
         } else {
             cartDoc = new Cart({
                 userId,

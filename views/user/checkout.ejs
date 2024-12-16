@@ -619,10 +619,6 @@
                     return;
                 }
 
-            if (!addressId) {
-                Swal.fire({ icon: 'warning', title: 'Address Required', text: 'Please select a shipping address.' });
-                return;
-            }
 
             if (!cart && !singleProduct) {
                 Swal.fire({ icon: 'warning', title: 'No Items', text: 'Your cart or product is empty.' });
@@ -633,9 +629,16 @@
                 console.log('COD Order Data:', { cart, singleProduct, totalPrice, addressId, paymentMethod });
                 await placeOrder({ cart, singleProduct, totalPrice, addressId, paymentMethod, discountInput,couponCodeInput });
             } else if (paymentMethod === 'online') {
-                startRazorpayPayment(cart, singleProduct, totalPrice, addressId);
+                startRazorpayPayment(
+                    cart, 
+                    singleProduct, 
+                    totalPrice, 
+                    addressId, 
+                    discountInput, 
+                    couponCodeInput
+                );
             }
-        });
+                    });
 
         async function placeOrder(orderData) {
             try {
@@ -657,19 +660,19 @@
                 Swal.fire({ icon: 'error', title: 'Error', text: 'An unexpected error occurred.' });
             }
         }
-        async function startRazorpayPayment(cart, singleProduct, totalPrice, addressId) {
-            try {
-                const discount = document.getElementById('discount').textContent
-                const response = await fetch('/payment/initiate', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ discount: discount }),
-                });
+        async function startRazorpayPayment(cart, singleProduct, totalPrice, addressId, discountInput, couponCodeInput) {
+                try {
+                    const discount = document.getElementById('discount').textContent
+                    const response = await fetch('/payment/initiate', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ discount: discount }),
+                    });
 
-                const { success, order } = await response.json();
-                if (!success) throw new Error('Failed to create Razorpay order');
+                    const { success, order } = await response.json();
+                    if (!success) throw new Error('Failed to create Razorpay order');
 
-                const options = {
+                  const options = {
                     key: '<%= process.env.RAZOR_KEY_ID %>',
                     amount: order.amount,
                     currency: order.currency,
@@ -678,8 +681,16 @@
                     image: "/path/to/logo.png",
                     order_id: order.id,
                     handler: async function (response) {
-                        await verifyRazorpayPayment(response, cart, singleProduct, totalPrice, addressId);
-                    },
+                await verifyRazorpayPayment(
+                    response, 
+                    cart, 
+                    singleProduct, 
+                    totalPrice, 
+                    addressId, 
+                    document.getElementById('discountInput').value || 0,
+                    document.getElementById('couponCode').value || ''
+                );
+            },
                     prefill: { name: "<%= user.name %>", email: "<%= user.email %>" },
                     theme: { color: "#800000" },
                 };
@@ -692,38 +703,51 @@
             }
         }
 
-        async function verifyRazorpayPayment(paymentResponse, cart, singleProduct, totalPrice, addressId) {
-            try {
-                const subtotal = document.getElementById('SubTotal').textContent
-                const response = await fetch('/payment/verify', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        payment_id: paymentResponse.razorpay_payment_id,
-                        order_id: paymentResponse.razorpay_order_id,
-                        signature: paymentResponse.razorpay_signature,
-                        amount: totalPrice,
-                        cart: JSON.stringify(cart),
-                        singleProduct,
-                        totalPrice,
-                        addressId,
-                        discount: Number(subtotal) - totalPrice
-                    }),
-
-
-                });
-                const result = await response.json();
-
-                if (result.success) {
-                    window.location.href = `/order-confirmation?id=${result.orderId}`;
-                } else {
-                    Swal.fire({ icon: 'error', title: 'Payment Verification Failed', text: result.message });
-                }
-            } catch (error) {
-                console.error('Error verifying payment:', error);
-                Swal.fire({ icon: 'error', title: 'Verification Error', text: 'An unexpected error occurred.' });
-            }
+        async function verifyRazorpayPayment(paymentResponse, cart, singleProduct, totalPrice, addressId, discountInput, couponCodeInput) {
+    try {
+        if (!addressId) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Address Required',
+                text: 'Please select a shipping address.',
+                confirmButtonColor: '#39b4ac'
+            });
+            return;
         }
+        const subtotal = document.getElementById('SubTotal').textContent
+        const couponCode = document.getElementById('couponCode').value || '';
+        const discountValue = document.getElementById('discountInput').value || 0;
+
+        const response = await fetch('/payment/verify', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                payment_id: paymentResponse.razorpay_payment_id,
+                order_id: paymentResponse.razorpay_order_id,
+                signature: paymentResponse.razorpay_signature,
+                amount: totalPrice,
+                cart: JSON.stringify(cart),
+                singleProduct,
+                totalPrice,
+                addressId: addressId,
+                discount: Number(subtotal) - totalPrice,
+                couponCodeInput: couponCode,
+                discountInput: discountValue
+            }),
+        });
+        
+        const result = await response.json();
+
+        if (result.success) {
+            window.location.href = `/order-confirmation?id=${result.orderId}`;
+        } else {
+            Swal.fire({ icon: 'error', title: 'Payment Verification Failed', text: result.message });
+        }
+    } catch (error) {
+        console.error('Error verifying payment:', error);
+        Swal.fire({ icon: 'error', title: 'Verification Error', text: 'An unexpected error occurred.' });
+    }
+}
         function syncDiscount() {
 
             const discountDisplay = document.getElementById('discount');
