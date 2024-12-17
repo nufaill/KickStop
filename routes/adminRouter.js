@@ -22,6 +22,7 @@ router.get('/pageerror',adminController.pageError)
 router.get("/login", adminController.loadLogin);
 router.post("/login",adminController.handleLogin); 
 router.get('/', adminAuth,dashboardController.getDashboard);
+router.get('/generate-ledger', adminAuth,dashboardController.generateLedgerBook);
  router.get("/logout",adminController.logout);
 
 //customer Controller

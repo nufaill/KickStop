@@ -611,6 +611,7 @@
             const singleProduct = this.singleProduct?.value ? JSON.parse(this.singleProduct.value) : null;
             const totalPrice = parseFloat(this.totalPrice.value.replace(/[^\d.]/g, ''));
             const addressId = document.getElementById('selectedAddressId').value;
+            console.log('Selected Address ID:', addressId);
             const paymentMethod = document.querySelector('input[name="payment_option"]:checked').value;
             const discountInput = document.getElementById('discountInput').value
             const couponCodeInput = document.getElementById('couponCodeInput').value
@@ -669,6 +670,8 @@
                         body: JSON.stringify({ discount: discount }),
                     });
 
+                    console.log("sjfasfjlsf"+addressId)
+
                     const { success, order } = await response.json();
                     if (!success) throw new Error('Failed to create Razorpay order');
 
@@ -705,19 +708,10 @@
 
         async function verifyRazorpayPayment(paymentResponse, cart, singleProduct, totalPrice, addressId, discountInput, couponCodeInput) {
     try {
-        if (!addressId) {
-            Swal.fire({
-                icon: 'warning',
-                title: 'Address Required',
-                text: 'Please select a shipping address.',
-                confirmButtonColor: '#39b4ac'
-            });
-            return;
-        }
         const subtotal = document.getElementById('SubTotal').textContent
         const couponCode = document.getElementById('couponCode').value || '';
         const discountValue = document.getElementById('discountInput').value || 0;
-
+        console.log('Sending Address ID:', addressId);
         const response = await fetch('/payment/verify', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -789,15 +783,13 @@
                 });
                 return false;
             }
-            if (paymentOption === "online") {
-                startRazorpayPayment();
-                return false;
-            }
+            // if (paymentOption === "online") {
+            //     startRazorpayPayment();
+            //     return false;
+            // }
             return true;
         }
 
-
-        // Apply coupon
 
         function formatPrice(amount) {
             return '₹ ' + amount.toLocaleString();
@@ -809,7 +801,8 @@
             const couponCode = document.getElementById('couponCode').value;
             const cartTotal = parseInt(document.getElementById('totalamount').value.replace(/[^0-9]/g, ""), 10);
 
-            console.log("CartTotal:", cartTotal);
+            // console.log("CartTotal:", cartTotal);
+
 
             if (!cartTotal || isNaN(cartTotal)) {
                 Swal.fire({
@@ -842,7 +835,7 @@
 
                 const result = await response.json();
 
-                console.log('Response:', result);
+                // console.log('Response:', result);
 
                 if (result.success) {
                     document.getElementById('discount').textContent = result.discountAmount;
@@ -858,13 +851,22 @@
                     document.getElementById('discountInput').value = result.discountAmount
                     toggleCouponButtons(true);
                 } else {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error Applying Coupon',
-                        text: result.message,
-                        confirmButtonColor: '#39b4ac',
-                    });
-                }
+            if (result.expired) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Coupon Expired',
+                    text: result.message,
+                    confirmButtonColor: '#39b4ac',
+                });
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error Applying Coupon',
+                    text: result.message,
+                    confirmButtonColor: '#39b4ac',
+                });
+            }
+        }
             } catch (error) {
                 console.error('Error applying coupon:', error);
                 Swal.fire({
@@ -877,21 +879,24 @@
         });
 
 
-        // Coupon remove
-        function removeCoupon() {
-            document.getElementById('couponCode').value = '';
-            document.getElementById('discount').textContent = '₹ 0';
-            document.getElementById('finalAmount').textContent = '₹' + document.getElementById('totalamount').value;
+      // Coupon remove
+function removeCoupon() {
+    document.getElementById('couponCode').value = '';
+    document.getElementById('discount').textContent = '₹ 0';
+    document.getElementById('finalAmount').textContent = '₹' + document.getElementById('totalamount').value;
 
-            toggleCouponButtons(false);
+    toggleCouponButtons(false);
 
-            Swal.fire({
-                icon: 'success',
-                title: 'Coupon Removed',
-                text: 'Your coupon has been removed successfully.',
-                confirmButtonColor: '#39b4ac',
-            });
-        }
+    Swal.fire({
+        icon: 'success',
+        title: 'Coupon Removed',
+        text: 'Your coupon has been removed successfully.',
+        confirmButtonColor: '#39b4ac',
+    }).then(() => {
+        location.reload(); 
+    });
+}
+
         function toggleCouponButtons(isCouponApplied) {
             const applyCouponBtn = document.getElementById('applyCouponBtn');
             const removeCouponBtn = document.getElementById('removeCouponBtn');

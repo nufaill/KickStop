@@ -114,8 +114,7 @@ const getAllProducts = async (req,res) => {
                 data:productData,
                 currentPage:page,
                 totalPages:Math.ceil(count/limit),
-                // cat:category,
-                // brand:brand
+            
             });
         }else{
             res.render("")
@@ -175,7 +174,6 @@ const editProduct = async (req, res) => {
         const id = req.params.id;
         const data = req.body;
         
-        // Enhanced Validation
         if (!data.productName || !data.category || !data.brand) {
             return res.status(400).json({
                 error: "Missing required fields",
@@ -187,7 +185,6 @@ const editProduct = async (req, res) => {
             });
         }
 
-        // Existing Duplicate Check
         const existingProduct = await Product.findOne({
             productName: data.productName,
             _id: { $ne: id }
@@ -199,26 +196,37 @@ const editProduct = async (req, res) => {
             });
         }
 
-        // Enhanced Image Handling
         const images = [];
         const MAX_IMAGES = 4;
 
+       
+        const product = await Product.findById(id);
+        if (!product) {
+            return res.status(404).json({ error: "Product not found" });
+        }
+
+        const currentImages = product.productImage || [];
+
         if (req.files && req.files.length > 0) {
-            if (req.files.length > MAX_IMAGES) {
+            if (currentImages.length + req.files.length > MAX_IMAGES) {
                 return res.status(400).json({
                     error: `Maximum ${MAX_IMAGES} images allowed`
                 });
             }
         
-            req.files.forEach(file => {
+            for (const file of req.files) {
+                const uploadDir = path.join("public", "uploads", "product-images");
+                const resizedImagePath = path.join(uploadDir, file.filename);
+
+               
+                await sharp(file.path)
+                    .resize({ width: 440, height: 440 })
+                    .toFile(resizedImagePath);
+
                 images.push(file.filename);
-            });
+            }
         }
-        
-        // If new images are uploaded
-        if (images.length > 0) {
-            updateData.$push = { productImage: { $each: images } };
-        }
+
         const category = await Category.findOne({ name: data.category });
         if (!category) {
             return res.status(400).json({ error: "Invalid category" });
@@ -232,13 +240,9 @@ const editProduct = async (req, res) => {
             regularPrice: data.regularPrice,
             salePrice: data.salePrice || data.regularPrice,
             quantity: data.quantity,
-            color: data.color
+            color: data.color,
+            productImage: [...currentImages, ...images]  
         };
-
-        // Only update images if new images are uploaded
-        if (images.length > 0) {
-            updateData.$push = { productImage: { $each: images } };
-        }
 
         const updatedProduct = await Product.findByIdAndUpdate(
             id, 
@@ -307,7 +311,6 @@ const deleteSingleImage = async (req, res) => {
             });
         }
 
-        // Find the product
         const product = await Product.findById(productIdToServer);
         
         if (!product) {
@@ -317,7 +320,6 @@ const deleteSingleImage = async (req, res) => {
             });
         }
 
-        // Check minimum image requirement
         if (product.productImage.length <= 1) {
             return res.json({ 
                 status: false, 
@@ -325,17 +327,14 @@ const deleteSingleImage = async (req, res) => {
             });
         }
 
-        // Remove image from array
         const updatedImages = product.productImage.filter(img => img !== imageNameToServer);
         
-        // Update product with new image array
         await Product.findByIdAndUpdate(
             productIdToServer,
             { $set: { productImage: updatedImages } },
             { new: true }
         );
 
-        // Delete physical file
         const imagePath = path.join(__dirname, '../../public/uploads/product-images', imageNameToServer);
         if (fs.existsSync(imagePath)) {
             fs.unlinkSync(imagePath);

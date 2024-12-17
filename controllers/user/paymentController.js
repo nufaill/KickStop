@@ -4,7 +4,8 @@ const crypto = require("crypto");
 const Order = require("../../models/orderSchema");
 const Product = require("../../models/productSchema");
 const Cart = require("../../models/cartSchema");
-const Coupon = require("../../models/couponSchema")
+const Coupon = require("../../models/couponSchema");
+const Address = require("../../models/addressSchema");
 
 const razorpay = new Razorpay({
     key_id: process.env.RAZOR_KEY_ID,
@@ -64,20 +65,29 @@ const verifyPayment = async (req, res) => {
             couponCodeInput,
             discountInput
         } = req.body;
-        console.log("yyyyyyyyy",couponCodeInput)
-        console.log("yyyyyyyyy",discountInput)
+
+        console.log("kkk",addressId,)
+        
+        const userId = req.session.user;
+        const cart = await Cart.findOne({ userId: userId });
         
         if (!addressId) {
-            return res.status(400).json({
-                success: false,
-                status: 'missing_address',
-                message: "Shipping address is required",
-                redirectUrl: `/payment-failure?reason=missing_address`
-            });
-        }
-                const userId = req.session.user;
-                const cart = await Cart.findOne({ userId: userId });
-
+          return res.status(400).json({
+              success: false,
+              status: 'missing_address',
+              message: "Shipping address is required",
+              redirectUrl: `/payment-failure?reason=missing_address`
+          });
+      }
+      const address = await Address.findById(addressId);
+      if (!address) {
+          return res.status(404).json({
+              success: false,
+              status: 'address_not_found',
+              message: "Selected shipping address not found",
+              redirectUrl: `/payment-failure?reason=address_not_found`
+          });
+      }
         const expectedSignature = crypto
             .createHmac("sha256", process.env.RAZOR_KEY_SECRET)
             .update(`${order_id}|${payment_id}`)
@@ -149,7 +159,7 @@ const verifyPayment = async (req, res) => {
             totalPrice: safeTotal + safeDiscount, 
             finalAmount: safeTotal,
             status: "Pending",
-            shippingAddress: addressId, 
+            shippingAddress: addressId,
             paymentMethod: "Online",
             paymentStatus: "Pending",
             razorpayOrderId: order_id,

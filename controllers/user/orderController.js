@@ -257,7 +257,7 @@ const generateInvoice = async (req, res) => {
            .text(`Invoice Number: INV-${orderId.slice(-8).toUpperCase()}`, 50, 160)
            .text(`Date: ${new Date(order.createdAt).toLocaleDateString()}`, 50, 175)
            .text(`Payment Method: ${order.paymentMethod}`, 50, 190)
-           .text(`Payment Status: ${order.paymentStatus}`, 50, 205);
+        //    .text(`Payment Status: ${order.paymentStatus}`, 50, 205);
 
         doc.font('Helvetica-Bold')
            .fontSize(12)

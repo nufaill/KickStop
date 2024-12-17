@@ -48,10 +48,6 @@ const sortSearch = async (req, res) => {
                 SortingCondition = { createdAt: -1 };
         }
 
-        // const query = {
-        //     productName: { $regex: search, $options: 'i' }, 
-        // };
-
         
         if (category !== 'all-categories') {
             if (['Mens', 'Womens', 'Kids'].includes(category)) {

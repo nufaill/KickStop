@@ -200,4 +200,201 @@ async function getMostSellingBrands() {
     }
 }
 
-module.exports = { getDashboard };
+async function getMostSellingProducts() {
+    try {
+        const result = await Order.aggregate([
+            { $unwind: "$items" },
+            {
+                $lookup: {
+                    from: "products",
+                    localField: "items.productId",
+                    foreignField: "_id",
+                    as: "productDetails"
+                }
+            },
+            { $unwind: "$productDetails" },
+            {
+                $group: {
+                    _id: "$productDetails._id",
+                    productName: { $first: "$productDetails.productName" },
+                    totalQuantitySold: { $sum: "$items.quantity" }
+                }
+            },
+            { $sort: { totalQuantitySold: -1 } },
+            { $limit: 10 }
+        ]);
+
+        return result;
+    } catch (error) {
+        console.error("Error finding most selling products:", error);
+        return [];
+    }
+}
+
+async function getMostSellingCategories() {
+    try {
+        const result = await Order.aggregate([
+            { $unwind: "$items" },
+            {
+                $lookup: {
+                    from: "products",
+                    localField: "items.productId",
+                    foreignField: "_id",
+                    as: "productDetails"
+                }
+            },
+            { $unwind: "$productDetails" },
+            {
+                $lookup: {
+                    from: "categories",
+                    localField: "productDetails.category",
+                    foreignField: "_id",
+                    as: "categoryDetails"
+                }
+            },
+            { $unwind: "$categoryDetails" },
+            {
+                $group: {
+                    _id: "$productDetails.category",
+                    categoryName: { $first: "$categoryDetails.name" },
+                    totalQuantitySold: { $sum: "$items.quantity" }
+                }
+            },
+            { $sort: { totalQuantitySold: -1 } },
+            { $limit: 10 }
+        ]);
+
+        return result;
+    } catch (error) {
+        console.error("Error finding most selling categories:", error);
+        return [];
+    }
+}
+
+async function getMostSellingBrands() {
+    try {
+        const result = await Order.aggregate([
+            { $unwind: "$items" },
+            {
+                $lookup: {
+                    from: "products",
+                    localField: "items.productId",
+                    foreignField: "_id",
+                    as: "productDetails"
+                }
+            },
+            { $unwind: "$productDetails" },
+            {
+                $group: {
+                    _id: "$productDetails.brand",
+                    totalQuantitySold: { $sum: "$items.quantity" }
+                }
+            },
+            { $sort: { totalQuantitySold: -1 } },
+            { $limit: 10 }
+        ]);
+
+        return result;
+    } catch (error) {
+        console.error("Error finding most selling brands:", error);
+        return [];
+    }
+}
+
+const generateLedgerBook = async (req, res) => {
+    try {
+        if (!req.session.admin) {
+            return res.status(403).json({ error: 'Unauthorized' });
+        }
+
+        // Fetch Sales Data
+        const salesData = await Order.aggregate([
+            {
+                $group: {
+                    _id: { 
+                        month: { $month: "$createdAt" }, 
+                        year: { $year: "$createdAt" }
+                    },
+                    totalSales: { $sum: "$finalAmount" },
+                    totalOrders: { $sum: 1 }
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    month: "$_id.month",
+                    year: "$_id.year",
+                    totalSales: 1,
+                    totalOrders: 1
+                }
+            },
+            { $sort: { year: 1, month: 1 } }
+        ]);
+
+        // Fetch Product Sales
+        const productData = await Order.aggregate([
+            { $unwind: "$items" },
+            {
+                $lookup: {
+                    from: "products",
+                    localField: "items.productId",
+                    foreignField: "_id",
+                    as: "productDetails"
+                }
+            },
+            { $unwind: "$productDetails" },
+            {
+                $group: {
+                    _id: "$productDetails._id",
+                    productName: { $first: "$productDetails.productName" },
+                    totalQuantitySold: { $sum: "$items.quantity" },
+                    totalRevenue: { $sum: { $multiply: ["$items.quantity", "$items.price"] } }
+                }
+            },
+            { $sort: { totalQuantitySold: -1 } }
+        ]);
+
+        // Fetch Category Sales
+        const categoryData = await Order.aggregate([
+            { $unwind: "$items" },
+            {
+                $lookup: {
+                    from: "products",
+                    localField: "items.productId",
+                    foreignField: "_id",
+                    as: "productDetails"
+                }
+            },
+            { $unwind: "$productDetails" },
+            {
+                $lookup: {
+                    from: "categories",
+                    localField: "productDetails.category",
+                    foreignField: "_id",
+                    as: "categoryDetails"
+                }
+            },
+            { $unwind: "$categoryDetails" },
+            {
+                $group: {
+                    _id: "$categoryDetails._id",
+                    categoryName: { $first: "$categoryDetails.name" },
+                    totalQuantitySold: { $sum: "$items.quantity" },
+                    totalRevenue: { $sum: { $multiply: ["$items.quantity", "$items.price"] } }
+                }
+            },
+            { $sort: { totalQuantitySold: -1 } }
+        ]);
+
+        res.json({
+            sales: salesData,
+            products: productData,
+            categories: categoryData
+        });
+    } catch (error) {
+        console.error("Ledger Generation Error:", error);
+        res.status(500).json({ error: 'Failed to generate ledger book' });
+    }
+};
+
+module.exports = { getDashboard,generateLedgerBook };

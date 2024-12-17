@@ -47,7 +47,13 @@ const loadCoupon = async (req,res) => {
                 message: 'Invalid or expired coupon code'
             });
         }
-
+        if (coupon.endOn < new Date()) {
+          return res.json({
+              success: false,
+              message: 'This coupon has ended.',
+              expired: true 
+          });
+      }
         if (!coupon.price || isNaN(coupon.price)) {
             return res.json({
                 success: false,

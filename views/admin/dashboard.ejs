@@ -114,6 +114,11 @@
                         </ol>
                     </nav>
                 </div>
+                <div>
+                    <button id="generateLedgerBtn" class="btn btn-ledger">
+                        <i class="bi bi-file-earmark-spreadsheet me-2"></i>Generate Ledger Book
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -230,192 +235,310 @@
     </section>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.5/xlsx.full.min.js"></script>
     <script>
-       document.addEventListener('DOMContentLoaded', function () {
-            const productsData = JSON.parse('<%- JSON.stringify(products) %>');
-            const categoriesData = JSON.parse('<%- JSON.stringify(categories) %>');
-            const brandsData = JSON.parse('<%- JSON.stringify(brands) %>');
-            const salesData = JSON.parse('<%-JSON.stringify(salesData)%>');
-
-           
-            const mainChartCtx = document.getElementById('mainChart');
-        if (mainChartCtx) {
-            const mainChart = new Chart(mainChartCtx, {
-                type: 'line',
-                data: {
-                    labels: salesData.monthly.labels,
-                    datasets: [
-                        {
-                            label: 'Monthly Sales',
-                            data: salesData.monthly.data,
-                            borderColor: 'rgba(128, 0, 0, 1)', 
-                            backgroundColor: 'rgba(128, 0, 0, 0.2)', 
-                            tension: 0.4,
-                            fill: true
-                        },
-                        {
-                            label: 'Weekly Sales',
-                            data: salesData.weekly.data,
-                            borderColor: 'rgba(220, 20, 60, 1)', 
-                            backgroundColor: 'rgba(220, 20, 60, 0.2)',
-                            tension: 0.4,
-                            fill: true,
-                            hidden: true
-                        },
-                        {
-                            label: 'Yearly Sales',
-                            data: salesData.yearly.data,
-                            borderColor: 'rgba(255, 140, 0, 1)', 
-                            backgroundColor: 'rgba(255, 140, 0, 0.2)',
-                            tension: 0.4,
-                            fill: true,
-                            hidden: true
-                        }
-                    ]
+        document.addEventListener('DOMContentLoaded', function () {
+            // Configuration object for chart styling
+            const chartConfig = {
+                colors: {
+                    primary: 'rgba(128, 0, 0, 1)',
+                    secondary: 'rgba(220, 20, 60, 1)',
+                    accent: 'rgba(255, 140, 0, 1)',
+                    background: {
+                        primary: 'rgba(128, 0, 0, 0.2)',
+                        secondary: 'rgba(220, 20, 60, 0.2)',
+                        accent: 'rgba(255, 140, 0, 0.2)'
+                    }
                 },
                 options: {
                     responsive: true,
-                    maintainAspectRatio: false, 
+                    maintainAspectRatio: true,
                     layout: {
                         padding: {
                             top: 10,
                             bottom: 10
                         }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            min: 0,
-                            max: 60000,
-                            ticks: {
-                                stepSize: 3000,
-                                callback: (value) => `₹${value.toLocaleString()}`
+                    }
+                }
+            };
+        
+            // Utility function to safely parse JSON
+            const safeJSONParse = (jsonString, defaultValue = []) => {
+                try {
+                    return JSON.parse(jsonString) || defaultValue;
+                } catch (error) {
+                    console.error('JSON parsing error:', error);
+                    return defaultValue;
+                }
+            };
+        
+            // Parse data safely
+            const productsData = safeJSONParse('<%- JSON.stringify(products) %>');
+            const categoriesData = safeJSONParse('<%- JSON.stringify(categories) %>');
+            const brandsData = safeJSONParse('<%- JSON.stringify(brands) %>');
+            const salesData = safeJSONParse('<%-JSON.stringify(salesData)%>');
+        
+            // Main Sales Chart Initialization
+            const initMainSalesChart = () => {
+                const mainChartCtx = document.getElementById('mainChart');
+                if (!mainChartCtx) return null;
+        
+                return new Chart(mainChartCtx, {
+                    type: 'line',
+                    data: {
+                        labels: salesData.monthly.labels,
+                        datasets: [
+                            {
+                                label: 'Monthly Sales',
+                                data: salesData.monthly.data,
+                                borderColor: chartConfig.colors.primary,
+                                backgroundColor: chartConfig.colors.background.primary,
+                                tension: 0.4,
+                                fill: true
+                            },
+                            {
+                                label: 'Weekly Sales',
+                                data: salesData.weekly.data,
+                                borderColor: chartConfig.colors.secondary,
+                                backgroundColor: chartConfig.colors.background.secondary,
+                                tension: 0.4,
+                                fill: true,
+                                hidden: true
+                            },
+                            {
+                                label: 'Yearly Sales',
+                                data: salesData.yearly.data,
+                                borderColor: chartConfig.colors.accent,
+                                backgroundColor: chartConfig.colors.background.accent,
+                                tension: 0.4,
+                                fill: true,
+                                hidden: true
                             }
-                        }
+                        ]
                     },
-                    plugins: {
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    return `${context.dataset.label}: ₹${context.parsed.y.toLocaleString()}`;
+                    options: {
+                        ...chartConfig.options,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                min: 0,
+                                max: 60000,
+                                ticks: {
+                                    stepSize: 3000,
+                                    callback: (value) => `₹${value.toLocaleString()}`
+                                }
+                            }
+                        },
+                        plugins: {
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        return `${context.dataset.label}: ₹${context.parsed.y.toLocaleString()}`;
+                                    }
                                 }
                             }
                         }
                     }
-                }
-            });
-
-                document.getElementById('timeFilter').addEventListener('change', function (e) {
-                const timeFrame = e.target.value;
-                
-                mainChart.data.datasets.forEach((dataset, index) => {
-                    mainChart.data.datasets[index].hidden = true;
                 });
-
-                switch(timeFrame) {
-                    case 'weekly':
-                        mainChart.data.labels = salesData.weekly.labels;
-                        mainChart.data.datasets[1].hidden = false;
-                        break;
-                    case 'monthly':
-                        mainChart.data.labels = salesData.monthly.labels;
-                        mainChart.data.datasets[0].hidden = false;
-                        break;
-                    case 'yearly':
-                        mainChart.data.labels = salesData.yearly.labels;
-                        mainChart.data.datasets[2].hidden = false;
-                        break;
-                }
+            };
+        
+            // Time Filter Event Listener
+            const setupTimeFilterListener = (mainChart) => {
+                const timeFilter = document.getElementById('timeFilter');
+                if (!timeFilter || !mainChart) return;
+        
+                timeFilter.addEventListener('change', function (e) {
+                    const timeFrame = e.target.value;
+                    
+                    mainChart.data.datasets.forEach((dataset, index) => {
+                        mainChart.data.datasets[index].hidden = true;
+                    });
+        
+                    switch(timeFrame) {
+                        case 'weekly':
+                            mainChart.data.labels = salesData.weekly.labels;
+                            mainChart.data.datasets[1].hidden = false;
+                            break;
+                        case 'monthly':
+                            mainChart.data.labels = salesData.monthly.labels;
+                            mainChart.data.datasets[0].hidden = false;
+                            break;
+                        case 'yearly':
+                            mainChart.data.labels = salesData.yearly.labels;
+                            mainChart.data.datasets[2].hidden = false;
+                            break;
+                    }
+                    
+                    mainChart.update();
+                });
+            };
+        
+            // Products Chart Initialization
+            const initProductsChart = () => {
+                const productsChartCtx = document.getElementById("productsChart");
+                if (!productsChartCtx) return;
+        
+                return new Chart(productsChartCtx, {
+                    type: "bar",
+                    data: {
+                        labels: productsData.map(item => item.productName || 'Unknown'),
+                        datasets: [{
+                            label: "Quantity Sold",
+                            data: productsData.map(item => item.totalQuantitySold),
+                            backgroundColor: chartConfig.colors.primary,
+                        }]
+                    },
+                    options: {
+                        ...chartConfig.options,
+                        scales: {
+                            y: { 
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'Quantity'
+                                }
+                            }
+                        }
+                    }
+                });
+            };
+        
+            // Categories Chart with Dynamic Legend
+            const initCategoriesChart = () => {
+                const categoriesChartCtx = document.getElementById("categoriesChart");
+                const categoryLegendContainer = document.getElementById("categoryLegend");
                 
-                mainChart.update();
-            });
-        }
-
-    // Products Chart
-    const productsChartCtx = document.getElementById("productsChart");
-    if (productsChartCtx) {
-        new Chart(productsChartCtx, {
-            type: "bar",
-            data: {
-                labels: productsData.map(item => item.productName || 'Unknown'),
-                datasets: [{
-                    label: "Quantity Sold",
-                    data: productsData.map(item => item.totalQuantitySold),
-                    backgroundColor: "rgba(128, 0, 0, 2.6)",
-
-                }]
-            },
-            options: {
-                responsive: true,
-                scales: {
-                    y: { beginAtZero: true }
-                }
-            }
+                if (!categoriesChartCtx || !categoryLegendContainer) return;
+        
+                const categoriesChart = new Chart(categoriesChartCtx, {
+                    type: "pie",
+                    data: {
+                        labels: categoriesData.map(item => item.categoryName || 'Unknown'),
+                        datasets: [{
+                            data: categoriesData.map(item => item.totalQuantitySold),
+                            backgroundColor: [
+                                '#800000', '#B22222', '#CD5C5C', 
+                                '#FF7F50', '#FF4500', '#DA70D6'
+                            ],
+                        }]
+                    },
+                    options: {
+                        ...chartConfig.options,
+                        plugins: {
+                            legend: { display: false }
+                        }
+                    }
+                });
+        
+                // Custom Legend
+                categoryLegendContainer.innerHTML = ''; // Clear existing legend
+                categoriesChart.data.labels.forEach((label, index) => {
+                    const li = document.createElement('li');
+                    li.innerHTML = `
+                        <span class="badge me-2" style="background-color: ${categoriesChart.data.datasets[0].backgroundColor[index]}">
+                            ${label}
+                        </span>
+                        ${categoriesChart.data.datasets[0].data[index].toLocaleString()}
+                    `;
+                    categoryLegendContainer.appendChild(li);
+                });
+        
+                return categoriesChart;
+            };
+        
+            // Brands Chart Initialization
+            const initBrandsChart = () => {
+                const brandsChartCtx = document.getElementById("brandsChart");
+                if (!brandsChartCtx) return;
+        
+                return new Chart(brandsChartCtx, {
+                    type: "bar",
+                    data: {
+                        labels: brandsData.map(item => item._id || 'Unknown Brand'),
+                        datasets: [{
+                            label: "Total Sold",
+                            data: brandsData.map(item => item.totalQuantitySold),
+                            backgroundColor: chartConfig.colors.primary,
+                        }]
+                    },
+                    options: {
+                        ...chartConfig.options,
+                        scales: {
+                            y: { 
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'Quantity'
+                                }
+                            }
+                        }
+                    }
+                });
+            };
+        
+            // Ledger Book Generation
+            const setupLedgerBookGeneration = () => {
+                const generateLedgerBtn = document.getElementById('generateLedgerBtn');
+                if (!generateLedgerBtn) return;
+        
+                generateLedgerBtn.addEventListener('click', async function() {
+                    try {
+                        // Show loading state
+                        this.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Generating...';
+                        this.disabled = true;
+        
+                        // Fetch ledger data
+                        const response = await fetch('/admin/generate-ledger', {
+                            method: 'GET',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            }
+                        });
+        
+                        if (!response.ok) {
+                            throw new Error('Failed to generate ledger');
+                        }
+        
+                        const ledgerData = await response.json();
+        
+                        // Create workbook
+                        const workbook = XLSX.utils.book_new();
+                        
+                        // Sales Data Sheet
+                        const salesSheet = XLSX.utils.json_to_sheet(ledgerData.sales);
+                        XLSX.utils.book_append_sheet(workbook, salesSheet, 'Sales');
+        
+                        // Products Sheet
+                        const productsSheet = XLSX.utils.json_to_sheet(ledgerData.products);
+                        XLSX.utils.book_append_sheet(workbook, productsSheet, 'Products');
+        
+                        // Categories Sheet
+                        const categoriesSheet = XLSX.utils.json_to_sheet(ledgerData.categories);
+                        XLSX.utils.book_append_sheet(workbook, categoriesSheet, 'Categories');
+        
+                        // Write and download the file
+                        XLSX.writeFile(workbook, `KickStop_Ledger_${new Date().toISOString().split('T')[0]}.xlsx`);
+        
+                        // Reset button
+                        this.innerHTML = '<i class="bi bi-file-earmark-spreadsheet me-2"></i>Generate Ledger Book';
+                        this.disabled = false;
+                    } catch (error) {
+                        console.error('Ledger generation error:', error);
+                        alert('Failed to generate ledger. Please try again.');
+                        this.innerHTML = '<i class="bi bi-file-earmark-spreadsheet me-2"></i>Generate Ledger Book';
+                        this.disabled = false;
+                    }
+                });
+            };
+        
+            // Initialize all charts and features
+            const mainChart = initMainSalesChart();
+            setupTimeFilterListener(mainChart);
+            initProductsChart();
+            initCategoriesChart();
+            initBrandsChart();
+            setupLedgerBookGeneration();
         });
-    }
-
-    // Categories Chart with Dynamic Legend
-    const categoriesChartCtx = document.getElementById("categoriesChart");
-    const categoryLegendContainer = document.getElementById("categoryLegend");
-    if (categoriesChartCtx) {
-        const categoriesChart = new Chart(categoriesChartCtx, {
-            type: "pie",
-            data: {
-                labels: categoriesData.map(item => item.categoryName || 'Unknown'),
-                datasets: [{
-                    data: categoriesData.map(item => item.totalQuantitySold),
-                    backgroundColor: [
-                    '#800000',
-                    '#B22222',
-                    '#CD5C5C',
-                    '#FF7F50',
-                    '#FF4500',
-                    '#DA70D6',
-                ],
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: { display: false }
-                }
-            }
-        });
-
-        // Custom Legend
-        categoriesChart.data.labels.forEach((label, index) => {
-            const li = document.createElement('li');
-            li.innerHTML = `
-                <span class="badge me-2" style="background-color: ${categoriesChart.data.datasets[0].backgroundColor[index]}">
-                    ${label}
-                </span>
-                ${categoriesChart.data.datasets[0].data[index].toLocaleString()}
-            `;
-            categoryLegendContainer.appendChild(li);
-        });
-    }
-
-    // Brands Chart
-    const brandsChartCtx = document.getElementById("brandsChart");
-    new Chart(brandsChartCtx, {
-    type: "bar",
-    data: {
-        labels: brandsData.map(item => item._id || 'Unknown Brand'),
-        datasets: [{
-            label: "Total Sold",
-            data: brandsData.map(item => item.totalQuantitySold),
-            backgroundColor: "rgba(128, 0, 0, 6.6)",
-        }]
-    },
-    options: {
-        responsive: true,
-        scales: {
-            y: { beginAtZero: true }
-        }
-    }
-});
-    });
-
-    </script>
+        </script>
 
     <%- include('../layouts/admin/footer') %>

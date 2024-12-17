@@ -304,46 +304,68 @@
             });
         }
 
-        async function addToCart(productId) {
+        async function addToCart(id) {
             try {
-                const response = await fetch('/add-to-cart', {
+                const response = await fetch(`/add-to-cart/?id=${id}`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ productId: productId })
                 });
-                
                 const data = await response.json();
-                console.log('Response from server:', data);
-
                 if (data.success) {
-                    Swal.fire({
-                        position: "center",
-                        icon: "success",
-                        title: data.message,
-                        showConfirmButton: false,
-                        timer: 1500
-                    });
-                } else {
-                    Swal.fire({
-                        position: "center",
-                        icon: "error",
-                        title: data.message || "Failed to add product to cart",
-                        showConfirmButton: false,
-                        timer: 1500
-                    });
+            Swal.fire({
+                position: "top-end", 
+                icon: "success",
+                title: "Added to Cart",
+                showConfirmButton: false,
+                timer: 3000, 
+                timerProgressBar: true,
+                toast: true,
+                didOpen: (toast) => {
+                    toast.addEventListener('mouseenter', Swal.stopTimer)
+                    toast.addEventListener('mouseleave', Swal.resumeTimer)
                 }
+            });
+        } else if (data.alreadyInCart) {
+            Swal.fire({
+                position: "top-end", 
+                icon: "info",
+                title: "Product Already in Cart",
+                showConfirmButton: false,
+                timer: 3000, 
+                timerProgressBar: true,
+                toast: true,
+                didOpen: (toast) => {
+                    toast.addEventListener('mouseenter', Swal.stopTimer)
+                    toast.addEventListener('mouseleave', Swal.resumeTimer)
+                }
+            });
+        } else {
+            Swal.fire({
+                position: "top-end",
+                icon: "error",
+                title: data.message,
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true,
+                toast: true,
+                didOpen: (toast) => {
+                    toast.addEventListener('mouseenter', Swal.stopTimer)
+                    toast.addEventListener('mouseleave', Swal.resumeTimer)
+                }
+            });
+        }
             } catch (error) {
-                Swal.fire({
-                    position: "center",
-                    icon: "error",
-                    title: "Network error. Please try again.",
-                    showConfirmButton: false,
-                    timer: 1500
-                });
+                console.error('Error adding to cart:', error.message);
             }
         }
+        
+        function handleSearch(event) {
+    if (event.key === 'Enter') {
+        performSearch();
+    }
+}
         const animateOnScroll = (entries, observer) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {

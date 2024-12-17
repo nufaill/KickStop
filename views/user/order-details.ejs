@@ -494,11 +494,15 @@ function showOrderDetails(orderData) {
                         <p>Price: ₹${(item.price ? item.price.toLocaleString() : 'N/A')}</p>
                     </div>
                 </div>
-                   <div class="order-actions mt-3 text-center">
-                <a href="/download-invoice/${order._id}" class="btn btn" style="backgroun-color:#800000">
-                    <i class="fas fa-file-invoice"></i> Download Invoice
-                </a>
-            </div>
+                  <div class="order-actions mt-3 text-center">
+                        ${
+                            orderDetails.status.toLowerCase() === 'pending'
+                            ? '<p class="text-danger">Payment is pending. Invoice cannot be downloaded.</p>'
+                            : `<a href="/download-invoice/${order._id}" class="btn btn" style="background-color:#800000; color: white;">
+                                    <i class="fas fa-file-invoice"></i> Download Invoice
+                            </a>`
+                        }
+                    </div>
             `).join('<hr>') : 
             '<p>No items found in this order.</p>'
         }
