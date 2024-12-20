@@ -47,7 +47,7 @@
                     </select>
                 </div>
                 <div>
-                    <select id="cat-filter" class="sort-select" onchange="catFilter()">
+                    <select id="cat-filter" class="sort-select" onchange="handleCategoryChange()">
                         <option value="all-categories">All Categories</option>
                         <% for(let i=0; i < categories.length; i++) { %>
                             <option value="<%= categories[i]._id %>">
@@ -224,108 +224,7 @@
         console.error('Error adding to wishlist:', error.message);
     }
 }
-function handleSortChange() {
-    const sortBy = document.getElementById('sort-by').value;
-    const category = document.getElementById('cat-filter').value;
-
-    fetch('/sort-and-search', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ 
-            sort: sortBy, 
-            category: category
-        }),
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Failed to fetch products');
-        }
-        return response.json();
-    })
-    .then(data => {
-        if (data.products) {
-            updateProductList(data.products);
-        } else {
-            const productsContainer = document.getElementById('products-container');
-            productsContainer.innerHTML = '<p>No products found.</p>';
-            
-            Swal.fire({
-                position: "center",
-                icon: "warning",
-                title: "No products found",
-                showConfirmButton: false,
-                timer: 1500
-            });
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        
-        Swal.fire({
-            position: "center",
-            icon: "error",
-            title: "Failed to load products",
-            text: error.message,
-            showConfirmButton: false,
-            timer: 1500
-        });
-    });
-}
-
-function catFilter() {
-    handleSortChange();
-}
-
-
-function updateProductList(products) {
-    const productsContainer = document.getElementById('products-container');
-    productsContainer.innerHTML = ''; 
-
-    if (products.length === 0) {
-        productsContainer.innerHTML = '<p>No products found.</p>';
-        return;
-    }
-
-    products.forEach(product => {
-        const productHTML = `
-            <div class="col-lg-3 col-md-4 col-12 col-sm-6">
-                <div class="product-cart-wrap mb-30">
-                    <div class="product-img-action-wrap">
-                        <a href="/product-details?productId=${product._id}">
-                            <img src="/uploads/re-image/${product.productImage[0]}" alt="${product.productName}">
-                        </a>
-                         <div class="product-action-1">
-                                        <a aria-label="Quick view" class="action-btn hover-up"
-                                            data-bs-toggle="modal" data-bs-target="#quickViewModal"><i
-                                                class="fi-rs-eye"></i></a>
-                                        <a aria-label="Add To Wishlist" class="action-btn hover-up"
-                                            href="#"><i class="fi-rs-heart"></i></a>
-                                        <a aria-label="Compare" class="action-btn hover-up"
-                                            href="#"><i class="fi-rs-shuffle"></i></a>
-                                    </div>
-                                     <div class="product-badges product-badges-position product-badges-mrg">
-                                        <span class="hot">Hot</span>
-                                    </div>
-                    </div>
-                    <div class="product-content-wrap">
-                        <h5>${product.productName}</h5>
-                        <p>₹${product.salePrice.toLocaleString()}</p>
-                        <span class="text-muted">₹${product.regularPrice.toLocaleString()}</span>
-                        <div class="rating-result" title="90%">
-                                        <span>
-                                            <span>90%</span>
-                                        </span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        `;
-        productsContainer.insertAdjacentHTML('beforeend', productHTML);
-    });
-};
-  async function addToCart(id) {
+async function addToCart(id) {
             try {
                 const response = await fetch(`/add-to-cart/?id=${id}`, {
                     method: 'POST',
@@ -381,64 +280,245 @@ function updateProductList(products) {
                 console.error('Error adding to cart:', error.message);
             }
         }
+
+
+        let currentFilters = {
+    search: '',
+    category: 'all-categories',
+    sort: 'default',
+    page: 1
+};
+
+function updateURL() {
+    const params = new URLSearchParams();
+    Object.entries(currentFilters).forEach(([key, value]) => {
+        if (value && value !== 'all-categories') { // Only add non-default values
+            params.set(key, value);
+        }
+    });
+    const newUrl = `${window.location.pathname}${params.toString() ? '?' + params.toString() : ''}`;
+    window.history.replaceState({}, '', newUrl);
+}
+function loadFiltersFromURL() {
+    const params = new URLSearchParams(window.location.search);
+    const urlCategory = params.get('category');
+    currentFilters = {
+        search: params.get('search') || '',
+        category: urlCategory || 'all-categories',
+        sort: params.get('sort') || 'default',
+        page: parseInt(params.get('page')) || 1
+    };
+    
+    document.getElementById('search-input').value = currentFilters.search;
+    document.getElementById('cat-filter').value = currentFilters.category;
+    document.getElementById('sort-by').value = currentFilters.sort;
+}
+
+async function fetchFilteredProducts() {
+    try {
+        console.log('Sending filters:', currentFilters); 
         
-        function handleSearch(event) {
+        const response = await fetch('/sort-and-search', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(currentFilters)
+        });
+
+        const data = await response.json();
+        
+        if (!response.ok) {
+            throw new Error(data.error || 'Failed to fetch products');
+        }
+        
+        if (data.success) {
+            updateProductList(data.products);
+            updatePagination(data.pagination);
+            updateURL();
+            
+            // Update the category select to reflect current selection
+            const categorySelect = document.getElementById('cat-filter');
+            if (categorySelect) {
+                categorySelect.value = currentFilters.category;
+            }
+        } else {
+            throw new Error(data.error || 'Failed to fetch products');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        showError(error.message);
+        throw error; // Re-throw to be caught by the calling function
+    }
+}
+
+
+function handleSearch(event) {
     if (event.key === 'Enter') {
         performSearch();
     }
 }
 
 function performSearch() {
-    const searchQuery = document.getElementById('search-input').value.trim();
-    const sortBy = document.getElementById('sort-by').value;
-    const category = document.getElementById('cat-filter').value;
+    currentFilters.search = document.getElementById('search-input').value.trim();
+    currentFilters.page = 1; 
+    fetchFilteredProducts();
+}
 
-    fetch('/sort-and-search', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ 
-            search: searchQuery,
-            sort: sortBy, 
-            category: category
-        }),
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Failed to fetch products');
-        }
-        return response.json();
-    })
-    .then(data => {
-        if (data.products && data.products.length > 0) {
-            updateProductList(data.products);
-            
-            // // Show search results info
-            // Swal.fire({
-            //     position: "top-end",
-            //     icon: "info",
-            //     title: `${data.products.length} product(s) found`,
-            //     showConfirmButton: false,
-            //     timer: 1500,
-            //     toast: true
-            // });
-        } else {
-            const productsContainer = document.getElementById('products-container');
-            productsContainer.innerHTML = '<p>No products found.</p>';
-            
-            // Swal.fire({
-            //     position: "top-end",
-            //     icon: "warning",
-            //     title: "No products matching your search",
-            //     showConfirmButton: false,
-            //     timer: 1500
-            // });
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
+function handleSortChange() {
+    currentFilters.sort = document.getElementById('sort-by').value;
+    currentFilters.page = 1; 
+    fetchFilteredProducts();
+}
+
+function handleCategoryChange() {
+    const categorySelect = document.getElementById('cat-filter');
+    const selectedCategory = categorySelect.value;
+    
+    console.log('Selected category:', selectedCategory); // Debug log
+    
+    currentFilters.category = selectedCategory;
+    currentFilters.page = 1;
+    
+    // Add error handling for the fetch call
+    fetchFilteredProducts().catch(error => {
+        console.error('Error in category change:', error);
+        showError('Failed to filter by category. Please try again.');
     });
 }
+function handlePageChange(page) {
+    currentFilters.page = page;
+    fetchFilteredProducts();
+}
+
+function updateProductList(products) {
+    const productsContainer = document.getElementById('products-container');
+    if (!products || products.length === 0) {
+        productsContainer.innerHTML = '<div class="col-12 text-center"><p>No products found.</p></div>';
+        return;
+    }
+
+    productsContainer.innerHTML = products.map(product => `
+        <div class="col-lg-3 col-md-4 col-12 col-sm-6">
+            <div class="product-cart-wrap mb-30">
+                <div class="product-img-action-wrap">
+                    <div class="product-img product-img-zoom">
+                        <a href="/product-details?productId=${product._id}">
+                            <img class="default-img" src="uploads/re-image/${product.productImage[0]}" alt="">
+                            <img class="hover-img" src="uploads/re-image/${product.productImage[0]}" alt="">
+                        </a>
+                    </div>
+                    <div class="product-action-1">
+                        <a aria-label="Quick view" class="action-btn hover-up" data-bs-toggle="modal" data-bs-target="#quickViewModal">
+                            <i class="fi-rs-eye"></i>
+                        </a>
+                        <a aria-label="Add To Wishlist" class="action-btn hover-up" onclick="addToWishlist('${product._id}')">
+                            <i class="fi-rs-heart"></i>
+                        </a>
+                        <a aria-label="Compare" class="action-btn hover-up" href="#">
+                            <i class="fi-rs-shuffle"></i>
+                        </a>
+                    </div>
+                    <div class="product-badges product-badges-position product-badges-mrg">
+                        <span class="hot">Hot</span>
+                    </div>
+                </div>
+                <div class="product-content-wrap">
+                    <h2><a href="/product-details?productId=${product._id}">${product.productName}</a></h2>
+                    <div class="product-price">
+                        <span>₹${product.salePrice.toLocaleString()}</span>
+                        <span class="old-price">₹${product.regularPrice.toLocaleString()}</span>
+                    </div>
+                    <div class="product-action-1 show">
+                        <a aria-label="Add To Cart" class="action-btn hover-up" onclick="addToCart('${product._id}')">
+                            <i class="fi-rs-shopping-bag-add"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `).join('');
+}
+
+function updatePagination({ currentPage, totalPages }) {
+    const paginationContainer = document.querySelector('.pagination');
+    if (!paginationContainer) return;
+
+    let paginationHTML = '';
+    
+    
+    paginationHTML += `
+        <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+            <a class="page-link" onclick="handlePageChange(${currentPage - 1})" ${currentPage === 1 ? 'aria-disabled="true"' : ''}>
+                <span class="material-icons">chevron_left</span>
+            </a>
+        </li>
+    `;
+
+    let startPage = Math.max(1, currentPage - 2);
+    let endPage = Math.min(totalPages, startPage + 4);
+    if (endPage - startPage < 4) {
+        startPage = Math.max(1, endPage - 4);
+    }
+
+    if (startPage > 1) {
+        paginationHTML += `
+            <li class="page-item"><a class="page-link" onclick="handlePageChange(1)">1</a></li>
+            ${startPage > 2 ? '<li class="page-item disabled"><span class="page-link">...</span></li>' : ''}
+        `;
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
+        paginationHTML += `
+            <li class="page-item ${i === currentPage ? 'active' : ''}">
+                <a class="page-link" onclick="handlePageChange(${i})">${i}</a>
+            </li>
+        `;
+    }
+
+    if (endPage < totalPages) {
+        paginationHTML += `
+            ${endPage < totalPages - 1 ? '<li class="page-item disabled"><span class="page-link">...</span></li>' : ''}
+            <li class="page-item"><a class="page-link" onclick="handlePageChange(${totalPages})">${totalPages}</a></li>
+        `;
+    }
+
+    paginationHTML += `
+        <li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
+            <a class="page-link" onclick="handlePageChange(${currentPage + 1})" ${currentPage === totalPages ? 'aria-disabled="true"' : ''}>
+                <span class="material-icons">chevron_right</span>
+            </a>
+        </li>
+    `;
+
+    paginationContainer.innerHTML = paginationHTML;
+}
+
+function showError(message) {
+    Swal.fire({
+        position: "top-end",
+        icon: "error",
+        title: message,
+        showConfirmButton: false,
+        timer: 3000,
+        toast: true
+    });
+}
+
+
+document.addEventListener('DOMContentLoaded', () => {
+    loadFiltersFromURL();
+    
+    // Add event listener for category changes
+    const categorySelect = document.getElementById('cat-filter');
+    if (categorySelect) {
+        categorySelect.addEventListener('change', handleCategoryChange);
+    }
+    
+    fetchFilteredProducts().catch(error => {
+        console.error('Initial load error:', error);
+        showError('Failed to load products. Please refresh the page.');
+    });
+});
 </script>
 <%- include('../layouts/user/footer') %>

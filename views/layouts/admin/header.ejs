@@ -254,15 +254,10 @@
 
 <body>
     <div class="screen-overlay"></div>
-    <aside class="navbar-aside" id="offcanvas_aside">
-        <div class="aside-top">
-            <a href="#" class="brand-wrap">
-               <h1>𝑲𝒊𝒄𝒌𝑺𝒕𝒐𝒑</h1>
-            </a>
-            <div>
-                <button class="btn btn-icon btn-aside-minimize"> <i class="text-muted material-icons md-menu_open"></i> </button>
-            </div>
-        </div>
+    <aside class="navbar-aside" id="sidebar">
+        <div class="logo" style="margin: auto; width: 250px; padding-top: 20px;">
+            <img src="/evara-backend/assets/imgs/brands/KickStop.png" alt="Logo" style="width: 100%; height: auto;">
+        </div>        
         <nav>
             <ul class="menu-aside">
                 <li class="menu-item active">
@@ -308,11 +303,11 @@
                     </a>
                 </li>
                 <li class="menu-item">
-                    <a class="menu-link" href="/admin/banner"> 
-                        <i class="icon material-icons md-image"></i>
-                        <span class="text">Banner</span>
+                    <a class="menu-link" href="/admin/return-approvals"> 
+                        <i class="icon material-icons md-assignment_return"></i>
+                        <span class="text">return-approvals</span>
                     </a>
-                </li>
+                </li>                
                 <li class="menu-item">
                     <a class="menu-link" href="/admin/coupons"> 
                         <i class="icon material-icons md-local_activity"></i>
@@ -357,3 +352,12 @@
                 </ul>
             </div>
         </header>
+        <script>
+           document.querySelector('.nav-toggle').addEventListener('click', () => {
+    document.body.classList.toggle('sidebar-open');
+});
+
+document.querySelector('.screen-overlay').addEventListener('click', () => {
+    document.body.classList.remove('sidebar-open');
+});
+        </script>

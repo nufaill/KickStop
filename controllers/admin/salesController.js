@@ -10,7 +10,6 @@ const loadSalesReport = async (req, res) => {
         const limit = 10;
         const skip = (page - 1) * limit;
 
-        // Destructure with default empty strings
         const { 
             startDate = '', 
             endDate = '', 
@@ -20,7 +19,7 @@ const loadSalesReport = async (req, res) => {
         let filter = {};
 
         if (startDate && endDate) {
-            filter.createdAt = {
+            filter.createdOn = {
                 $gte: moment(startDate).startOf('day').toDate(),
                 $lte: moment(endDate).endOf('day').toDate()
             };
@@ -30,25 +29,25 @@ const loadSalesReport = async (req, res) => {
 
             switch (dateRange) {
                 case 'today':
-                    filter.createdAt = {
+                    filter.createdOn = {
                         $gte: today.startOf('day').toDate(),
                         $lte: today.endOf('day').toDate()
                     };
                     break;
                 case 'week':
-                    filter.createdAt = {
+                    filter.createdOn = {
                         $gte: today.startOf('week').toDate(),
                         $lte: today.endOf('week').toDate()
                     };
                     break;
                 case 'month':
-                    filter.createdAt = {
+                    filter.createdOn = {
                         $gte: today.startOf('month').toDate(),
                         $lte: today.endOf('month').toDate()
                     };
                     break;
                 case 'year':
-                    filter.createdAt = {
+                    filter.createdOn = {
                         $gte: today.startOf('year').toDate(),
                         $lte: today.endOf('year').toDate()
                     };
@@ -61,8 +60,8 @@ const loadSalesReport = async (req, res) => {
 
         const orderData = await Order.find(filter)
             .populate("user")
-            .populate("items.productId")
-            .sort({ createdAt: -1 })
+            .populate("orderedItems.product")
+            .sort({ createdOn: -1 })
             .skip(skip)
             .limit(limit);
 
@@ -106,8 +105,8 @@ const exportSalesToPDF = async (req, res) => {
     try {
         const orders = await Order.find()
             .populate('user')
-            .populate('items.productId')
-            .sort({ createdAt: -1 });
+            .populate('orderedItems.product')
+            .sort({ createdOn: -1 });
 
         const doc = new PDFDocument({ margin: 30, size: 'A3' });
 
@@ -138,14 +137,14 @@ const exportSalesToPDF = async (req, res) => {
 
         orders.forEach((order, index) => {
             const user = order.user;
-            const products = order.items.map(item => item.productId.name).join(', ');
+            const products = order.orderedItems.map(item => item.product.name).join(', ');
             const row = [
                 slNo,
                 user ? user.username : 'N/A',
                 user ? user.email : 'N/A',
-                order.items.map(item => item.productId ? item.productId.productName : 'Unknown').join(', '),
-                order.items.length,
-                new Date(order.createdAt).toLocaleDateString(),
+                order.orderedItems.map(item => item.product ? item.product.productName : 'Unknown').join(', '),
+                order.orderedItems.length,
+                new Date(order.createdOn).toLocaleDateString(),
                 `RS ${order.totalPrice.toLocaleString()}`,
                 `RS ${(order.totalPrice - order.finalAmount).toLocaleString()}`,
                 `RS ${order.finalAmount.toLocaleString()}`,
@@ -207,8 +206,8 @@ const exportSalesToExcel = async (req, res) => {
        
         const orders = await Order.find()
             .populate("user")
-            .populate("items.productId")
-            .sort({ createdAt: -1 });
+            .populate("orderedItems.product")
+            .sort({ createdOn: -1 });
 
         
         const workbook = new ExcelJS.Workbook();
@@ -235,9 +234,9 @@ const exportSalesToExcel = async (req, res) => {
                 slNo: index + 1,
                 userName: order.user.username,
                 email: order.user.email,
-                products: order.items.map(item => item.productId ? item.productId.productName : 'Unknown').join(', '),
-                quantity: order.items.map(item => item.quantity).join(', '),
-                date: order.createdAt.toLocaleDateString(),
+                products: order.orderedItems.map(item => item.product ? item.product.productName : 'Unknown').join(', '),
+                quantity: order.orderedItems.map(item => item.quantity).join(', '),
+                date: order.createdOn.toLocaleDateString(),
                 totalPrice: order.totalPrice,
                 discount: Math.floor(order.totalPrice - order.finalAmount),
                 finalAmount: order.finalAmount,

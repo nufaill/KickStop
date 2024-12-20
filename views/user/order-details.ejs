@@ -241,6 +241,7 @@
 .pagination .page-link:hover {
     background-color: #f8f9fa;
     color: #495057;
+    text-decoration: none;
 }
 
 .pagination .page-item.active .page-link {
@@ -269,9 +270,9 @@
             <div class="order-card">
                 <div class="order-header">
                     <div>
-                        <strong>Order #<%= order._id.toString().slice(-8).toUpperCase() %></strong>
+                        <strong>Order #<%= order.orderId.toString().slice(-8).toUpperCase() %></strong>
                         <p class="text-muted">
-                            Ordered on <%= new Date(order.createdAt).toLocaleDateString('en-US', {
+                            Ordered on <%= new Date(order.createdOn).toLocaleDateString('en-US', {
                                 year: 'numeric',
                                 month: 'long',
                                 day: 'numeric'
@@ -284,33 +285,60 @@
                 </div>
 
                 <div class="product-list">
-                    <% order.items.forEach(function(item) { %>
-                        <div class="product-item">
-                            <img 
-                                src="/uploads/re-image/<%= item.productId.productImage[0] %>" 
-                                alt="<%= item.productId.productName %>" 
-                                class="product-image"
-                            >
-                            <div class="flex-grow-1">
-                                <%= item.productId.productName %> 
-                                <small>(Qty: <%= item.quantity %>)</small>
+                    <% if (order.orderedItems && Array.isArray(order.orderedItems) && order.orderedItems.length > 0) { %>
+                        <% order.orderedItems.forEach(function(orderedItem) { %>
+                            <div class="product-item">
+                                <% 
+                                const product = orderedItem.product && typeof orderedItem.product === 'object' 
+                                    ? orderedItem.product 
+                                    : {}; 
+                                %>
+                                <% if (product.productImage && product.productImage.length > 0) { %>
+                                    <img src="/uploads/re-image/<%= product.productImage[0] %>" 
+                                         alt="<%= product.productName || 'Product Image' %>"
+                                         class="product-image">
+                                <% } else { %>
+                                    <img src="/assets/imgs/default-product.jpg" 
+                                         alt="Default Image"
+                                         class="product-image">
+                                <% } %>
+                                <div class="flex-grow-1">
+                                    <%= product.productName || 'Product Name Unavailable' %> 
+                                    <small>(Qty: <%= orderedItem.quantity || 1 %>)</small>
+                                </div>
+                                <strong>₹<%= (orderedItem.price || 0).toFixed(2) %></strong>
                             </div>
-                            <strong>₹<%= (item.price).toFixed(2) %></strong>
-                        </div>
-                    <% }); %>
+                        <% }); %>
+                    <% } else { %>
+                        <p>No items found in this order.</p>
+                    <% } %>
                 </div>
+                
 
                 <div class="d-flex justify-content-between align-items-center mt-3">
                     <div>
                         <strong>Total: ₹<%= order.finalAmount.toFixed(2) %></strong>
                     </div>
+                    <div class="order-actions mt-3  text-center">
+                        <% if (order.status.toLowerCase() === 'payment pending') { %>
+                                 <button id="continuePaymentButton" class="btn btn-repay" style="margin-left: 325px;" 
+                                 onclick="confirmPayment('<%= order._id %>', '<%= order.paymentMethod %>')"><i class="fas fa-exchange-alt"></i> Continue Payment</button>
+                        <% } %>
+                    </div>
+                    <div class="order-actions mt-3 text-center">
+                        <% if (order.status.toLowerCase() === 'delivered') { %>
+                            <button class="btn btn-return " style="background-color: #f44336; color: white;"  onclick="confirmReturn('<%= order._id %>')">
+                                <i class="fas fa-undo-alt"></i> Return Order
+                            </button>
+                        <% } %>
+                    </div>
                     <div class="order-actions">
                         <% if ((order.paymentMethod.toLowerCase() === 'online' || order.paymentMethod.toLowerCase() === 'cod') && 
                         order.status !== 'Cancelled' && 
-                        ['Pending', 'Paid'].includes(order.status)) { %>
+                        ['Pending', 'Paid',].includes(order.status)) { %>
                             <button class="btn-cancel" onclick="cancelOrder('<%= order._id %>', 'Processing')">Cancel Order</button>
                         <% } %>
-                       <button class="btn-edit" onclick="showOrderDetails('<%= JSON.stringify( order ) %>')">View Details</button>
+                       <button class="btn-edit" onclick="showOrderDetails('<%= JSON.stringify(order) %>')">View Details</button>
                     </div>
                 </div>
             </div>
@@ -321,6 +349,57 @@
         </div>
     <% } %>
 </div>
+<nav aria-label="Order history pagination" class="d-flex justify-content-center mb-4">
+        <ul class="pagination">
+            <% if (currentPage > 1) { %>
+                <li class="page-item">
+                    <a class="page-link" href="?page=1" aria-label="First">
+                        <span aria-hidden="true"></span>
+                    </a>
+                </li>
+            <% } %>
+
+            <% if (currentPage > 1) { %>
+                <li class="page-item">
+                    <a class="page-link" href="?page=<%= currentPage - 1 %>" aria-label="Previous">
+                        <span aria-hidden="true"></span>
+                    </a>
+                </li>
+            <% } %>
+            <% 
+            let startPage = Math.max(1, currentPage - 2);
+            let endPage = Math.min(totalPages, startPage + 4);
+            
+            if (endPage - startPage < 4) {
+                startPage = Math.max(1, endPage - 4);
+            }
+            
+            for(let i = startPage; i <= endPage; i++) { 
+            %>
+                <li class="page-item <%= currentPage === i ? 'active' : '' %>">
+                    <a class="page-link" href="?page=<%= i %>"><%= i %></a>
+                </li>
+            <% } %>
+
+            <!-- Next -->
+            <% if (currentPage < totalPages) { %>
+                <li class="page-item">
+                    <a class="page-link" href="?page=<%= currentPage + 1 %>" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+            <% } %>
+
+            <!-- Last Page -->
+            <% if (currentPage < totalPages) { %>
+                <li class="page-item">
+                    <a class="page-link" href="?page=<%= totalPages %>" aria-label="Last">
+                        <span aria-hidden="true">&raquo;&raquo;</span>
+                    </a>
+                </li>
+            <% } %>
+        </ul>
+    </nav>
 <div class="modal fade order-details-modal" id="orderDetailsModal" tabindex="-1" aria-labelledby="orderDetailsModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -330,37 +409,14 @@
             </div>
             <div class="modal-body" id="orderDetailsModalBody">
             </div>
-        </div>
     </div>
 </div>
-<% if (totalPages > 1) { %>
-    <nav aria-label="Order history pagination" class="d-flex justify-content-center mb-4">
-        <ul class="pagination">
-            <% if (hasPrevPage) { %>
-                <li class="page-item">
-                    <a class="page-link" href="?page=<%= currentPage - 1 %>" aria-label="Previous">
-                        <span aria-hidden="true">&laquo;</span>
-                    </a>
-                </li>
-            <% } %>
 
-            <% for(let i = 1; i <= totalPages; i++) { %>
-                <li class="page-item <%= currentPage === i ? 'active' : '' %>">
-                    <a class="page-link" href="?page=<%= i %>"><%= i %></a>
-                </li>
-            <% } %>
 
-            <% if (hasNextPage) { %>
-                <li class="page-item">
-                    <a class="page-link" href="?page=<%= currentPage + 1 %>" aria-label="Next">
-                        <span aria-hidden="true">&raquo;</span>
-                    </a>
-                </li>
-            <% } %>
-        </ul>
-    </nav>
-<% } %>
+   
 
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script>
     async function cancelOrder(orderId) {
     try {
@@ -394,7 +450,7 @@
             });
 
             const data = await response.json();
-            console.log('API Response:', data); // Debugging: Log the response
+            console.log('API Response:', data); 
             Swal.close();
 
             if (response.ok && data.success) {
@@ -426,19 +482,19 @@
 function showOrderDetails(orderData) {
     try {
         const order = typeof orderData === 'string' ? JSON.parse(orderData) : orderData;
-        
         const modalBody = document.getElementById('orderDetailsModalBody');
         const orderDetails = {
-            orderId: order._id.toString().slice(-8).toUpperCase() || 'N/A',
-            date: order.createdAt ? new Date(order.createdAt).toLocaleDateString() : 'N/A',
+            orderId: order.orderId ? order.orderId.toString().slice(-8).toUpperCase() : 'N/A',
+            date: order.createdOn ? new Date(order.createdOn).toLocaleDateString() : 'N/A',
             paymentMethod: order.paymentMethod || 'N/A',
             finalAmount: order.finalAmount || 0,
             status: order.status || 'N/A',
-            shippingAddress: order.shippingAddress || null,
-            items: order.items || [],
+            address: order.address || null,
+            items: order.orderedItems || [],
             couponCode: order.couponCode || 'No Coupon Applied',
             couponAmount: order.couponAmount || 0
         };
+        console.log('order data -->', orderDetails)
 
         let detailsHTML = `
     <div class="row">
@@ -447,20 +503,20 @@ function showOrderDetails(orderData) {
             <p><strong>Order ID:</strong> ${orderDetails.orderId}</p>
             <p><strong>Date:</strong> ${orderDetails.date}</p>
             <p><strong>Payment Method:</strong> ${orderDetails.paymentMethod}</p>
-            <p><strong>Total Amount:</strong> ₹${orderDetails.finalAmount.toLocaleString()}</p>
+            <p><strong>Total Amount:</strong> ₹${orderDetails.finalAmount.toFixed(2)}</p>
             <p><strong>Status:</strong> ${orderDetails.status}</p>
         </div>
         <div class="col-md-6">
             <h6><strong>Shipping Address</strong></h6>
             <p>
-                ${orderDetails.shippingAddress ? `
-                    ${orderDetails.shippingAddress.name || 'Name not provided'}<br>
-                    ${orderDetails.shippingAddress.address || 'Address line not provided'}<br>
-                    ${orderDetails.shippingAddress.city || 'City'}, 
-                    ${orderDetails.shippingAddress.state || 'State'} 
-                    ${orderDetails.shippingAddress.pincode || 'Pincode'}<br>
-                    ${orderDetails.shippingAddress.landmark || 'Landmark not provided'}<br>
-                    ${orderDetails.shippingAddress.phone || 'Phone not provided'}
+                ${orderDetails.address ? `
+                    ${orderDetails.address.name || 'Name not provided'}<br>
+                    ${orderDetails.address.address || 'Address line not provided'}<br>
+                    ${orderDetails.address.city || 'City'}, 
+                    ${orderDetails.address.state || 'State'} 
+                    ${orderDetails.address.pincode || 'Pincode'}<br>
+                    ${orderDetails.address.landmark ? `Landmark: ${orderDetails.address.landmark}<br>` : ''}
+                    ${orderDetails.address.phone || 'Phone not provided'}
                 ` : 'No shipping address available'}
             </p>
         </div>
@@ -470,7 +526,7 @@ function showOrderDetails(orderData) {
         <div class="col-md-12">
             <h6><strong>Coupon Details</strong></h6>
             <p><strong>Coupon Code:</strong> ${orderDetails.couponCode}</p>
-            <p><strong>Discount Amount:</strong> ${orderDetails.couponAmount}%</p>
+            <p><strong>Discount Amount:</strong> ${orderDetails.couponAmount ? `₹${orderDetails.couponAmount.toFixed(2)}` : 'N/A'}</p>
         </div>
     </div>
     <hr>
@@ -478,31 +534,32 @@ function showOrderDetails(orderData) {
     <div class="row">
         ${orderDetails.items.length > 0 ? 
             orderDetails.items.map(item => `
-                <div class="col-md-12 product-row">
-                    <div>
+                <div class="col-md-12 product-row d-flex align-items-center mb-3">
+                    <div class="mr-3">
                         <img src="${
-                            (item.productId && item.productId.productImage) ? 
-                            '/uploads/re-image/'+item.productId.productImage[0] : 
-                            '/default-product-image.png'
+                            (item.product && item.product.productImage && item.product.productImage.length > 0) ? 
+                            '/uploads/re-image/' + item.product.productImage[0] : 
+                            '/assets/imgs/default-product.jpg'
                         }" 
-                             alt="${(item.productId && item.productId.productName) ? item.productId.productName : 'Product'}" 
-                             class="product-image">
+                             alt="${(item.product && item.product.productName) ? item.product.productName : 'Product'}" 
+                             style="width: 100px; height: 100px; object-fit: cover; margin-right: 15px;">
                     </div>
                     <div>
-                        <p><strong>${(item.productId && item.productId.productName) ? item.productId.productName : 'Product Name Unavailable'}</strong></p>
-                        <p>Quantity: ${item.quantity || 'N/A'}</p>
-                        <p>Price: ₹${(item.price ? item.price.toLocaleString() : 'N/A')}</p>
+                        <p class="mb-1"><strong>${(item.product && item.product.productName) ? item.product.productName : 'Product Name Unavailable'}</strong></p>
+                        <p class="mb-1">Quantity: ${item.quantity || 'N/A'}</p>
+                        <p class="mb-1">Price: ₹${(item.price ? item.price.toLocaleString() : 'N/A')}</p>
                     </div>
                 </div>
                   <div class="order-actions mt-3 text-center">
                         ${
-                            orderDetails.status.toLowerCase() === 'pending'
-                            ? '<p class="text-danger">Payment is pending. Invoice cannot be downloaded.</p>'
+                            orderDetails.status.toLowerCase() === 'pending' || orderDetails.status === 'Payment Pending'
+                            ? '<p class="text-danger">Invoice cannot be downloaded.</p>'
                             : `<a href="/download-invoice/${order._id}" class="btn btn" style="background-color:#800000; color: white;">
                                     <i class="fas fa-file-invoice"></i> Download Invoice
                             </a>`
                         }
                     </div>
+
             `).join('<hr>') : 
             '<p>No items found in this order.</p>'
         }
@@ -516,7 +573,12 @@ function showOrderDetails(orderData) {
 
     } catch (error) {
         console.error('Error in showOrderDetails:', error);
-        alert('Failed to load order details. Please check the console for more information.');
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Failed to load order details. Please try again.',
+            confirmButtonColor: '#800000'
+        });
     }
 }
 
@@ -537,6 +599,155 @@ function showOrderDetails(orderData) {
             card.style.transform = 'scale(1)';
         });
     });
+
+
+    async function confirmPayment(orderId) {
+          try {
+            const res = await fetch(`/retry-payment?id=${orderId}`);
+            if (!res.ok) {
+              throw new Error("Failed to fetch order details");
+            }
+
+            const { razorpay, orderDetails } = await res.json();
+
+            if (!orderDetails || !Array.isArray(orderDetails.orderedItems)) {
+              throw new Error("Invalid order details received");
+            }
+
+            const orderedItemsHTML = orderDetails.orderedItems
+              .map(item => `
+        <p>
+          <strong>Product:</strong> ${item.product.productName}<br>
+          <strong>Quantity:</strong> ${item.quantity}<br>
+          <strong>Price:</strong> ₹${item.price}
+        </p>
+      `).join("");
+
+            const orderInfo = `
+      <p><strong>Order ID:</strong> ${orderDetails.orderId}</p>
+      <p><strong>Total Price:</strong> ₹${orderDetails.totalPrice}</p>
+       <p><strong>Discount:</strong> ₹${orderDetails.discount}</p>
+      <p><strong>Final Amount:</strong> ₹${orderDetails.finalAmount}</p>
+      <p><strong>Status:</strong> ${orderDetails.status}</p>
+      <p><strong>Payment Status:</strong> ${orderDetails.paymentStatus}</p>
+      <p><strong>Payment Method:</strong> ${orderDetails.paymentMethod}</p>
+      <h4>Ordered Items:</h4>
+      ${orderedItemsHTML}
+    `;
+
+            const result = await Swal.fire({
+              title: "Order Details",
+              html: orderInfo,
+              icon: "info",
+              showCancelButton: true,
+              confirmButtonColor: '#2563eb',
+              cancelButtonColor: '#dc2626',
+              cancelButtonText: 'Cancel',
+              confirmButtonText: 'Pay Now',
+              heightAuto: false
+            });
+
+            if (result.isConfirmed) {
+              const options = {
+                key: '<%= process.env.RAZOR_KEY_ID %>',
+                amount: razorpay.amount,
+                currency: razorpay.currency,
+                order_id: razorpay.razorpayOrderId,
+                handler: async function (paymentResponse) {
+                  const updateRes = await fetch('/update-order', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                      orderId: orderDetails.orderId,
+                      paymentId: paymentResponse.razorpay_payment_id,
+                      razorpayOrderId: paymentResponse.razorpay_order_id,
+                      signature: paymentResponse.razorpay_signature,
+                      status: 'paid'
+                    })
+                  });
+
+                  if (updateRes.ok) {
+                    Swal.fire("Success", "Payment completed successfully.", "success").then(() => {
+                      window.location.reload();
+                    });
+                  } else {
+                    Swal.fire("Error", "Payment succeeded, but order update failed. Contact support.", "error");
+                  }
+                },
+                theme: { color: '#800000' }
+              };
+
+              const rzp = new Razorpay(options);
+
+              rzp.on('payment.failed', function () {
+                Swal.fire({
+                  icon: 'error',
+                  title: 'Payment Failed',
+                  text: 'The payment process failed. Please try again.',
+                  confirmButtonColor: '#800000'
+                });
+              });
+
+              rzp.open();
+            }
+          } catch (error) {
+            console.error("Error in retry payment:", error);
+            Swal.fire({
+              icon: 'error',
+              title: 'Error',
+              text: error.message || 'An error occurred while processing the payment.',
+              confirmButtonColor: '#800000'
+            });
+          }
+        }
+
+        async function confirmReturn(orderId) {
+          try {
+            const result = await Swal.fire({
+              title: "Return Order?",
+              icon: "warning",
+              text: "Reason for Returning Product",
+              html: `<textarea id="returnReason" class="swal2-textarea" placeholder="Enter your reason here"></textarea>`,
+              showCancelButton: true,
+              confirmButtonText: 'Submit',
+              cancelButtonText: 'Cancel',
+              preConfirm: () => {
+                const reason = document.getElementById('returnReason').value.trim();
+                if (!reason) {
+                  Swal.showValidationMessage('Reason cannot be empty');
+                }
+                return reason;
+              }
+            });
+
+            if (result.isConfirmed) {
+              const reason = result.value;
+
+              const response = await fetch('/return-request', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json', 
+                },
+                body: JSON.stringify({ 
+                  orderId: orderId,
+                  reason: reason,
+                }),
+              });
+
+              const responseData = await response.json();
+              console.log(responseData)
+              if (response.ok) {
+                Swal.fire('Success!', responseData.message, 'success');
+              } else {
+                Swal.fire('Error!', responseData.message, 'error');
+              }
+            }
+          } catch (error) {
+            console.error('Error:', error);
+            Swal.fire('Error!', 'Something went wrong. Please try again.', 'error');
+          }
+        }
+
 </script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <%- include('../layouts/user/footer.ejs') %>

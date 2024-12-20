@@ -78,6 +78,7 @@ router.get('/order-confirmation',userAuth, orderController.getOrderConfirmation)
 router.post('/cancel-order', userAuth,orderController.cancelOrder);
 router.get('/order-history', userAuth, orderController.getOrderHistory);
 router.get('/download-invoice/:orderId',userAuth,orderController.generateInvoice);
+router.post('/return-request',orderController.returnOrder)
 
 // products management
 router.get('/checkout',userAuth,productController.loadCheckout);
@@ -86,9 +87,9 @@ router.get('/all-products',productController.loadallProducts);
 router.get('/allbrands',productController.getBrands);
 
 //coupon management
-router.get('/couponList',userAuth,couponController.loadCoupon);
-router.post('/applyCoupon',userAuth,couponController.postCoupon);
-router.post('/remove-coupon',userAuth, couponController.removeCoupon);
+router.get('/couponList',userAuth,couponController.getCoupons)
+router.post('/apply-coupon',userAuth,couponController.applyCoupon)
+router.post('/remove-coupon',userAuth,couponController.removeCoupon);
 
 //wishlist management
 router.post('/add-to-wishlist', userAuth,wishlistController.loadWishlist);
@@ -102,8 +103,9 @@ router.post('/sort-and-search',filterController.sortSearch);
 router.get('/wallet',userAuth,walletController.loadWallet);
 
 //payment management
-router.post("/payment/initiate",userAuth,paymentController.loadRazorpay);
-router.post("/payment/verify",userAuth,paymentController.verifyPayment);
+router.post('/create-order',paymentController.createRazorpay);
+router.post('/update-order',paymentController.updateOrder);
+router.get('/retry-payment',paymentController.retryPayment);
 
 
 router.use(userController.pageNotFound);

@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
     <style>
-        :root {
+              :root {
             --primary-color: #800000;
             --secondary-color: #800000;
             --text-color: #333;
@@ -40,7 +40,6 @@
             transition: var(--transition);
         }
 
-        /* Header Sections */
         .header-top {
             background-color: var(--primary-color);
             color: white;
@@ -66,11 +65,8 @@
 
         .logo img {
             max-height: 60px;
+            width: auto;
             transition: var(--transition);
-        }
-
-        .logo img:hover {
-            transform: scale(1.05);
         }
 
         .search-bar {
@@ -117,10 +113,8 @@
             color: white;
         }
 
-        /* Navigation Menu */
         .main-menu {
             background-color: var(--light-gray);
-            padding: 0;
             border-top: 1px solid var(--border-color);
             display: flex;
             justify-content: center;
@@ -164,6 +158,15 @@
         }
 
         @media (max-width: 768px) {
+            .header-middle {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .search-bar {
+                margin: 10px 0;
+            }
+
             .hamburger {
                 display: flex;
             }
@@ -194,14 +197,8 @@
         </div>
 
         <div class="header-middle">
-            <div class="logo">
-                <a href="/"><h1>𝑲𝒊𝒄𝒌𝑺𝒕𝒐𝒑</h1></a>
-            </div>
-            <div class="search-bar">
-                <!-- <form action="/search-product" method="GET">
-                    <input type="text" name="q" placeholder="Search for items...">
-                    <button type="submit">🔍</button>
-                </form> -->
+            <div class="logo" style="width: max-content;">
+               <img src="evara-frontend/assets/imgs/new_images/KickStop.png" alt="Logo">
             </div>
             <div class="user-menu">
                 <% if (typeof user !== 'undefined' && user) { %>
@@ -230,46 +227,18 @@
                     <li><a href="/contact">Contact</a></li>
                 </ul>
             </nav>
-            <div class="hamburger">
+            <div class="hamburger" onclick="toggleMenu()">
                 <div></div>
                 <div></div>
                 <div></div>
             </div>
         </div>
     </header>
-
-    <!-- <script>
-document.addEventListener('DOMContentLoaded', () => {
-    const filterForm = document.getElementById('filter-form');
-    const priceRange = document.getElementById('price-range');
-    const priceOutput = document.getElementById('price-output');
-
-    // Price range dynamic output
-    // priceRange.addEventListener('input', () => {
-    //     priceOutput.textContent = `$${priceRange.value}`;
-    // });
-
-    // Filter form submission
-    // filterForm.addEventListener('submit', (e) => {
-    //     e.preventDefault();
-        
-    //     // Collect selected categories
-    //     const selectedCategories = Array.from(
-    //         filterForm.querySelectorAll('input[name="category"]:checked')
-    //     ).map(cb => cb.value);
-
-    //     // Construct search URL
-    //     const searchParams = new URLSearchParams({
-    //         q: document.querySelector('.search-bar input[name="q"]').value || '',
-    //         categories: selectedCategories,
-    //         minPrice: 0,
-    //         maxPrice: priceRange.value
-    //     });
-
-    //     // Redirect to search page with filters
-    //     window.location.href = `/search-product?${searchParams.toString()}`;
-    // });
-});
-    </script> -->
 </body>
+<script>
+    function toggleMenu() {
+        const nav = document.querySelector('.main-menu nav');
+        nav.classList.toggle('show');
+    }
+</script>
 </html>

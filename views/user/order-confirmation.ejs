@@ -22,35 +22,110 @@
         color: #800000;
         margin-bottom: 1rem;
     }
+    .verification-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        background-color: #e8f5e9;
+        padding: 12px 25px;
+        border-radius: 50px;
+        margin: 20px 0;
+        animation: fadeIn 0.5s ease-in;
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .verification-badge i {
+        color: #2e7d32;
+        font-size: 24px;
+    }
+    .verification-badge span {
+        color: #2e7d32;
+        font-weight: 600;
+    }
     .btn-order-details {
         background-color: #800000;
         color: white;
         border: none;
-        padding: 10px 20px;
+        padding: 12px 25px;
         border-radius: 5px;
         cursor: pointer;
         margin-top: 20px;
         text-decoration: none;
+        display: inline-block;
+        transition: all 0.3s ease;
+        font-weight: 600;
     }
     .btn-order-details:hover {
         background-color: #5c0202;
         color: white;
+        transform: translateY(-2px);
     }
     .order-date {
-        font-size: 1rem;
-        color: #00ff44;
-        margin-top: 10px;
+        font-size: 1.1rem;
+        color: #333;
+        margin: 20px 0;
+        padding: 15px;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        display: inline-block;
+    }
+    .delivery-info {
+        background-color: #fff3e0;
+        padding: 15px 25px;
+        border-radius: 8px;
+        margin: 20px 0;
+        display: inline-block;
+    }
+    .delivery-info i {
+        color: #e65100;
+        margin-right: 8px;
+    }
+    .success-animation {
+        width: 80px;
+        height: 80px;
+        margin: 20px auto;
+    }
+    .checkmark {
+        stroke: #4CAF50;
+        stroke-width: 2;
+        stroke-dasharray: 130;
+        stroke-dashoffset: 130;
+        animation: drawCheck 1s ease-in forwards;
+    }
+    @keyframes drawCheck {
+        0% { stroke-dashoffset: 130; }
+        100% { stroke-dashoffset: 0; }
     }
 </style>
 
 <div class="container">
-    <h1>Order Confirmation</h1>
-    <p>Thank you for your order!</p>
-    <br>
-    <p class="order-date">Delivery Date: <%= new Date(Date.now() + 7* 24 * 60 * 60 * 1000).toLocaleDateString() %></p>
+    <div class="success-animation">
+        <svg viewBox="0 0 52 52">
+            <circle cx="26" cy="26" r="25" fill="none" stroke="#4CAF50" stroke-width="2"/>
+            <path class="checkmark" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+        </svg>
+    </div>
 
-    <br>
-    <a href='/order-history' class="btn-order-details">View Order Details</a>
+    <h1>Order Confirmation</h1>
+    
+    <div class="verification-badge">
+        <i class="fi-rs-check-circle"></i>
+        <span>Order Successfully Verified</span>
+    </div>
+
+    <p>Thank you for your order! We're preparing it with care.</p>
+
+    <div class="delivery-info">
+        <i class="fi-rs-truck-side"></i>
+        Estimated Delivery Date: 
+        <strong><%= new Date(Date.now() + 7* 24 * 60 * 60 * 1000).toLocaleDateString() %></strong>
+    </div>
+
+    <a href='/order-history' class="btn-order-details">
+        <i class="fi-rs-file-invoice"></i> View Order Details
+    </a>
 </div>
 
 <%- include("../../views/layouts/user/footer") %>

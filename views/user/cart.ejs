@@ -289,19 +289,33 @@
 
     if (currentQuantity + change < 1) {
         Swal.fire({
-            icon: "warning",
-            title: "Minimum Quantity Reached",
-            text: "The minimum quantity is 1.",
-            confirmButtonColor: "#800000",
-        });
+                position: "top-end",
+                icon: "warning",
+                title: "minimum quantity is 1",
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true,
+                toast: true,
+                didOpen: (toast) => {
+                    toast.addEventListener('mouseenter', Swal.stopTimer)
+                    toast.addEventListener('mouseleave', Swal.resumeTimer)
+                }
+            });
         return;
     } else if (currentQuantity + change > maxQuantity) {
         Swal.fire({
-            icon: "warning",
-            title: "Maximum Quantity Reached",
-            text: `You can only order up to ${maxQuantity} items.`,
-            confirmButtonColor: "#800000",
-        });
+                position: "top-end",
+                icon: "warning",
+                title: "maximum quantity is 5",
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true,
+                toast: true,
+                didOpen: (toast) => {
+                    toast.addEventListener('mouseenter', Swal.stopTimer)
+                    toast.addEventListener('mouseleave', Swal.resumeTimer)
+                }
+            });
         return;
     }
 

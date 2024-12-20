@@ -494,10 +494,8 @@
 
       if (!valid) {
         formError.textContent = "Please fix the errors above and try again.";
-        showToast("Please correct the form errors", "error");
-      } else {
-        showToast("Form submitted successfully!", "success");
-      }
+        showToast("Please correct the form errors", "incorrect");
+      } 
 
       return valid;
     }

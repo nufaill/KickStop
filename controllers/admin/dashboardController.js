@@ -8,6 +8,9 @@ const getDashboard = async (req, res) => {
             const categories = await getMostSellingCategories();
             const brands = await getMostSellingBrands();
 
+            console.log('---------------------------------------------------->', products)
+            console.log('----branddddddsss---------------------------------------->', brands)
+
             const count = await Order.countDocuments();
 
             res.render('dashboard', { 
@@ -33,17 +36,17 @@ async function getTotalSales() {
         ]);
 
         const weeklySales = await Order.aggregate([
-            { $match: { createdAt: { $gte: new Date(new Date().getFullYear(), 0, 1) } } },
-            { $group: { _id: { $isoWeek: "$createdAt" }, sales: { $sum: "$finalAmount" } } }
+            { $match: { createdOn: { $gte: new Date(new Date().getFullYear(), 0, 1) } } },
+            { $group: { _id: { $isoWeek: "$createdOn" }, sales: { $sum: "$finalAmount" } } }
         ]);
 
         const monthlySales = await Order.aggregate([
-            { $match: { createdAt: { $gte: new Date(new Date().getFullYear(), 0, 1) } } },
-            { $group: { _id: { $month: "$createdAt" }, sales: { $sum: "$finalAmount" } } }
+            { $match: { createdOn: { $gte: new Date(new Date().getFullYear(), 0, 1) } } },
+            { $group: { _id: { $month: "$createdOn" }, sales: { $sum: "$finalAmount" } } }
         ]);
 
         const yearlySales = await Order.aggregate([
-            { $group: { _id: { $year: "$createdAt" }, sales: { $sum: "$finalAmount" } } },
+            { $group: { _id: { $year: "$createdOn" }, sales: { $sum: "$finalAmount" } } },
             { $sort: { "_id": 1 } },
             { $limit: 5 }
         ]);
@@ -102,11 +105,11 @@ async function getTotalSales() {
 async function getMostSellingProducts() {
     try {
         const result = await Order.aggregate([
-            { $unwind: "$items" },
+            { $unwind: "$orderedItems" },
             {
                 $lookup: {
                     from: "products",
-                    localField: "items.productId",
+                    localField: "orderedItems.product",
                     foreignField: "_id",
                     as: "productDetails"
                 }
@@ -114,9 +117,8 @@ async function getMostSellingProducts() {
             { $unwind: "$productDetails" },
             {
                 $group: {
-                    _id: "$productDetails._id",
-                    productName: { $first: "$productDetails.productName" },
-                    totalQuantitySold: { $sum: "$items.quantity" }
+                    _id: "$productDetails.productName",
+                    totalQuantitySold: { $sum: "$orderedItems.quantity" }
                 }
             },
             { $sort: { totalQuantitySold: -1 } },
@@ -133,11 +135,11 @@ async function getMostSellingProducts() {
 async function getMostSellingCategories() {
     try {
         const result = await Order.aggregate([
-            { $unwind: "$items" },
+            { $unwind: "$orderedItems" },
             {
                 $lookup: {
                     from: "products",
-                    localField: "items.productId",
+                    localField: "orderedItems.product",
                     foreignField: "_id",
                     as: "productDetails"
                 }
@@ -156,7 +158,7 @@ async function getMostSellingCategories() {
                 $group: {
                     _id: "$productDetails.category",
                     categoryName: { $first: "$categoryDetails.name" },
-                    totalQuantitySold: { $sum: "$items.quantity" }
+                    totalQuantitySold: { $sum: "$orderedItems.quantity" }
                 }
             },
             { $sort: { totalQuantitySold: -1 } },
@@ -173,11 +175,11 @@ async function getMostSellingCategories() {
 async function getMostSellingBrands() {
     try {
         const result = await Order.aggregate([
-            { $unwind: "$items" },
+            { $unwind: "$orderedItems" },
             {
                 $lookup: {
                     from: "products",
-                    localField: "items.productId",
+                    localField: "orderedItems.product",
                     foreignField: "_id",
                     as: "productDetails"
                 }
@@ -186,108 +188,7 @@ async function getMostSellingBrands() {
             {
                 $group: {
                     _id: "$productDetails.brand",
-                    totalQuantitySold: { $sum: "$items.quantity" }
-                }
-            },
-            { $sort: { totalQuantitySold: -1 } },
-            { $limit: 10 }
-        ]);
-
-        return result;
-    } catch (error) {
-        console.error("Error finding most selling brands:", error);
-        return [];
-    }
-}
-
-async function getMostSellingProducts() {
-    try {
-        const result = await Order.aggregate([
-            { $unwind: "$items" },
-            {
-                $lookup: {
-                    from: "products",
-                    localField: "items.productId",
-                    foreignField: "_id",
-                    as: "productDetails"
-                }
-            },
-            { $unwind: "$productDetails" },
-            {
-                $group: {
-                    _id: "$productDetails._id",
-                    productName: { $first: "$productDetails.productName" },
-                    totalQuantitySold: { $sum: "$items.quantity" }
-                }
-            },
-            { $sort: { totalQuantitySold: -1 } },
-            { $limit: 10 }
-        ]);
-
-        return result;
-    } catch (error) {
-        console.error("Error finding most selling products:", error);
-        return [];
-    }
-}
-
-async function getMostSellingCategories() {
-    try {
-        const result = await Order.aggregate([
-            { $unwind: "$items" },
-            {
-                $lookup: {
-                    from: "products",
-                    localField: "items.productId",
-                    foreignField: "_id",
-                    as: "productDetails"
-                }
-            },
-            { $unwind: "$productDetails" },
-            {
-                $lookup: {
-                    from: "categories",
-                    localField: "productDetails.category",
-                    foreignField: "_id",
-                    as: "categoryDetails"
-                }
-            },
-            { $unwind: "$categoryDetails" },
-            {
-                $group: {
-                    _id: "$productDetails.category",
-                    categoryName: { $first: "$categoryDetails.name" },
-                    totalQuantitySold: { $sum: "$items.quantity" }
-                }
-            },
-            { $sort: { totalQuantitySold: -1 } },
-            { $limit: 10 }
-        ]);
-
-        return result;
-    } catch (error) {
-        console.error("Error finding most selling categories:", error);
-        return [];
-    }
-}
-
-async function getMostSellingBrands() {
-    try {
-        const result = await Order.aggregate([
-            { $unwind: "$items" },
-            {
-                $lookup: {
-                    from: "products",
-                    localField: "items.productId",
-                    foreignField: "_id",
-                    as: "productDetails"
-                }
-            },
-            { $unwind: "$productDetails" },
-            {
-                $group: {
-                    _id: "$productDetails.brand",
-                    totalQuantitySold: { $sum: "$items.quantity" }
+                    totalQuantitySold: { $sum: "$orderedItems.quantity" }
                 }
             },
             { $sort: { totalQuantitySold: -1 } },
@@ -312,8 +213,8 @@ const generateLedgerBook = async (req, res) => {
             {
                 $group: {
                     _id: { 
-                        month: { $month: "$createdAt" }, 
-                        year: { $year: "$createdAt" }
+                        month: { $month: "$createdOn" }, 
+                        year: { $year: "$createdOn" }
                     },
                     totalSales: { $sum: "$finalAmount" },
                     totalOrders: { $sum: 1 }
@@ -333,11 +234,11 @@ const generateLedgerBook = async (req, res) => {
 
         // Fetch Product Sales
         const productData = await Order.aggregate([
-            { $unwind: "$items" },
+            { $unwind: "$orderedItems" },
             {
                 $lookup: {
                     from: "products",
-                    localField: "items.productId",
+                    localField: "orderedItems.productId",
                     foreignField: "_id",
                     as: "productDetails"
                 }
@@ -347,8 +248,8 @@ const generateLedgerBook = async (req, res) => {
                 $group: {
                     _id: "$productDetails._id",
                     productName: { $first: "$productDetails.productName" },
-                    totalQuantitySold: { $sum: "$items.quantity" },
-                    totalRevenue: { $sum: { $multiply: ["$items.quantity", "$items.price"] } }
+                    totalQuantitySold: { $sum: "$orderedItems.quantity" },
+                    totalRevenue: { $sum: { $multiply: ["$orderedItems.quantity", "$orderedItems.price"] } }
                 }
             },
             { $sort: { totalQuantitySold: -1 } }
@@ -356,11 +257,11 @@ const generateLedgerBook = async (req, res) => {
 
         // Fetch Category Sales
         const categoryData = await Order.aggregate([
-            { $unwind: "$items" },
+            { $unwind: "$orderedItems" },
             {
                 $lookup: {
                     from: "products",
-                    localField: "items.productId",
+                    localField: "orderedItems.productId",
                     foreignField: "_id",
                     as: "productDetails"
                 }
@@ -379,8 +280,8 @@ const generateLedgerBook = async (req, res) => {
                 $group: {
                     _id: "$categoryDetails._id",
                     categoryName: { $first: "$categoryDetails.name" },
-                    totalQuantitySold: { $sum: "$items.quantity" },
-                    totalRevenue: { $sum: { $multiply: ["$items.quantity", "$items.price"] } }
+                    totalQuantitySold: { $sum: "$orderedItems.quantity" },
+                    totalRevenue: { $sum: { $multiply: ["$orderedItems.quantity", "$orderedItems.price"] } }
                 }
             },
             { $sort: { totalQuantitySold: -1 } }

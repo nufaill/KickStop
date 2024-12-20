@@ -273,7 +273,7 @@
             };
         
             // Parse data safely
-            const productsData = safeJSONParse('<%- JSON.stringify(products) %>');
+            const productsData = safeJSONParse('<%- products %>');
             const categoriesData = safeJSONParse('<%- JSON.stringify(categories) %>');
             const brandsData = safeJSONParse('<%- JSON.stringify(brands) %>');
             const salesData = safeJSONParse('<%-JSON.stringify(salesData)%>');

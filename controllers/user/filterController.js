@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const Category = require("../../models/categorySchema");
 const Product = require("../../models/productSchema");
 
@@ -7,14 +8,13 @@ const sortSearch = async (req, res) => {
             search = '', 
             category = 'all-categories', 
             sort = 'default', 
-            page = 1, 
-            limit = 8 
+            page = 1
         } = req.body;
 
-        let SortingCondition;
+        const limit = 8; 
+        let sortingCondition;
         let query = { isBlocked: false };
-
-
+        
         if (search) {
             query.$or = [
                 { productName: { $regex: search, $options: 'i' } }, 
@@ -22,46 +22,66 @@ const sortSearch = async (req, res) => {
             ];
         }
 
-        switch (sort) {
-            case 'popularity':
-                SortingCondition = { popularity: -1 };
-                break;
-            case 'price-low-high':
-                SortingCondition = { salePrice: 1 };
-                break;
-            case 'price-high-low':
-                SortingCondition = { salePrice: -1 };
-                break;
-            case 'rating':
-                SortingCondition = { rating: -1 };
-                break;
-            case 'new-arrivals':
-                SortingCondition = { createdAt: -1 };
-                break;
-            case 'alphabetical-a-z':
-                SortingCondition = { productName: -1 };
-                break;
-            case 'alphabetical-z-a':
-                SortingCondition = { productName: 1 };
-                break;
-            default:
-                SortingCondition = { createdAt: -1 };
-        }
-
-        
-        if (category !== 'all-categories') {
-            if (['Mens', 'Womens', 'Kids'].includes(category)) {
-                query.category = category;
-            } else {
-                query.category = category;
+        if (category && category !== 'all-categories') {
+            try {
+                // Validate if the category is a valid MongoDB ObjectId
+                if (!mongoose.Types.ObjectId.isValid(category)) {
+                    return res.status(400).json({ 
+                        success: false, 
+                        error: "Invalid category ID" 
+                    });
+                }
+                
+                const categoryDoc = await Category.findById(category);
+                if (categoryDoc) {
+                    query.category = categoryDoc._id;
+                } else {
+                    return res.status(404).json({ 
+                        success: false, 
+                        error: "Category not found" 
+                    });
+                }
+            } catch (err) {
+                console.log("Category lookup error:", err);
+                return res.status(500).json({ 
+                    success: false, 
+                    error: "Error processing category filter" 
+                });
             }
         }
 
-        const skip = (page - 1) * limit;
+        switch (sort) {
+            case 'popularity':
+                sortingCondition = { popularity: -1 };
+                break;
+            case 'price-low-high':
+                sortingCondition = { salePrice: 1 };
+                break;
+            case 'price-high-low':
+                sortingCondition = { salePrice: -1 };
+                break;
+            case 'rating':
+                sortingCondition = { rating: -1 };
+                break;
+            case 'new-arrivals':
+                sortingCondition = { createdAt: -1 };
+                break;
+            case 'alphabetical-a-z':
+                sortingCondition = { productName: -1 };
+                break;
+            case 'alphabetical-z-a':
+                sortingCondition = { productName: 1 };
+                break;
+            default:
+                sortingCondition = { createdAt: -1 };
+        }
+
+        const skip = (parseInt(page) - 1) * limit;
 
         const [products, totalCount] = await Promise.all([
             Product.find(query)
-                .sort(SortingCondition)
+                .populate('category', 'name')
+                .sort(sortingCondition)
                 .skip(skip)
                 .limit(limit),
             Product.countDocuments(query)
@@ -70,16 +90,24 @@ const sortSearch = async (req, res) => {
         const totalPages = Math.ceil(totalCount / limit);
 
         res.status(200).json({ 
-            products, 
-            totalPages, 
-            currentPage: page 
+            success: true,
+            products,
+            pagination: {
+                currentPage: parseInt(page),
+                totalPages,
+                totalProducts: totalCount,
+                limit
+            }
         });
     } catch (error) {
         console.error("Error in sort and search:", error);
-        res.status(500).json({ error: "Internal server error" });
+        res.status(500).json({ 
+            success: false, 
+            error: "Internal server error" 
+        });
     }
 };
 
 module.exports = {
-    sortSearch,
+    sortSearch
 };

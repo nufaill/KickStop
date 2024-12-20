@@ -193,10 +193,10 @@
                                 </td>
                                 <td>
                                     <ul>
-                                        <% if (orders[i].items && orders[i].items.length > 0) { %>
-                                            <% orders[i].items.forEach(item => { %>
+                                        <% if (orders[i].orderedItems && orders[i].orderedItems.length > 0) { %>
+                                            <% orders[i].orderedItems.forEach(item => { %>
                                                 <li>
-                                                    <%= item.productId ? item.productId.productName : 'Unknown Product' %>
+                                                    <%= orders[i].orderedItems ? item.product.productName : 'Unknown Product' %>
                                                 </li>
                                             <% }); %>
                                         <% } else { %>
@@ -206,7 +206,7 @@
                                 </td>
                                 <td>
                                     <ul>
-                                        <% orders[i].items.forEach(item=> { %>
+                                        <% orders[i].orderedItems.forEach(item=> { %>
                                             <li>
                                                 <%= item.quantity %>
                                             </li>
@@ -214,10 +214,10 @@
                                     </ul>
                                 </td>
                                 <td>
-                                    <%= orders[i].createdAt.toLocaleDateString() %>
+                                    <%= orders[i].createdOn.toLocaleDateString() %>
                                 </td>
                                 <td>₹<%= Math.round(orders[i].totalPrice).toLocaleString() %></td>
-                                <td>₹<%= Math.floor(orders[i].totalPrice - orders[i].finalAmount) %></td>
+                                <td>₹<%= Math.round(orders[i].discount).toLocaleString() %></td>
                                 <td>₹<%= Math.round(orders[i].finalAmount).toLocaleString() %></td>
                                 <td>
                                     <%= orders[i].paymentMethod %>

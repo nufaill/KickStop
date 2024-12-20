@@ -10,6 +10,7 @@ const orderController = require("../controllers/admin/orderController");
 const stockController = require('../controllers/admin/stockController');
 const couponController = require('../controllers/admin/couponController');
 const salesController = require('../controllers/admin/salesController');
+const returnController = require('../controllers/admin/returnController');
 const {userAuth,adminAuth} = require("../middlewares/auth");
 const multer = require("multer");
 const storage = require("../helpers/multer");
@@ -60,8 +61,8 @@ router.post('/removeproductoffer',adminAuth,productController.removeProductOffer
 router.post('/deleteimage',adminAuth,productController.deleteSingleImage);
 
 //order Controller
-router.get('/orders', adminAuth, orderController.loadOrders);
-router.post('/update-order-status', adminAuth, orderController.updateOrderStatus);
+router.get("/orders",adminAuth,orderController.getOrderList);
+router.post('/update-status/:id',adminAuth,orderController.updateStatus);
 
 
 //stock Controller
@@ -79,5 +80,9 @@ router.post("/editCoupon",adminAuth,couponController.posteditCoupon);
 router.get("/sales-report",adminAuth,salesController.loadSalesReport);
 router.get('/sales-report/pdf',adminAuth, salesController.exportSalesToPDF);
 router.get('/sales-report/excel',adminAuth, salesController.exportSalesToExcel);
+
+//return Controller
+router.get('/return-approvals',adminAuth,returnController.getReturnApprovals)
+router.post('/returnDataUpdate',adminAuth,returnController.returnUpdate);
 
 module.exports = router;

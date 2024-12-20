@@ -1,4 +1,5 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
+
 const {Schema} = mongoose;
 
 const couponSchema = new mongoose.Schema({
@@ -30,17 +31,13 @@ const couponSchema = new mongoose.Schema({
     },
     isActive:{
         type:Boolean,
-        default:true,
+        default:true
     },
-    userId:[
-        {
-            type:mongoose.Schema.Types.ObjectId,
-            ref:'User'
-        }
-    ]
-},{
-    strict: false
+    userId:[{
+        type:mongoose.Schema.Types.ObjectId,
+        ref:'User'
+    }]
 })
 
-const Coupon = mongoose.model("Coupon",couponSchema);
-module.exports = Coupon;
+const Counpon = mongoose.model("Coupon",couponSchema);
+module.exports = Counpon;

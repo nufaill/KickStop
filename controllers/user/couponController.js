@@ -1,133 +1,100 @@
 
-const Coupon = require('../../models/couponSchema');
+const Coupon = require("../../models/couponSchema");
+const User = require("../../models/userSchema");
 
-const loadCoupon = async (req,res) => {
-    try {
-      
+
+
+const getCoupons=async (req,res)=>{
+  try {
       const user = req.session.user;
       if(!user){
         return res.redirect('/login');
       }
-  
+      const currentDate = new Date(); 
+
       const coupons = await Coupon.find({
-        isActive: true,
-        userId: { $ne: user },
+      isActive: true,
+      userId: { $ne: user },
+      endOn:{$gt:currentDate}
       });
       
       res.render('couponList',{coupons});
-  
-    } catch (error) {
-      console.error("loadCoupons not worked",error)
-    }
+  } catch (error) {
+      
   }
+}
 
-  const postCoupon = async (req, res) => {
-    try {
-        const { couponCode, cartTotal } = req.body;
-        const totalAmount = Number(cartTotal);
-
-        if (!totalAmount || isNaN(totalAmount)) {
-            return res.json({
-                success: false,
-                message: 'Invalid cart total'
-            });
-        }
-
-        const userId = req.session.user;
-
-        const coupon = await Coupon.findOne({
-            code: couponCode,
-            isActive: true,
-            endOn: { $gt: new Date() }
-        });
-
-        if (!coupon) {
-            return res.json({
-                success: false,
-                message: 'Invalid or expired coupon code'
-            });
-        }
-        if (coupon.endOn < new Date()) {
-          return res.json({
-              success: false,
-              message: 'This coupon has ended.',
-              expired: true 
-          });
+const applyCoupon=async (req,res)=>{
+  const {couponCode,totalPrice}=req.body;
+  
+  try {
+      const userId=req.session.user
+      if (!couponCode || !totalPrice) {
+        
+          return res.status(400).json({ success: false, message: "Missing coupon code or price" });
       }
-        if (!coupon.price || isNaN(coupon.price)) {
-            return res.json({
-                success: false,
-                message: 'Coupon offer percentage is invalid'
-            });
-        }
+      
+      const coupon =await Coupon.findOne({code:couponCode,endOn:{$gt:Date.now()}})
+      if(!coupon){
+          return res.json({success:false,meassge:'invalid or expired coupon'})
+      }
+      if(coupon.minimumPrice>totalPrice){
+          return res.json({ success: false, message: `minimum price to apply coupon ${coupon.minimumPrice}` });
 
-        if (coupon.userId.includes(userId)) {
-            return res.json({
-                success: false,
-                message: 'Coupon has already been used by this user'
-            });
-        }
-
-        // Enhanced minimum price check with more descriptive message
-        if (coupon.minimumAmount && totalAmount < coupon.minimumAmount) {
-            return res.json({
-                success: false,
-                message: `Coupon requires a minimum purchase of ₹${coupon.minimumAmount}. Your current cart total is ₹${totalAmount}.`
-            });
-        }
-
-        // Optional: Add a maximum total check if specified in coupon schema
-        if (coupon.maximumAmount && totalAmount > coupon.maximumAmount) {
-            return res.json({
-                success: false,
-                message: `Coupon is valid only for purchases up to ₹${coupon.maximumAmount}. Your current cart total is ₹${totalAmount}.`
-            });
-        }
-
-        const discountAmount = (totalAmount * coupon.price) / 100;
-        const discountedTotal = totalAmount - discountAmount;
-
-        console.log("Discount Amount:", discountAmount, "Discounted Total:", discountedTotal);
-
+      }
+      if (coupon.userId && coupon.userId.includes(userId)) {
         return res.json({
-            success: true,
-            message: 'Coupon applied successfully!',
-            discountedTotal,
-            discountAmount
+          success: false,
+          message: 'You have already used this coupon'
         });
-    } catch (error) {
-        console.error('Invalid coupon:', error);
-        return res.status(500).json({
-            success: false,
-            message: 'Failed to apply coupon'
-        });
-    }
-};
+      }
+      const discount = parseFloat(coupon.price);
+      if (isNaN(discount)) {
+          return res.status(400).json({ success: false, message: "Invalid discount value" });
+      }
+      const discountAmount = (totalPrice * discount) / 100;
+      const finalTotal = totalPrice - discountAmount;
 
+      await Coupon.findByIdAndUpdate(
+        coupon._id,
+        { $addToSet: { userId: userId } },
+        { new: true }
+      );
 
-  const removeCoupon = async (req, res) => {
-    try {
-  
-      const { totalPrice } = req.body;
-  
-      const discountAmount = 0;
-      const finalTotal = totalPrice;
-  
-      res.json({
-        success: true,
-        discountAmount,
-        finalTotal,
+      res.status(200).json({
+          success: true,
+          discountAmount: discountAmount.toFixed(2),
+          finalTotal: finalTotal.toFixed(2),
+          message: "Coupon applied successfully!"
       });
-  
-    } catch (error) {
-      console.error("Error removing coupon", error);
-      res.status(500);
-    }
+  } catch (error) {
+      console.error(error);
+      
   }
+}
+const removeCoupon = async (req, res) => {
+  try {
+    const { totalPrice } = req.body;
+    const discountAmount = 0;
+    const finalTotal = totalPrice;
 
-  
-module.exports={
-    loadCoupon,
-    postCoupon,
-    removeCoupon
+    return res.json({
+      success: true,
+      discountAmount,
+      finalTotal,
+    });
+  } catch (error) {
+    console.error("Error removing coupon:", error);
+    res.status(500).json({
+      success: false,
+      message: "Internal server error"
+    });
+  }
+}
+
+
+module.exports = {
+    applyCoupon,
+    removeCoupon,
+    getCoupons
 }
