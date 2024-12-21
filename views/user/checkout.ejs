@@ -398,7 +398,7 @@
                                                 <img src="/uploads/re-image/<%= product.productImage[0] %>"
                                                     alt="<%= product.productName %>" width="50" height="50"
                                                     class="mr-2">
-                                                <%= product.productName %> (x<%=quantity %>)
+                                                <%= product.productName %> (x<%=product.quantity %>)
                                             </td>
                                             <td>₹<%= product.salePrice.toLocaleString() %>
                                             </td>
@@ -790,9 +790,6 @@
                             return;
 
                         }
-                        // couponMessage.textContent = result.message || 'Coupon applied successfully!';
-                        // couponMessage.classList.remove('d-none');
-                        // couponError.classList.add('d-none');
                         applybtn.classList.add('d-none');
                         removebtn.classList.remove('d-none');
 
@@ -833,59 +830,72 @@
                 }
             }
 
-
             async function removeCoupon() {
-                const totalPriceElement = document.getElementById('finalPrice');
-                const discountRow = document.getElementById('discountDisplay');
-                const applyCouponBtn = document.getElementById('applyCouponBtn');
-                const removeCouponBtn = document.getElementById('removeCouponBtn');
-                const couponCodeInput = document.getElementById('couponCode');
+    const couponCode = document.getElementById('couponCode').value;
+    const totalPriceElement = document.getElementById('subtotal');
+    const discountDisplay = document.getElementById('discount');
+    const finalTotalDisplay = document.getElementById('totalPriceAfterDiscount');
+    const applybtn = document.getElementById('applyCouponBtn');
+    const removebtn = document.getElementById('removeCouponBtn');
 
-                if (!totalPriceElement || !discountRow) {
-                    Swal.fire({
-                        text: "Something went wrong. Please refresh the page and try again.",
-                        icon: "error"
-                    });
-                    return;
+    try {
+        const response = await fetch('/remove-coupon', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ couponCode })
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const result = await response.json();
+        if (result.success) {
+            // Reset discount and total price displays
+            const originalPrice = totalPriceElement.innerText.replace(',', '').replace('₹', '');
+            discountDisplay.innerHTML = '0';
+            finalTotalDisplay.innerHTML = `₹${parseFloat(originalPrice).toFixed(2)}`;
+            
+            // Reset coupon input
+            document.getElementById('couponCode').value = '';
+            
+            // Toggle buttons
+            applybtn.classList.remove('d-none');
+            removebtn.classList.add('d-none');
+
+            Swal.fire({
+                position: "top-end",
+                icon: "success",
+                title: 'Coupon Removed',
+                text: 'Coupon has been removed successfully',
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true,
+                toast: true,
+                didOpen: (toast) => {
+                    toast.addEventListener('mouseenter', Swal.stopTimer)
+                    toast.addEventListener('mouseleave', Swal.resumeTimer)
                 }
-
-                const originalPrice = parseFloat(totalPriceElement.getAttribute('data-original-price'));
-                if (isNaN(originalPrice)) {
-                    Swal.fire({
-                        text: "Original price not found",
-                        icon: "error"
-                    });
-                    return;
-                }
-
-                try {
-                    const response = await fetch('/remove-coupon', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ totalPrice: originalPrice })
-                    });
-
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
-
-                    const result = await response.json();
-
-                    if (result.success) {
-
-                        Swal.fire({
-                            text: "Coupon removed successfully",
-                            icon: "success"
-                        });
-                    }
-                } catch (error) {
-                    console.error('Error:', error);
-                    Swal.fire({
-                        text: "Failed to remove the coupon",
-                        icon: "error"
-                    });
-                }
+            });
+        }
+    } catch (error) {
+        console.error('Error removing coupon:', error);
+        Swal.fire({
+            position: "top-end",
+            icon: "error",
+            title: 'Error',
+            text: 'Failed to remove coupon. Please try again.',
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true,
+            toast: true,
+            didOpen: (toast) => {
+                toast.addEventListener('mouseenter', Swal.stopTimer)
+                toast.addEventListener('mouseleave', Swal.resumeTimer)
             }
+        });
+    }
+}
             document.addEventListener('DOMContentLoaded', function () {
                 togglePaymentButtons();
             });

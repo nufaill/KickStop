@@ -55,21 +55,6 @@ const handleLogin = async (req, res) => {
 }
 
 
-// const loadDashboard = async (req, res) => {
-//     try {
-//         if (!req.session.admin || (req.session.adminExpiresAt && Date.now() > req.session.adminExpiresAt)) {
-//             if (req.session) {
-//                 req.session.destroy();
-//             }
-//             return res.redirect("/admin/login");
-//         }
-//         res.render("dashboard");
-//     } catch (error) {
-//         console.error("Error loading dashboard:", error);
-//         res.redirect('/pageerror');
-//     }
-// };
-
 
 
 const logout = async (req, res) => {

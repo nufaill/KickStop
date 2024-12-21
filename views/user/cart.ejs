@@ -158,7 +158,7 @@
         <div class="container">
             <div class="breadcrumb">
                 <a href="/" rel="nofollow">Home</a>
-                <span></span> Shop
+                <span><a href="/all-products" rel="nofollow"> Shop</a></span> 
                 <span></span> Your Cart
             </div>
         </div>
@@ -223,7 +223,7 @@
                                 </div>
                                 <h2 class="empty-cart-text">Your Cart is Empty</h2>
                                 <p class="empty-cart-subtext">Looks like you haven't added anything to your cart yet.</p>
-                                <a href="/" class="shopping-btn">
+                                <a href="/all-products" class="shopping-btn">
                                     <i class="fi-rs-shopping-bag"></i>
                                     Start Shopping
                                 </a>
@@ -231,7 +231,7 @@
                         <% } %>
                     </div>
                     <div class="cart-action text-end">
-                        <a class="btn btn-success" href="/"><i class="fi-rs-shopping-bag mr-10"></i>Continue Shopping</a>
+                        <a class="btn btn-success" href="/all-products"><i class="fi-rs-shopping-bag mr-10"></i>Continue Shopping</a>
                     </div>
                     <br>
                     <hr><br>
@@ -306,7 +306,7 @@
         Swal.fire({
                 position: "top-end",
                 icon: "warning",
-                title: "maximum quantity is 5",
+                title: "maximum quantity ",
                 showConfirmButton: false,
                 timer: 3000,
                 timerProgressBar: true,

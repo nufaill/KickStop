@@ -8,8 +8,6 @@ const getDashboard = async (req, res) => {
             const categories = await getMostSellingCategories();
             const brands = await getMostSellingBrands();
 
-            console.log('---------------------------------------------------->', products)
-            console.log('----branddddddsss---------------------------------------->', brands)
 
             const count = await Order.countDocuments();
 

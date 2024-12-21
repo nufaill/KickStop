@@ -14,7 +14,7 @@ const Return = require('../../models/returnSchema');
 const placeOrderInitial = async (req, res) => {
     try {
         let { cart, totalPrice, couponCode, payment_option, discount, addressId, singleProduct } = req.body;
-        console.log('--------->req.body', req.body)
+        
         const userId = req.session.user;
         if (!addressId || addressId.trim() === '') {
             const defaultAddress = await Address.findOne({ userId: userId, isDefault: true });
@@ -50,10 +50,9 @@ const placeOrderInitial = async (req, res) => {
         const parsedTotalPrice = Number(totalPrice) || 0;
         const parsedDiscount = Number(discount) || 0;
 
-        let fullAmount = parsedTotalPrice + parsedDiscount;
+        let fullAmount = parsedTotalPrice;
         let convTotal = Number(fullAmount);
         let finAmount = parsedTotalPrice - parsedDiscount;
-        // finAmount = finAmount +(finAmount * 0.18)
         let convfin = Number(finAmount);
 
 
@@ -64,7 +63,7 @@ const placeOrderInitial = async (req, res) => {
         const orderData = {
             orderedItems,
             totalPrice: convTotal.toFixed(2),
-            finalAmount: parsedTotalPrice,
+            finalAmount: parsedTotalPrice - parsedDiscount,
             couponCode,
             discount,
             couponApplied,
@@ -89,7 +88,6 @@ const placeOrderInitial = async (req, res) => {
         }
 
         const newOrder = new Order(orderData);
-        console.log('new order', newOrder);
 
         await newOrder.save();
 
@@ -99,7 +97,7 @@ const placeOrderInitial = async (req, res) => {
                 const data = await Product.findByIdAndUpdate(product._id, {
                     $inc: { quantity: -1 }
                 });
-                console.log(`the data is ${data}`)
+               
             }
             const cart = await Cart.findOne({ userId });
             if (!cart) res.status(404).json({ message: "Cart not found" });
@@ -120,7 +118,6 @@ const placeOrderInitial = async (req, res) => {
 const getOrderConfirmation = async (req, res) => {
     try {
         const orderId = req.query.id;
-        console.log(orderId)
         return res.render('order-confirmation', { orderId })
     } catch (error) {
         console.log("error in loading successpage")
@@ -132,25 +129,37 @@ const cancelOrder = async (req, res) => {
         const { orderId } = req.body;
 
         if (!mongoose.Types.ObjectId.isValid(orderId)) {
-            return res.status(400).json({ success: false, message: 'Invalid order ID' });
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Invalid order ID' 
+            });
         }
 
         const order = await Order.findById(orderId);
         if (!order) {
-            return res.status(404).json({ success: false, message: 'Order not found' });
+            return res.status(404).json({ 
+                success: false, 
+                message: 'Order not found' 
+            });
         }
 
         if (order.paymentMethod.toLowerCase() !== 'online') {
-            return res.status(403).json({ success: false, message: 'Cannot cancel this order' });
+            return res.status(403).json({ 
+                success: false, 
+                message: 'Cannot cancel this order' 
+            });
         }
 
         const userId = req.session?.user;
-
         if (!userId) {
-            return res.status(400).json({ success: false, message: 'User not authenticated' });
+            return res.status(401).json({ 
+                success: false, 
+                message: 'User not authenticated' 
+            });
         }
 
         const amount = order.finalAmount;
+
         let wallet = await Wallet.findOne({ userId });
 
         if (!wallet) {
@@ -158,31 +167,43 @@ const cancelOrder = async (req, res) => {
                 userId,
                 balance: amount,
                 transactions: [{
-                    type: 'refund',
+                    type: 'credit', 
                     amount,
                     orderId,
-                    description: 'Order refund',
-                }],
+                    description: `Refund for cancelled order #${order.orderId}`,
+                    date: new Date()
+                }]
             });
         } else {
             wallet.balance += amount;
             wallet.transactions.push({
-                type: 'Refund',
+                type: 'credit', 
                 amount,
                 orderId,
-                description: 'Order refund',
+                description: `Refund for cancelled order #${order.orderId}`,
+                date: new Date()
             });
         }
 
+        // Save wallet changes
         await wallet.save();
 
+        // Update order status
         order.status = 'Cancelled';
         await order.save();
 
-        return res.json({ success: true, message: 'Order cancelled and refund processed successfully' });
+        return res.json({ 
+            success: true, 
+            message: 'Order cancelled and refund processed successfully',
+            refundAmount: amount 
+        });
+
     } catch (error) {
         console.error('Error cancelling order:', error);
-        return res.status(500).json({ success: false, message: 'Failed to cancel order' });
+        return res.status(500).json({ 
+            success: false, 
+            message: 'Failed to process order cancellation. Please try again later.' 
+        });
     }
 };
 
@@ -202,14 +223,14 @@ const getOrderHistory = async (req, res) => {
         const totalPages = Math.ceil(totalOrders / limit);
 
         const orders = await Order.find({ user })
-            .populate({
-                path: 'orderedItems.product',
-                model: 'Product'
-            })
+            .populate('orderedItems.product')  
             .populate('address')
             .sort({ createdOn: -1 })
             .skip(skip)
             .limit(limit);
+        
+        
+        
         const paginationData = {
             orders,
             moment,

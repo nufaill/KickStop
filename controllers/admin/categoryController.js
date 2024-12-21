@@ -147,9 +147,8 @@ const getUnlistCategory = async (req,res) => {
 const getEditCategory = async (req, res) => {
     try {
         const id = req.query.id;
-        // console.log(id)
         const category = await Category.findById(id);
-        // console.log(category)
+        
         if (!category) {
             return res.status(404).render('error-page', { message: "Category not found" });
         }

@@ -1,131 +1,292 @@
 <%- include("../../views/layouts/user/header") %>
 
 <style>
-    body {
-        font-family: Arial, sans-serif;
-        line-height: 1.6;
-        margin: 0;
-        padding: 0;
-        background-color: #f4f4f4;
-    }
-    .container {
-        width: 90%;
-        max-width: 800px;
-        margin: 2rem auto;
-        padding: 2rem;
-        background-color: #fff;
-        border-radius: 8px;
-        box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        text-align: center;
-    }
-    h1 {
-        color: #800000;
-        margin-bottom: 1rem;
-    }
-    .verification-badge {
-        display: inline-flex;
+    .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.5);
+        display: flex;
         align-items: center;
-        gap: 10px;
-        background-color: #e8f5e9;
-        padding: 12px 25px;
-        border-radius: 50px;
-        margin: 20px 0;
-        animation: fadeIn 0.5s ease-in;
+        justify-content: center;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease-in-out;
+        backdrop-filter: blur(5px);
+        z-index: 1000;
     }
-    @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(-10px); }
-        to { opacity: 1; transform: translateY(0); }
+
+    .modal-overlay.active {
+        opacity: 1;
+        visibility: visible;
     }
-    .verification-badge i {
-        color: #2e7d32;
-        font-size: 24px;
+
+    .success-modal {
+        background: white;
+        padding: 2rem;
+        border-radius: 15px;
+        width: 90%;
+        max-width: 500px;
+        position: relative;
+        transform: scale(0.7);
+        opacity: 0;
+        transition: all 0.3s ease-in-out;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
     }
-    .verification-badge span {
-        color: #2e7d32;
+
+    .modal-overlay.active .success-modal {
+        transform: scale(1);
+        opacity: 1;
+    }
+
+    .success-icon {
+        width: 100px;
+        height: 100px;
+        position: relative;
+        margin: 0 auto 1.5rem;
+    }
+
+    .success-icon svg {
+        width: 100%;
+        height: 100%;
+    }
+
+    .success-circle {
+        stroke-dasharray: 166;
+        stroke-dashoffset: 166;
+        stroke-width: 2;
+        stroke-miterlimit: 10;
+        stroke: #4CAF50;
+        fill: none;
+        animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+    }
+
+    .success-check {
+        transform-origin: 50% 50%;
+        stroke-dasharray: 48;
+        stroke-dashoffset: 48;
+        stroke: #4CAF50;
+        animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards;
+    }
+
+    @keyframes stroke {
+        100% {
+            stroke-dashoffset: 0;
+        }
+    }
+
+    .success-title {
+        color: #2C3E50;
+        font-size: 1.8rem;
         font-weight: 600;
+        text-align: center;
+        margin-bottom: 1rem;
+        opacity: 0;
+        transform: translateY(20px);
+        animation: slideUp 0.5s ease forwards 0.5s;
     }
-    .btn-order-details {
-        background-color: #800000;
-        color: white;
-        border: none;
-        padding: 12px 25px;
-        border-radius: 5px;
+
+    .success-message {
+        color: #666;
+        text-align: center;
+        margin-bottom: 2rem;
+        opacity: 0;
+        transform: translateY(20px);
+        animation: slideUp 0.5s ease forwards 0.7s;
+    }
+
+    .success-details {
+        background: #F8F9FA;
+        padding: 1rem;
+        border-radius: 8px;
+        margin-bottom: 1.5rem;
+        opacity: 0;
+        transform: translateY(20px);
+        animation: slideUp 0.5s ease forwards 0.9s;
+    }
+
+    .detail-item {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.5rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid #E9ECEF;
+    }
+
+    .detail-item:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+        padding-bottom: 0;
+    }
+
+    .modal-buttons {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        opacity: 0;
+        transform: translateY(20px);
+        animation: slideUp 0.5s ease forwards 1.1s;
+    }
+
+    .btn {
+        padding: 0.8rem 1.5rem;
+        border-radius: 8px;
+        font-weight: 600;
         cursor: pointer;
-        margin-top: 20px;
-        text-decoration: none;
-        display: inline-block;
         transition: all 0.3s ease;
-        font-weight: 600;
+        border: none;
     }
-    .btn-order-details:hover {
-        background-color: #5c0202;
+
+    .btn-primary {
+        background: #4CAF50;
         color: white;
+    }
+
+    .btn-primary:hover {
+        background: #43A047;
         transform: translateY(-2px);
     }
-    .order-date {
-        font-size: 1.1rem;
-        color: #333;
-        margin: 20px 0;
-        padding: 15px;
-        background-color: #f8f9fa;
-        border-radius: 8px;
-        display: inline-block;
+
+    .btn-secondary {
+        background: #E9ECEF;
+        color: #495057;
     }
-    .delivery-info {
-        background-color: #fff3e0;
-        padding: 15px 25px;
-        border-radius: 8px;
-        margin: 20px 0;
-        display: inline-block;
+
+    .btn-secondary:hover {
+        background: #DEE2E6;
+        transform: translateY(-2px);
     }
-    .delivery-info i {
-        color: #e65100;
-        margin-right: 8px;
+    .print-btn {
+        color: #FFFFFF;
     }
-    .success-animation {
-        width: 80px;
-        height: 80px;
-        margin: 20px auto;
+
+    .print-btn:hover {
+        color: #000000; 
     }
-    .checkmark {
-        stroke: #4CAF50;
-        stroke-width: 2;
-        stroke-dasharray: 130;
-        stroke-dashoffset: 130;
-        animation: drawCheck 1s ease-in forwards;
+
+    @keyframes slideUp {
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
     }
-    @keyframes drawCheck {
-        0% { stroke-dashoffset: 130; }
-        100% { stroke-dashoffset: 0; }
+
+    .confetti {
+        position: absolute;
+        width: 10px;
+        height: 10px;
+        opacity: 0;
+    }
+
+    @keyframes confettiFall {
+        0% {
+            opacity: 1;
+            transform: translateY(-100%) rotate(0deg);
+        }
+        100% {
+            opacity: 0;
+            transform: translateY(100vh) rotate(720deg);
+        }
     }
 </style>
 
-<div class="container">
-    <div class="success-animation">
-        <svg viewBox="0 0 52 52">
-            <circle cx="26" cy="26" r="25" fill="none" stroke="#4CAF50" stroke-width="2"/>
-            <path class="checkmark" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
-        </svg>
+<div class="modal-overlay" id="successModal">
+    <div class="success-modal">
+        <div class="success-icon">
+            <svg viewBox="0 0 52 52">
+                <circle class="success-circle" cx="26" cy="26" r="25" fill="none"/>
+                <path class="success-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8" stroke-width="4" stroke-linecap="round"/>
+            </svg>
+        </div>
+
+        <h2 class="success-title">
+            <%= typeof title !== 'undefined' ? title : 'Success!' %>
+        </h2>
+
+        <p class="success-message">
+            <%= typeof message !== 'undefined' ? message : 'Your order has been completed successfully.' %>
+        </p>
+
+        <div class="success-details">
+            <div class="detail-item">
+                <span>Reference ID</span>
+                <span>#<%= typeof referenceId !== 'undefined' ? referenceId : Math.random().toString(36).substr(2, 9).toUpperCase() %></span>
+            </div>
+            <div class="detail-item">
+                <span>Date</span>
+                <span><%= new Date().toLocaleDateString() %></span>
+            </div>
+            <div class="detail-item"> <i class="fi-rs-truck-side"></i> Estimated Delivery Date: 
+                <strong><%= new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toLocaleDateString() %></strong>
+            </div>
+            <div class="detail-item">
+                <span>Status</span>
+                <span style="color: #4CAF50">Completed</span>
+            </div>
+        </div>
+
+        <div class="modal-buttons">
+            <button class="btn btn-primary" style="color: #FFFFFF; background-color: #007bff; border: none;">
+                <a href="/order-history" class="btn-order-details" style="color: #FFFFFF; text-decoration: none;">
+                    <i class="fi-rs-file-invoice" style="color: #FFFFFF;"></i> View Order Details
+                </a>
+            </button>            
+            <button class="btn btn print-btn" onclick="window.print()" style="color: #ffffff;">Print Receipt</button>
+        </div>
     </div>
-
-    <h1>Order Confirmation</h1>
-    
-    <div class="verification-badge">
-        <i class="fi-rs-check-circle"></i>
-        <span>Order Successfully Verified</span>
-    </div>
-
-    <p>Thank you for your order! We're preparing it with care.</p>
-
-    <div class="delivery-info">
-        <i class="fi-rs-truck-side"></i>
-        Estimated Delivery Date: 
-        <strong><%= new Date(Date.now() + 7* 24 * 60 * 60 * 1000).toLocaleDateString() %></strong>
-    </div>
-
-    <a href='/order-history' class="btn-order-details">
-        <i class="fi-rs-file-invoice"></i> View Order Details
-    </a>
 </div>
 
+<script>
+    function createConfetti() {
+        const colors = ['#4CAF50', '#2196F3', '#FFC107', '#E91E63', '#9C27B0'];
+        const confettiCount = 100;
+
+        for (let i = 0; i < confettiCount; i++) {
+            const confetti = document.createElement('div');
+            confetti.className = 'confetti';
+            confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+            confetti.style.left = Math.random() * 100 + 'vw';
+            confetti.style.animation = `confettiFall ${Math.random() * 2 + 1}s linear`;
+            document.body.appendChild(confetti);
+
+            confetti.addEventListener('animationend', () => {
+                confetti.remove();
+            });
+        }
+    }
+
+    function showModal() {
+        const modal = document.getElementById('successModal');
+        modal.classList.add('active');
+        createConfetti();
+    }
+
+    function closeModal() {
+        const modal = document.getElementById('successModal');
+        modal.classList.remove('active');
+    }
+
+    // Show modal automatically when page loads
+    document.addEventListener('DOMContentLoaded', () => {
+        setTimeout(showModal, 500);
+    });
+
+    // Close modal when clicking outside
+    document.getElementById('successModal').addEventListener('click', (e) => {
+        if (e.target.className === 'modal-overlay active') {
+            closeModal();
+        }
+    });
+
+    // Add keyboard support
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            closeModal();
+        }
+    });
+</script>
+
 <%- include("../../views/layouts/user/footer") %>
+

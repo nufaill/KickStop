@@ -58,7 +58,7 @@ const addProducts = async (req, res) => {
         }
         const categoryId = await Category.findOne({ name: products.category });
         if (!categoryId) {
-            console.error(`Invalid category: ${products.category}`);
+           
             return res.status(400).json("Invalid category name.");
         }
 
@@ -78,7 +78,7 @@ const addProducts = async (req, res) => {
         });
 
         await newProduct.save();
-        console.info("Product added successfully:", products.productName);
+        
         return res.redirect('/admin/addproduct');
     } catch (error) {
         console.error("Error adding product:", error);

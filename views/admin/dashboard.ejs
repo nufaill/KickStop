@@ -273,7 +273,7 @@
             };
         
             // Parse data safely
-            const productsData = safeJSONParse('<%- products %>');
+            const productsData = safeJSONParse(`<%- JSON.stringify(products || []) %>`);
             const categoriesData = safeJSONParse('<%- JSON.stringify(categories) %>');
             const brandsData = safeJSONParse('<%- JSON.stringify(brands) %>');
             const salesData = safeJSONParse('<%-JSON.stringify(salesData)%>');
@@ -376,12 +376,13 @@
             // Products Chart Initialization
             const initProductsChart = () => {
                 const productsChartCtx = document.getElementById("productsChart");
+                
                 if (!productsChartCtx) return;
-        
+                
                 return new Chart(productsChartCtx, {
                     type: "bar",
                     data: {
-                        labels: productsData.map(item => item.productName || 'Unknown'),
+                        labels: productsData.map(item => item._id || 'Unknown'),
                         datasets: [{
                             label: "Quantity Sold",
                             data: productsData.map(item => item.totalQuantitySold),

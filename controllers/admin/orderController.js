@@ -11,6 +11,7 @@ const getOrderList = async (req, res) => {
         const orders = await Orders.find()
             .populate('user')
             .populate('orderedItems.product')
+            .populate('address')
             .skip(skip)
             .limit(limit);
 

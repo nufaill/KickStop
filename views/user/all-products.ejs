@@ -316,7 +316,7 @@ function loadFiltersFromURL() {
 
 async function fetchFilteredProducts() {
     try {
-        console.log('Sending filters:', currentFilters); 
+        
         
         const response = await fetch('/sort-and-search', {
             method: 'POST',
@@ -375,7 +375,6 @@ function handleCategoryChange() {
     const categorySelect = document.getElementById('cat-filter');
     const selectedCategory = categorySelect.value;
     
-    console.log('Selected category:', selectedCategory); // Debug log
     
     currentFilters.category = selectedCategory;
     currentFilters.page = 1;

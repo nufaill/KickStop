@@ -320,7 +320,41 @@
     border-color: #c62828;
     box-shadow: 0px 0px 0px 4px rgba(198, 40, 40, 0.2);
 }
+@media (max-width: 768px) {
+    .login-container {
+      flex-direction: column;
+      padding: 15px;
+    }
 
+    .login-form {
+      width: 100%;
+      margin: 0 auto;
+    }
+  }
+
+  /* Responsive styles for mobile phones */
+  @media (max-width: 480px) {
+    .login-container {
+      padding: 10px;
+    }
+
+    .login-form {
+      padding: 15px;
+    }
+
+    .form-group label {
+      font-size: 14px;
+    }
+
+    .form-group input {
+      font-size: 14px;
+      padding: 8px;
+    }
+
+    .form-error {
+      font-size: 12px;
+    }
+  }
   </style>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
   
@@ -374,7 +408,6 @@
       
         <p>Don't have an account? <a href="/signup" class="signup-link">Sign up</a></p>
         <p><a href="/forgot-password" class="forgot-password-link">Forgot password?</a></p>
-        <p>Only admin access <a href="/admin" class="admin-link">Admin</a></p>
       </form>
     </div>
   </div>
